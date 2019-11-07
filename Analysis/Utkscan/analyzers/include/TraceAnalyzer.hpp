@@ -60,19 +60,7 @@ public:
     std::string GetName(void) const { return (name); }
 
     /// @return true if current detector is in the list
-    bool IsIgnored(const std::set<std::string> &list, const ChannelConfiguration &id) {
-        bool retVal;
-        if (list.find(id.GetType()) != list.end()) {
-            retVal = true;
-        } else if (list.find(id.GetType() + ":" + id.GetSubtype()) != list.end()) {
-            retVal = true;
-        } else if (list.find(id.GetType() + ":" + id.GetSubtype() + ":" + id.GetGroup()) != list.end()) {
-            retVal = true;
-        } else {
-            retVal = false;
-        }
-        return retVal;
-    };
+    bool IsIgnored(const std::set<std::string> &list, const ChannelConfiguration &id);       
 
     /// @return true if we should use this analyzer with the current channel
     /// \param [in] id : current channel configuration

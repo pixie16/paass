@@ -89,3 +89,16 @@ void TraceAnalyzer::EndAnalyze(void) {
     //   derived classes work properly
     times(&tmsBegin);
 }
+
+bool TraceAnalyzer::IsIgnored(const std::set<std::string> &list, const ChannelConfiguration &id){ bool retVal;
+        if (list.find(id.GetType()) != list.end()) {
+            retVal = true;
+        } else if (list.find(id.GetType() + ":" + id.GetSubtype()) != list.end()) {
+            retVal = true;
+        } else if (list.find(id.GetType() + ":" + id.GetSubtype() + ":" + id.GetGroup()) != list.end()) {
+            retVal = true;
+        } else {
+            retVal = false;
+        }
+        return retVal;
+    };
