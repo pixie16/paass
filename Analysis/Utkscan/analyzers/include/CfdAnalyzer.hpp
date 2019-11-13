@@ -14,7 +14,7 @@
 class CfdAnalyzer : public TraceAnalyzer {
    public:
     /** Default constructor taking an argument*/
-    CfdAnalyzer(const std::string &s, const std::set<std::string> &ignoredTypes);
+    CfdAnalyzer(const std::string &s, const int &ptype, const std::set<std::string> &ignoredTypes);
 
     /** Default Destructor */
     ~CfdAnalyzer(){};

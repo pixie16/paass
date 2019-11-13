@@ -19,10 +19,10 @@
 
 using namespace std;
 
-CfdAnalyzer::CfdAnalyzer(const std::string &s, const std::set<std::string> &ignoredTypes) : TraceAnalyzer() {
+CfdAnalyzer::CfdAnalyzer(const std::string &s, const int &ptype, const std::set<std::string> &ignoredTypes) : TraceAnalyzer() {
     name = "CfdAnalyzer";
     if (s == "polynomial" || s == "poly"){
-        driver_ = new PolynomialCfd();
+        driver_ = new PolynomialCfd(ptype);
     }else if (s == "traditional" || s == "trad"){
         driver_ = new TraditionalCfd();
     }else {
@@ -54,6 +54,7 @@ void CfdAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
 
     ///@TODO We do not currently have any CFDs that require L, so we are not going to pass that variable. In
     /// addition, we do not have an overloaded version of CalculatePhase that takes a tuple<double, double, double>
-    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(), make_pair(get<1>(pars), get<2>(pars)), trace.GetExtrapolatedMaxInfo(), trace.GetBaselineInfo()));
+    trace.SetPhase(driver_->CalculatePhase(trace.GetTraceSansBaseline(), make_pair(get<0>(pars), get<1>(pars)), trace.GetExtrapolatedMaxInfo(), trace.GetBaselineInfo()));
+    trace.SetHasValidTimingAnalysis(true);
     EndAnalyze();
 }

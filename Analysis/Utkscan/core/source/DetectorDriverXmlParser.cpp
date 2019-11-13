@@ -273,7 +273,8 @@ vector<TraceAnalyzer *> DetectorDriverXmlParser::ParseAnalyzers(const pugi::xml_
 
         if (name == "CfdAnalyzer") {
             std::vector<std::string> tokens = StringManipulation::TokenizeString(analyzer.attribute("ignored").as_string(""), ",");
-            vecAnalyzer.push_back(new CfdAnalyzer(analyzer.attribute("type").as_string("poly"),std::set<std::string>(tokens.begin(), tokens.end())));
+            vecAnalyzer.push_back(new CfdAnalyzer(analyzer.attribute("type").as_string("poly"),
+            analyzer.attribute("ptype").as_int(1), std::set<std::string>(tokens.begin(), tokens.end())));
         } else if (name == "FittingAnalyzer") {
             std::vector<std::string> tokens = StringManipulation::TokenizeString(analyzer.attribute("ignored").as_string(""), ",");
             vecAnalyzer.push_back(new FittingAnalyzer(analyzer.attribute("type").as_string("gsl"), std::set<std::string>(tokens.begin(), tokens.end())));
