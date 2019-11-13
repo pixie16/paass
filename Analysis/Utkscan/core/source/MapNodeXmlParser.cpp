@@ -130,7 +130,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             else if (isVerbose)
                 messenger_.detail("This channel has no calibration associated with it.", 2);
 
-            if (channel.child("Cfd"))
+            if (channel.child("Cfd") || isVandle)
                 ParseCfdNode(channel.child("Cfd"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default CFD settings for this channel.", 2);
