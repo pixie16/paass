@@ -272,12 +272,11 @@ XiaListModeDataMask::GetTraceOutOfRangeFlagMask() const {
             mask = 0x00008000;
             bit = 15;
             break;
-        case R35207:
         case R34688:
             mask = 0x80000000;
             bit = 31;
             break;
-	case R35207:
+	    case R35207:
             mask = 0x80000000;
             bit = 31;
             break;
@@ -303,12 +302,11 @@ pair<unsigned int, unsigned int> XiaListModeDataMask::GetTraceLengthMask()
         case R30981:
             mask = 0xFFFF0000;
             break;
-        case R35207:
         case R34688:
             mask = 0x7FFF0000;
             break;
         case R35207:
-	  mask = 0x7FFF0000;
+	        mask = 0x7FFF0000;
             break;
         default:
             break;
