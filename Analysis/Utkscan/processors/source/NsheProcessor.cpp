@@ -31,7 +31,7 @@ NsheProcessor::NsheProcessor():EventProcessor(OFFSET, RANGE, "NsheProcessor"){ /
 
 NsheProcessor::NsheProcessor(int calib, double timeWindow, double tofWindow, double vetoWindow,  double deltaEnergy, double highEnergyCut,
  double lowEnergyCut, double zero_suppress, double fissionEnergyCut, double minImpTime,
-  double corrTime, double fastTime, double khs_limit_cor):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
+  double corrTime, double fastTime, double khs_limit_cor,int nshe_exp):EventProcessor(OFFSET, RANGE, "NsheProcessor"){ //, correlator_(numBackStrips, numFrontStrips) {
     calib_ = calib;
 	timeWindow_ = timeWindow;
     tofWindow_ = tofWindow;
@@ -45,6 +45,7 @@ NsheProcessor::NsheProcessor(int calib, double timeWindow, double tofWindow, dou
     corrTime_ =  corrTime;
     fastTime_ = fastTime;
     khs_limit_cor_ = khs_limit_cor;
+    nshe_exp_ = nshe_exp;
     associatedTypes.insert("SHE");
 }
 
@@ -60,6 +61,8 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_ENERGY_X, energyBins, "Energy/10 dssd X strips");
     DeclareHistogram1D(D_ENERGY_Y, energyBins, "Energy/10 dssd Y strips");
     DeclareHistogram1D(D_DTIME, SA, "Pairs time diff in 10 ns (+ 1 bin)");
+    DeclareHistogram1D(D_DTIME_SIDE, SD, "Pairs time diff DSSD Side");
+    DeclareHistogram1D(D_DTIME_SIDE_RAW, SD, "Pairs time diff DSSD Side");
     DeclareHistogram1D(D_DTIMETOF, SD, "Pairs time diff in 10 ns (+ 1 bin) for toff");
     DeclareHistogram1D(D_DTIMEVETO, SA, "time diff in 10 ns (+ 1 bin) for veto");
     DeclareHistogram1D(D_TOF_RAW, SD, "Pairs time diff in 10 ns (+ 1 bin) for toff raw");
@@ -75,6 +78,8 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_ENERGY__POSY_T_MISSING, energyBins, yBins, "DSSD T missing Y strips E vs. position");
     DeclareHistogram2D(DD_TOF_ENERGY, SA , SD, "TOF vs DSSD");
     DeclareHistogram2D(DD_VETO_ENERGY, SB , SB, "DSSD dE dY correlated events");
+    DeclareHistogram2D(DD_DENERGY_SIDE_NUM, S3 , SD, "DSSD dE dY correlated events");
+    DeclareHistogram2D(DD_DENERGY_SIDE_NUM_RAW, S3 , SD, "DSSD dE dY correlated events");
 
     /** Control spectrum from the correlator **/
     DeclareHistogram2D(DD_KHS, energyBins , S9, "DSSD E vs log2(Decay Time) (/100)");
@@ -82,17 +87,18 @@ void NsheProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_ALPHA_IMPLANT, SB , SB, " Decay Energy vs Implant Energy for first gen");
     DeclareHistogram2D(DD_KHS_GATE, energyBins , S9, "DSSD E vs log2(Decay Time) (/100) for short decay");
     DeclareHistogram2D(DD_ALPHA_ALPHA_GATE, SB , SB, "Decay vs Decay Energy for short decay");
-    DeclareHistogram2D(DD_DSSD_TUNNEL, SB , SB, "Side detector vs DSSD energy");
+    DeclareHistogram2D(DD_DSSD_TUNNEL, SB , S9, "Side detector vs DSSD energy");
 
     DeclareHistogram1D(D_GEN, S4, "number of max generation");
 
     DeclareHistogram2D(DD_QDC1_DSSD, SB , SD, "QDC1 vs Energy DSSD");
     DeclareHistogram2D(DD_QDC1_TOF, SA , SD, "QDC1 vs TOF");
-    DeclareHistogram2D(DD_QDC2_DSSD, SB , SE, "QDC2 vs Energy DSSD");
-    DeclareHistogram2D(DD_QDC2_TOF, SA , SE, "QDC2 vs TOF");
-    DeclareHistogram2D(DD_TOF1_DSSD, SA , SD, "TOF1 vs DSSD");
-    DeclareHistogram2D(DD_TOF2_DSSD, SA , SD, "TOF2 vs DSSD");
+    DeclareHistogram2D(DD_QDC2_DSSD, SB , SD, "QDC2 vs Energy DSSD");
+    DeclareHistogram2D(DD_QDC2_TOF, SA , SD, "QDC2 vs TOF");
+    DeclareHistogram2D(DD_TOF1_DSSD, SB , SD, "TOF1 vs DSSD");
+    DeclareHistogram2D(DD_TOF2_DSSD, SB , SD, "TOF2 vs DSSD");
     DeclareHistogram2D(DD_MULTI, S4 , S6, "TOF2 vs DSSD");
+    DeclareHistogram2D(DD_SIDE_N, S3 , SB, "TOF2 vs DSSD");
 
 }
 
@@ -191,13 +197,22 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
             pair<StripEvent, bool> match(ev, false);
             sideEventsTMatch.push_back(match);
             plot(DD_MULTI, 5, sideEvents.size());
+            plot(DD_DENERGY_SIDE_NUM_RAW,(*itx)->GetChanID().GetLocation(),(*itx)->GetCalibratedEnergy());
         }
 
         if(!mcp1Events.empty() && !mcp2Events.empty()){
             Time_mcp1 = mcp1Events.at(0)->GetTime() * Globals::get()->GetAdcClockInSeconds();
             Time_mcp2 = mcp2Events.at(0)->GetTime() * Globals::get()->GetAdcClockInSeconds();
-            plot(D_TOF_RAW, (Time_mcp2 - Time_mcp1)*(1e9)+500);
+            plot(D_TOF_RAW, (Time_mcp2 - Time_mcp1)*(1e10)+500);
         }
+
+        if(!sideEvents.empty() && !xEvents.empty()){
+            Time_mcp1 = sideEvents.at(0)->GetTime() * Globals::get()->GetAdcClockInSeconds();
+            Time_mcp2 = xEvents.at(0)->GetTime() * Globals::get()->GetAdcClockInSeconds();
+            plot(D_DTIME_SIDE_RAW, (Time_mcp2 - Time_mcp1)*1e9 + 4000);
+        }
+
+
 
     if(!calib_){
         for (vector<pair<StripEvent, bool>>::iterator ity = yEventsTMatch.begin();
@@ -293,19 +308,22 @@ bool NsheProcessor::Process(RawEvent &event) {
             double bestDtime_veto = numeric_limits<double>::max();
             auto bestMatch_veto = vetoEventsTMatch.end();
             double bestDtime_side = numeric_limits<double>::max();
-            auto bestMatch_side = vetoEventsTMatch.end();
+            auto bestMatch_side = sideEventsTMatch.end();
             double tof = 0;
             double veto = 0;
             double side = 0;
             int max_gen = 0;
+            int num_side = -1;
+            double qdc1 = -9999;
+            double qdc2 = -9999;
             /** Correlation with MCP1, MPC2 and Veto detector **/
             for (vector<pair<StripEvent, bool>>::iterator itm = mcp1EventsTMatch.begin();
                 itm != mcp1EventsTMatch.end(); ++itm) {
                 if((*itm).second)
                     continue;
                 double dTime = abs(time - (*itm).first.t);
-                if (dTime < abs(bestDtime_mcp1) ){
-                    bestDtime_mcp1 = time - (*itm).first.t; 
+                if (dTime < abs(time - bestDtime_mcp1) ){
+                    bestDtime_mcp1 =(*itm).first.t; 
                     bestMatch_mcp1 = itm; 
                     bestQDC_mcp1 = (*itm).first.Qdc;
                 }
@@ -315,8 +333,8 @@ bool NsheProcessor::Process(RawEvent &event) {
                 if((*itm).second)
                     continue;
                 double dTime = abs(time - (*itm).first.t);
-                if (dTime < abs(bestDtime_mcp2)){
-                    bestDtime_mcp2 = time - (*itm).first.t;
+                if (dTime < abs(time - bestDtime_mcp2)){
+                    bestDtime_mcp2 = (*itm).first.t;
                     bestMatch_mcp2 = itm;                   
                     bestQDC_mcp2 = (*itm).first.Qdc;
                 }
@@ -325,20 +343,21 @@ bool NsheProcessor::Process(RawEvent &event) {
                 itv != vetoEventsTMatch.end(); ++itv){
                 if((*itv).second)
                     continue;
-                double dTime = (time - (*itv).first.t);
-                if (dTime < bestDtime_veto)
-                    bestDtime_veto = dTime; bestMatch_veto = itv;
+                double dTime = abs(time - (*itv).first.t);
+                if (dTime < abs(bestDtime_veto))
+                    bestDtime_veto = time - (*itv).first.t; bestMatch_veto = itv;
             }
             for (vector<pair<StripEvent, bool>>::iterator its = sideEventsTMatch.begin();
                 its != sideEventsTMatch.end(); ++its){
                 if((*its).second)
                     continue;
-                double dTime = (time - (*its).first.t);
-                if (dTime < bestDtime_side)
-                    bestDtime_side = dTime; bestMatch_side = its;
+                double dTime = abs(time - (*its).first.t);
+                if (dTime < abs(bestDtime_side))
+                    bestDtime_side = time - (*its).first.t; bestMatch_side = its;
             }
 
-            if (abs(bestDtime_mcp1) < tofWindow_ &&  abs(bestDtime_mcp2) < tofWindow_){
+
+            if (abs(time - bestDtime_mcp1) < tofWindow_ &&  abs(time - bestDtime_mcp2) < tofWindow_){
                 // tof = ((*bestMatch_mcp2).first.t - (*bestMatch_mcp1).first.t)/(1e-9) + 400;
                 tof = (bestDtime_mcp1-bestDtime_mcp2)/(1e-9);
                 corEvent.type = EventInfo::IMPLANT_EVENT;
@@ -348,75 +367,81 @@ bool NsheProcessor::Process(RawEvent &event) {
                 (*bestMatch_mcp1).second = true;
                 (*bestMatch_mcp2).second = true;
                 if(!bestQDC_mcp1.empty()){
-                    plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
-                    plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
-                    // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
-                    // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
+                    switch (nshe_exp_)
+                    {
+                    case 5:
+                        qdc1 = bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16;
+                        break;
+                    
+                    default:
+                        qdc1 = bestQDC_mcp1.at(6) - bestQDC_mcp1.at(7);
+                        break;
+                    }
+                    plot(DD_QDC1_DSSD,xEnergy/10,qdc1);
+                    plot(DD_QDC1_TOF,tof + 600,qdc1);
                 }
                 if(!bestQDC_mcp2.empty()){
-                    // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1) );
-                    // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
-                    plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
-                    plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
+                    switch (nshe_exp_)
+                    {
+                    case 5:
+                        qdc2 = bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16;
+                        break;
+                    
+                    default:
+                        qdc2 = bestQDC_mcp2.at(6) - bestQDC_mcp2.at(7);
+                        break;
+                    }
+                    plot(DD_QDC2_DSSD,xEnergy/10,qdc2);
+                    plot(DD_QDC2_TOF,tof + 600,qdc2);
                 }
-                plot(DD_TOF_ENERGY, tof,yEnergy/10);
+                plot(DD_TOF_ENERGY, tof + 600,yEnergy/10);
                 plot(D_DTIMETOF, tof);
             }	 	
             else{
-                if(abs(bestDtime_mcp1) < tofWindow_ && (bestDtime_mcp1) > 0) {
-=======
-                    // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
-                    // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
-                    plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
-                    plot(DD_QDC1_TOF,tof + 600,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
-                }
-                if(!bestQDC_mcp2.empty()){
-                    // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1) );
-                    // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
-                    plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
-                    plot(DD_QDC2_TOF,tof + 600,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
-                }
-                plot(DD_TOF_ENERGY, tof + 600,yEnergy/10);
-                plot(D_DTIMETOF, tof + 600);
-            }	 	
-            else{
-                if(abs(bestDtime_mcp1) < tofWindow_) {
->>>>>>> Stashed changes
-                    tof = bestDtime_mcp1/(1e-9) + 400;
+                if(abs(time - bestDtime_mcp1) < tofWindow_) {
+                    tof = (time - bestDtime_mcp1)/(1e-9) + 400;
                     corEvent.type = EventInfo::IMPLANT_EVENT;
                     corEvent.energy = yEnergy;
                     max_gen = corr.GetGen(xPosition, yPosition);
                     (*bestMatch_mcp1).second = true;
                     if(!bestQDC_mcp1.empty()){
-                        plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
-                        plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
-                        // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
-                        // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) - bestQDC_mcp1.at(0)/2);
-                        // plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(1));
-                        // plot(DD_QDC1_TOF,tof,bestQDC_mcp1.at(1) );
-                        plot(DD_QDC1_DSSD,xEnergy/10,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
-                        plot(DD_QDC1_TOF,tof  + 600,bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16);
+                        switch (nshe_exp_)
+                        {
+                        case 5:
+                            qdc1 = bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16;
+                            break;
+                        
+                        default:
+                            qdc1 = bestQDC_mcp1.at(6) - bestQDC_mcp1.at(7);
+                            break;
+                        }
+                        plot(DD_QDC1_DSSD,xEnergy/10,qdc1);
+                        plot(DD_QDC1_TOF,tof + 600,qdc1);
                     }
-                    plot(DD_TOF1_DSSD, tof  + 600,yEnergy/10);
+                    plot(DD_TOF1_DSSD, tof ,yEnergy/10);
                 } 
-                if(abs(bestDtime_mcp2) < tofWindow_){
-                    tof = bestDtime_mcp2/(1e-9) + 800;
+                if(abs(time - bestDtime_mcp2) < tofWindow_){
+                    tof = (time - bestDtime_mcp2)/(1e-9) + 800;
                     corEvent.type = EventInfo::IMPLANT_EVENT;
                     corEvent.energy = yEnergy;
                     max_gen = corr.GetGen(xPosition, yPosition);
                     plot(D_GEN,max_gen);
                     (*bestMatch_mcp2).second = true;
                     if(!bestQDC_mcp2.empty()){
-                        plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1));
-                        plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
-                        // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1) - bestQDC_mcp2.at(0)/2);
-                        // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) - bestQDC_mcp2.at(0)/2);
-                        // plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(1));
-                        // plot(DD_QDC2_TOF,tof,bestQDC_mcp2.at(1) );
-                        plot(DD_QDC2_DSSD,xEnergy/10,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
-                        plot(DD_QDC2_TOF,tof  + 600,bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16);
+                        switch (nshe_exp_)
+                        {
+                        case 5:
+                            qdc2 = bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16;
+                            break;
+                        
+                        default:
+                            qdc2 = bestQDC_mcp2.at(6) - bestQDC_mcp2.at(7);
+                            break;
+                        }
+                        plot(DD_QDC2_DSSD,xEnergy/10,qdc2);
+                        plot(DD_QDC2_TOF,tof + 600,qdc2);
                     }
-                    plot(DD_TOF2_DSSD, tof  + 600,yEnergy/10);
+                    plot(DD_TOF2_DSSD, tof,yEnergy/10);
                 }
                 else {
                     tof = 0;
@@ -426,14 +451,19 @@ bool NsheProcessor::Process(RawEvent &event) {
             } 
             if (bestDtime_veto < vetoWindow_) {
                 plot(DD_VETO_ENERGY, (*bestMatch_veto).first.E,yEnergy/100);
-                plot(D_DTIMEVETO, bestDtime_veto/(1e-8));
+                plot(D_DTIMEVETO, bestDtime_veto/(1e-9));
                 veto = (*bestMatch_veto).first.E;
                 (*bestMatch_veto).second = true;
             }
-            if (bestDtime_side < vetoWindow_) {
-                plot(DD_DSSD_TUNNEL, xEnergy/10, (*bestMatch_side).first.E);
+            if (abs(bestDtime_side) < tofWindow_) {
+                plot(DD_DSSD_TUNNEL, xEnergy/10, (*bestMatch_side).first.E/10);
                 side = (*bestMatch_side).first.E;
+                num_side = (*bestMatch_side).first.pos;
                 (*bestMatch_side).second = true;
+                plot(DD_DENERGY_SIDE_NUM,num_side,side);
+                plot(D_DTIME_SIDE, int(bestDtime_side*1e+9) + 4000);
+                plot(DD_SIDE_N, num_side,side/10);
+
             }
 
             corEvent.time = time;
@@ -441,7 +471,7 @@ bool NsheProcessor::Process(RawEvent &event) {
             if (corr.GetCondition() == Correlator::VALID_DECAY) {
                 double Tlog = log2(((corr.GetDecayGenTime(xPosition, yPosition)))/(1e-9))*10;
                 plot(DD_KHS, xEnergy/10, Tlog);
-                if (Tlog > 330 )
+                if (Tlog > khs_limit_cor_*10 )
                     corr.Flag(xPosition,yPosition);
                 if(corr.GetGen(xPosition, yPosition) > 1) 
                     plot(DD_ALPHA_ALPHA, xEnergy/10, corr.GetPreviousDecayEnergy(xPosition, yPosition)/10);
@@ -462,21 +492,24 @@ bool NsheProcessor::Process(RawEvent &event) {
                 dssdstruc.Energy_back = yEnergy;
                 dssdstruc.Time = time;
                 dssdstruc.Tof = tof;
-                if(!bestQDC_mcp1.empty()) dssdstruc.QDC1 = bestQDC_mcp1.at(6) - 13*bestQDC_mcp1.at(7)/16;
-                if(!bestQDC_mcp2.empty()) dssdstruc.QDC2 = bestQDC_mcp2.at(6) - 13*bestQDC_mcp2.at(7)/16;
-                // if(bestDtime_veto < vetoWindow_) {
-                //     dssdstruc.Trace_Veto = (*bestMatch_veto).first.trace;
-                //     dssdstruc.Veto = (*bestMatch_veto).first.E;
-                // }
+                if(abs(time - bestDtime_mcp1) < tofWindow_) dssdstruc.TMCP1 = (time - bestDtime_mcp1)/(1e-9) ;
+                if(abs(time - bestDtime_mcp2)  < tofWindow_) dssdstruc.TMCP2 = (time - bestDtime_mcp2)/(1e-9) ;
+                if(!bestQDC_mcp1.empty()) dssdstruc.QDC1 = qdc1;
+                if(!bestQDC_mcp2.empty()) dssdstruc.QDC2 = qdc2;
+                if(bestDtime_veto < vetoWindow_) {
+                    if((*bestMatch_veto).first.pileup) dssdstruc.Trace_Veto = (*bestMatch_veto).first.trace;
+                    dssdstruc.Veto = (*bestMatch_veto).first.E;
+                }
                 dssdstruc.Trace_Front = (*it).first.trace;
                 dssdstruc.Trace_Back = (*it).second.trace;
                 dssdstruc.pile_up = (*it).second.pileup; 
                 if(bestDtime_mcp1 < tofWindow_) dssdstruc.Trace_TOF1 = (*bestMatch_mcp1).first.trace;
                 if(bestDtime_mcp2 < tofWindow_) dssdstruc.Trace_TOF2 = (*bestMatch_mcp2).first.trace;
-                // if(bestDtime_side < vetoWindow_) {
-                //     dssdstruc.Trace_Side = (*bestMatch_side).first.trace;
-                //     dssdstruc.Side = (*bestMatch_side).first.E;
-                // }
+                if(abs(bestDtime_side) < vetoWindow_) {
+                    // if((*bestMatch_side).first.pileup) dssdstruc.Trace_Side = (*bestMatch_side).first.trace;
+                    dssdstruc.Side = side;
+                    dssdstruc.NSide = num_side;
+                }
                 pixie_tree_event_->dssd_vec_.emplace_back(dssdstruc);
                 dssdstruc = processor_struct::DSSD_DEFAULT_STRUCT;
             }
@@ -530,58 +563,58 @@ bool NsheProcessor::Process(RawEvent &event) {
             }
         }
        
-        for (vector<pair<StripEvent, bool>>::iterator it = mcp1EventsTMatch.begin();
-            it != mcp1EventsTMatch.end(); ++it) {
-            double bestDtime_mcp2 = numeric_limits<double>::max();
-            auto bestMatch_mcp2 = mcp2EventsTMatch.end();
-                for (vector<pair<StripEvent, bool>>::iterator itm = mcp2EventsTMatch.begin();
-                itm != mcp2EventsTMatch.end(); ++itm) {
-                    if((*itm).second)
-                        continue;
-                double dTime =((*it).first.t - (*itm).first.t);
-                if (abs(dTime) < bestDtime_mcp2)
-                    bestDtime_mcp2 = dTime; bestMatch_mcp2 = itm;
-                }
-                if (DetectorDriver::get()->GetSysRootOutput()){
-            //Fill Root struct
-                dssdstruc.x = -1;
-                dssdstruc.y = -1;
-                dssdstruc.Energy_front = 0;
-                dssdstruc.Energy_back = 0;
-                dssdstruc.Time = (*it).first.t;
-                dssdstruc.Tof = bestDtime_mcp2/1e-9;
-                dssdstruc.Veto = -4000;
-                // dssdstruc.Trace_Front.clear();
-                // dssdstruc.Trace_Back.clear() ;
-                dssdstruc.pile_up = (*it).first.pileup; 
-                // dssdstruc.Trace_TOF1= (*it).first.trace;
-                // dssdstruc.Trace_TOF2= (*bestMatch_mcp2).first.trace;
-                pixie_tree_event_->dssd_vec_.emplace_back(dssdstruc);
-                dssdstruc = processor_struct::DSSD_DEFAULT_STRUCT;
-            }
-            (*bestMatch_mcp2).second = true;
-        }
+        // for (vector<pair<StripEvent, bool>>::iterator it = mcp1EventsTMatch.begin();
+        //     it != mcp1EventsTMatch.end(); ++it) {
+        //     double bestDtime_mcp2 = numeric_limits<double>::max();
+        //     auto bestMatch_mcp2 = mcp2EventsTMatch.end();
+        //         for (vector<pair<StripEvent, bool>>::iterator itm = mcp2EventsTMatch.begin();
+        //         itm != mcp2EventsTMatch.end(); ++itm) {
+        //             if((*itm).second)
+        //                 continue;
+        //         double dTime =((*it).first.t - (*itm).first.t);
+        //         if (abs(dTime) < abs(bestDtime_mcp2))
+        //             bestDtime_mcp2 = dTime; bestMatch_mcp2 = itm;
+        //         }
+        //         if (DetectorDriver::get()->GetSysRootOutput()){
+        //     //Fill Root struct
+        //         dssdstruc.x = -1;
+        //         dssdstruc.y = -1;
+        //         dssdstruc.Energy_front = 0;
+        //         dssdstruc.Energy_back = 0;
+        //         dssdstruc.Time = (*it).first.t;
+        //         dssdstruc.Tof = bestDtime_mcp2/1e-9;
+        //         dssdstruc.Veto = -4000;
+        //         // dssdstruc.Trace_Front.clear();
+        //         // dssdstruc.Trace_Back.clear() ;
+        //         dssdstruc.pile_up = (*it).first.pileup; 
+        //         // dssdstruc.Trace_TOF1= (*it).first.trace;
+        //         // dssdstruc.Trace_TOF2= (*bestMatch_mcp2).first.trace;
+        //         pixie_tree_event_->dssd_vec_.emplace_back(dssdstruc);
+        //         dssdstruc = processor_struct::DSSD_DEFAULT_STRUCT;
+        //     }
+        //     (*bestMatch_mcp2).second = true;
+        // }
         
-        for (vector<pair<StripEvent, bool>>::iterator it = vetoEventsTMatch.begin();
-            it != vetoEventsTMatch.end(); ++it) {
-            if (DetectorDriver::get()->GetSysRootOutput()){
-            //Fill Root struct
-                dssdstruc.x = -1;
-                dssdstruc.y = -1;
-                dssdstruc.Energy_front = 0;
-                dssdstruc.Energy_back = 0;
-                dssdstruc.Time = (*it).first.t;
-                dssdstruc.Tof = -4000;
-                dssdstruc.Veto = (*it).first.E;
-                dssdstruc.Trace_Front.clear();
-                dssdstruc.Trace_Back.clear();
-                dssdstruc.pile_up = (*it).first.pileup; 
-                dssdstruc.Trace_TOF1.clear();
-                dssdstruc.Trace_TOF2.clear();
-                pixie_tree_event_->dssd_vec_.emplace_back(dssdstruc);
-                dssdstruc = processor_struct::DSSD_DEFAULT_STRUCT;
-            }
-        }
+        // for (vector<pair<StripEvent, bool>>::iterator it = vetoEventsTMatch.begin();
+        //     it != vetoEventsTMatch.end(); ++it) {
+        //     if (DetectorDriver::get()->GetSysRootOutput()){
+        //     //Fill Root struct
+        //         dssdstruc.x = -1;
+        //         dssdstruc.y = -1;
+        //         dssdstruc.Energy_front = 0;
+        //         dssdstruc.Energy_back = 0;
+        //         dssdstruc.Time = (*it).first.t;
+        //         dssdstruc.Tof = -4000;
+        //         dssdstruc.Veto = (*it).first.E;
+        //         dssdstruc.Trace_Front.clear();
+        //         dssdstruc.Trace_Back.clear();
+        //         dssdstruc.pile_up = (*it).first.pileup; 
+        //         dssdstruc.Trace_TOF1.clear();
+        //         dssdstruc.Trace_TOF2.clear();
+        //         pixie_tree_event_->dssd_vec_.emplace_back(dssdstruc);
+        //         dssdstruc = processor_struct::DSSD_DEFAULT_STRUCT;
+        //     }
+        // }
     }
     EndProcess();
     return true;

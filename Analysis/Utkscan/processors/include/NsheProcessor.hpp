@@ -20,7 +20,7 @@ namespace dammIds {
 
         const int D_DTIME = 2; //!< Time difference 
         const int D_DTIMEE = 9; //!< Time difference 
-        const int D_MWPC_MULTI = 3; //!< Multiplicity of MWPC
+        const int D_DTIME_SIDE_RAW = 3; //!< Multiplicity of MWPC
         const int D_ENERGY_CORRELATED_SIDE = 4; //!< Energy of Correlated Side
         const int D_DTIME_SIDE = 5; //!< Time Diff on the side
         const int D_DTIMETOF = 8; // DT DSSD TOF1
@@ -59,6 +59,8 @@ namespace dammIds {
         const int DD_ENERGY__POSY_T_MISSING = 41; //!< Energy vs Missing Y pos
         const int DD_DENERGY__DPOS_X_CORRELATED = 42; //!< ??
         const int DD_DENERGY__DPOS_Y_CORRELATED = 43; //!< ??
+        const int DD_DENERGY_SIDE_NUM = 44; //!< ??
+        const int DD_DENERGY_SIDE_NUM_RAW = 45; //!< ??
 
 	    const int DD_TOF_ENERGY = 50 ; // TOF ENERGY SPECTRUM	
 	    const int DD_VETO_ENERGY = 51 ; // VETO ENERGY SPECTRUM	
@@ -79,6 +81,7 @@ namespace dammIds {
         const int DD_TOF2_DSSD = 65;
         const int DD_MULTI = 66;
         const int D_TOF_RAW = 67;
+        const int DD_SIDE_N = 68;
 
     }
 }
@@ -103,7 +106,8 @@ public:
                 double minImpTime,
                 double coorTime,
                 double fastTime,
-                double khs_limit_cor
+                double khs_limit_cor,
+                int nshe_exp
             );
     /** Declare plots */
     virtual void DeclarePlots();
@@ -234,6 +238,8 @@ protected:
     double fastTime_;
 
     double khs_limit_cor_;
+
+    int nshe_exp_;
 
 };
 

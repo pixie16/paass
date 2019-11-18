@@ -227,7 +227,9 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                     // processor.attribute("numFrontStrips").as_int(64)));
                     processor.attribute("minImpTime").as_double(5e-3),
                     processor.attribute("corrTime").as_double(60),
-                    processor.attribute("fastTime").as_double(40e-6)));
+                    processor.attribute("fastTime").as_double(40e-6),
+                    processor.attribute("khs_limit_cor").as_double(23),
+                    processor.attribute("nshe_exp").as_int(5)));
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
         } else if (name == "PspmtProcessor") {
