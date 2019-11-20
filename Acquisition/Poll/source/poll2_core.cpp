@@ -1331,7 +1331,8 @@ void Poll::CommandControl(){
                     continue;
                 }
 
-                bool IsValidNumber = (arguments.at(2).find_first_not_of("0123456789") == std::string::npos);
+                bool IsValidNumber = IsNumeric(arguments.at(2));
+
                 if (IsValidNumber && atoi(arguments.at(2).c_str()) >= 24) {
                     std::cout << "ERROR: Invalid CCSRA bit number: '" << arguments.at(2) << "'\n";
                     continue;
