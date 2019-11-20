@@ -247,6 +247,13 @@ private:
     /// @return Whether the attempt was succesful.
     bool SplitParameterArgs(const std::string &arg, int &start, int &stop);
 
+    /// @breif Checks is the entered module is actually installed in the system. 
+    /// The Pixie API handles the reads and the channels but does not have a check that a given module is actually installed in the crate. If not then poll2 will hang and need to be hard killed. 
+    /// Because we always run sequentially; this is a less than check against the num of booted cards
+    /// @param[in] Module number from command line
+    /// @return true is module is installed.
+    bool IsValidModule(const int &modNum);
+
 public:
     /// Default constructor.
     Poll();
