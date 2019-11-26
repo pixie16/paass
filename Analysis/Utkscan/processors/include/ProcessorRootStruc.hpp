@@ -104,6 +104,8 @@ struct VANDLES {
     int barNum = 0;
     std::string barType = "";
     double tdiff = -999;
+    double phaseL = 0;
+    double phaseR = 0;
     unsigned int sNum = 0;  //start detector number
     int vMulti = 0;
     double sTime = -999;
@@ -115,6 +117,8 @@ struct NEXTS {
         double tof = 0;
         double corTof = 0;
         double qdcPos = 0;
+        double phaseL = 0;
+        double phaseR = 0;
         double Zpos = 0;
         double Ypos = 0;
         double qdc = -9999;

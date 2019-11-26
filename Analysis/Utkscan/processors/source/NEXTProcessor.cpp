@@ -108,11 +108,11 @@ bool NEXTProcessor::PreProcess(RawEvent &event) {
     static const vector<ChanEvent *> &aEvents = event.GetSummary("next:anode")->GetList();
 
     if (dEvents.empty() || dEvents.size() < 2) {
-     /*   if (events.empty())
+        if (dEvents.empty())
             plot(D_DEBUGGING, 27);
-        if (events.size() < 2)
+        if (dEvents.size() < 2)
             plot(D_DEBUGGING, 2);
-       */
+       
       return false;
     }
 
@@ -125,11 +125,11 @@ bool NEXTProcessor::PreProcess(RawEvent &event) {
     mods_ = sMod.GetNEXTMap();
 
     if (mods_.empty()) {
-     //   plot(D_DEBUGGING, 25);
+        plot(D_DEBUGGING, 25);
         return false;
     }
 
-    //FillNEXTOnlyHists();
+    FillNEXTOnlyHists();
     return true;
 }
 
@@ -219,6 +219,8 @@ void NEXTProcessor::AnalyzeModStarts(const NEXTDetector &mod, unsigned int &modL
                 nexts.tdiff = mod.GetTimeDifference();
                 nexts.tof = tof;
                 nexts.corTof = corTof;
+                nexts.phaseL = mod.GetLeftSide().GetPhaseInNs();
+                nexts.phaseR = mod.GetRightSide().GetPhaseInNs();
                 nexts.qdcPos = mod.GetQdcPosition();
 
                 pixie_tree_event_->next_vec_.emplace_back(nexts);
@@ -246,25 +248,26 @@ void NEXTProcessor::AnalyzeStarts(const NEXTDetector &mod, unsigned int &modLoc)
 
                 //if (tof>= tofcut_ && mod.GetQdc()>qdcmin_) {
                     //Fill Root struct
-                    nexts.sNum = startLoc;
-                    nexts.sTime = start.GetTimeSansCfd();
-                    nexts.sQdc = start.GetTraceQdc();
+                    nexts.sNum   = startLoc;
+                    nexts.sTime  = start.GetTimeSansCfd();
+                    nexts.sQdc   = start.GetTraceQdc();
                     
-                    nexts.qdc = mod.GetQdc();
-                    nexts.aqdc = mod.GetAnodeQdc();
+                    nexts.qdc    = mod.GetQdc();
+                    nexts.aqdc   = mod.GetAnodeQdc();
                     nexts.modNum = modLoc;
-                    nexts.tdiff = mod.GetTimeDifference();
-                    nexts.ftqdc = mod.GetFT();
-                    nexts.fbqdc = mod.GetFB();
-                    nexts.btqdc = mod.GetBT();
-                    nexts.bbqdc = mod.GetBB();
-                    //nexts.Zpos = -1.0;
-                    //nexts.Ypos = 1.0;
-                    nexts.Zpos = mod.GetAverageZPos();
-                    nexts.Ypos = mod.GetAverageYPos();
+                    nexts.tdiff  = mod.GetTimeDifference();
+                    nexts.ftqdc  = mod.GetFT();
+                    nexts.fbqdc  = mod.GetFB();
+                    nexts.btqdc  = mod.GetBT();
+                    nexts.bbqdc  = mod.GetBB();
+
+                    nexts.Zpos   = mod.GetAverageZPos();
+                    nexts.Ypos   = mod.GetAverageYPos();
                     //nexts.goodPos = mod.GetHasEventPosition();
-                    nexts.tof = tof;
+                    nexts.tof    = tof;
                     nexts.corTof = corTof;
+                    nexts.phaseL = mod.GetLeftSide().GetPhaseInNs();
+                    nexts.phaseR = mod.GetRightSide().GetPhaseInNs();
                     nexts.qdcPos = mod.GetQdcPosition();
 
                     pixie_tree_event_->next_vec_.emplace_back(nexts);

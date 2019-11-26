@@ -47,6 +47,7 @@ void UtkUnpacker::ProcessRawEvent() {
     static struct tms systemTimes;
     static double lastTimeOfPreviousEvent;
     static unsigned int eventCounter = 0;
+    static bool nEvent = false;
 
     if (eventCounter == 0)
         InitializeDriver(driver, detectorLibrary, rawev, systemStartTime);
@@ -96,11 +97,16 @@ void UtkUnpacker::ProcessRawEvent() {
         usedDetectors.insert((*detectorLibrary)[(*it)->GetId()].GetType());
         rawev.AddChan(event);
 
+        //if(event->GetChanID().GetType() == "vandle" || event->GetChanID().GetType() == "RD") nEvent=true;
+        if(event->GetChanID().GetType() == "vandle") nEvent=true;
         ///@TODO Add back in the processing for the dtime.
     }//for(deque<PixieData*>::iterator
 
+    
     try {
+        if (nEvent){
         driver->ProcessEvent(rawev);
+        }
         rawev.Zero(usedDetectors);
         usedDetectors.clear();
 
@@ -112,9 +118,11 @@ void UtkUnpacker::ProcessRawEvent() {
     } catch (exception &ex) {
         throw;
     }
-
+    
     eventCounter++;
     lastTimeOfPreviousEvent = GetRealStopTime();
+
+    nEvent = false;
 }
 
 /// This method plots information about the running time of the program, the

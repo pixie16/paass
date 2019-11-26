@@ -74,7 +74,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
         }
 
         Long64_t rFileSizeB_ = rFileSizeGB_ * pow(1000,3);
-        std::string name = Globals::get()->GetOutputPath() + Globals::get()->GetOutputFileName() + "_DD.root";
+        std::string name = Globals::get()->GetOutputPath() + Globals::get()->GetOutputFileName() + ".root";
         PixieFile = new TFile(name.c_str(), "RECREATE");
         PTree = new TTree("PixTree", "Pixie Event Tree");
         PTree->SetMaxTreeSize(rFileSizeB_);
@@ -229,8 +229,9 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
-    if (sysrootbool_) {
-        if(fillLogic_) {
+    //if (sysrootbool_ ) {
+    if (sysrootbool_ && pixie_tree_event_.vandle_vec_.size()>0 ) {
+            if(fillLogic_) {
             FillLogicStruc();
         }
         pixie_tree_event_.eventNum = eventNumber_;

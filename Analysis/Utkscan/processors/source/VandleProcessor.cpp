@@ -209,6 +209,8 @@ void VandleProcessor::AnalyzeBarStarts(const BarDetector &bar, unsigned int &bar
                 vandles.tdiff = bar.GetTimeDifference();
                 vandles.tof = tof;
                 vandles.corTof = corTof;
+                vandles.phaseL = bar.GetLeftSide().GetPhaseInNs();
+                vandles.phaseR = bar.GetRightSide().GetPhaseInNs();
                 vandles.qdcPos = bar.GetQdcPosition();
 
                 pixie_tree_event_->vandle_vec_.emplace_back(vandles);
@@ -246,6 +248,8 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
                     vandles.tdiff = bar.GetTimeDifference();
                     vandles.tof = tof;
                     vandles.corTof = corTof;
+                    vandles.phaseL = bar.GetLeftSide().GetPhaseInNs();
+                    vandles.phaseR = bar.GetRightSide().GetPhaseInNs();
                     vandles.qdcPos = bar.GetQdcPosition();
 
                     pixie_tree_event_->vandle_vec_.emplace_back(vandles);
