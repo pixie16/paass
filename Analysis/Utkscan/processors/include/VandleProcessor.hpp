@@ -40,9 +40,7 @@ public:
     ///@param [in] res : The resolution of the DAMM histograms
     ///@param [in] offset : The offset of the DAMM histograms 
     ///@param [in] numStarts : number of starts we have to process */
-    VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset,
-                    const unsigned int &numStarts, const double &compression , const double &qdcmin,
-                    const double &tofcut, const double &idealFP);
+    VandleProcessor(const std::vector<std::string> &typeList, const double &res, const double &offset, const unsigned int &numStarts, const double &compression , const double &qdcmin, const double &tofcut, const double &idealFP,  const bool &onlyDoubles);
 
     ///Preprocess the VANDLE data
     ///@param [in] event : the event to preprocess
@@ -85,9 +83,9 @@ private:
     ///Fill up the basic histograms
     void FillVandleOnlyHists();
 
-    void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc,
-                           const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset,
-                           bool &calibrated );
+    void PlotTofHistograms(const double &tof, const double &cortof,const double &NCtof, const double &qdc, const unsigned int &barPlusStartLoc, const std::pair<unsigned int, unsigned int> &offset, bool &calibrated );
+
+
 
     ///@return Returns a pair of the appropriate offsets based off the VANDLE bar type <calibrated, NonCalibrated>
     ///@param [in] type : The type of bar that we are dealing with
@@ -109,7 +107,7 @@ private:
     double qdcmin_;//!<min qdc to add to root tree, used to help speed up nearline mergers etc
     double tofcut_;//!< min tof to add to root tree for speeding up near line merger
 
-
+    bool onlyDoubles_; //!< True if only doing doubles related things (gain match checking etc) and this is really directed at the ROOT output rather than DAMMs
     bool hasSmall_; //!< True if small bars were requested in the Config
     bool hasBig_; //!< True if big bars were requested in the Config
     bool hasMed_; //!< True if medium bars were requested in the Config
