@@ -238,7 +238,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                 StringManipulation::TokenizeString(processor.attribute("types").as_string("medium"), ","),
                 processor.attribute("res").as_double(2.0), processor.attribute("offset").as_double(1000.0),
                 processor.attribute("NumStarts").as_uint(1), processor.attribute("compression").as_double(1.0),
-                processor.attribute("qdcmin").as_double(0.0), processor.attribute("tofcut").as_double(-1000.0), processor.attribute("idealfp").as_double(100)));
+                processor.attribute("qdcmin").as_double(0.0), processor.attribute("tofcut").as_double(-1000.0), processor.attribute("idealfp").as_double(100),processor.attribute("onlydoubles").as_bool("false")));
         }
 #ifdef useroot  //Certain processors REQUIRE ROOT to actually work
         else if (name == "Anl1471Processor") {
