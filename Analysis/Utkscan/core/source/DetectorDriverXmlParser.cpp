@@ -48,6 +48,8 @@
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
 #include "VandleProcessor.hpp"
+#include "MtasProcessor.hpp"
+#include "MtasPspmtProcessor.hpp"
 
 //These headers are for handling experiment specific processing.
 #include "E11027Processor.hpp"
@@ -209,6 +211,17 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                 processor.attribute("double_start").as_bool(false)));
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor());
+        } else if (name == "MtasProcessor") {
+            vecProcess.push_back(new MtasProcessor());
+        } else if (name == "MtasPspmtProcessor"){
+            vecProcess.push_back(new MtasPspmtProcessor(
+                    processor.attribute("impl_scale").as_double(100.0),
+                    processor.attribute("impl_offset").as_uint(100),
+                    processor.attribute("impl_threshold").as_double(0.0),
+                    processor.attribute("diag_scale").as_double(1000.0),
+                    processor.attribute("diag_offset").as_uint(1000),
+                    processor.attribute("diag_threshold").as_double(0.0)
+            ));
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {

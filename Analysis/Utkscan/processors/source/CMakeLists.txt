@@ -18,6 +18,8 @@ set(PROCESSOR_SOURCES
         LitePositionProcessor.cpp
         LogicProcessor.cpp
         McpProcessor.cpp
+        MtasProcessor.cpp
+        MtasPspmtProcessor.cpp
         NeutronScintProcessor.cpp
         PositionProcessor.cpp
         PspmtProcessor.cpp

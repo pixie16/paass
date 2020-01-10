@@ -198,7 +198,17 @@ namespace dammIds {
         const int OFFSET = 7100;//!< Offset for Dssd4SheProcessor
         const int RANGE = 100;//!< Range for Dssd4SheProcessor
     }
+    /// in MtasProcessor.cpp
+    namespace mtas {
+        const int OFFSET = 6300; //!< Offset for MtasProcessor
+        const int RANGE = 600; //!< Range for MtasProcessor
+    }
 
+    /// in MtasPspmtProcessor.cpp
+    namespace mtaspspmt {
+    	const int OFFSET = 7600; //!< Offset for MtasPspmtProcessor
+    	const int RANGE = 100; //!< Range for MtasPspmtProcessor
+    }
     /// Definitions for all of the traces
     namespace analyzers {
         const int traceBins = SA; //!< Number of Bins for Traces
