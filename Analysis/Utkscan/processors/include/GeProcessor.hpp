@@ -25,6 +25,9 @@ public:
 
     ///Declare the plots for the processor
     virtual void DeclarePlots(void);
+
+private:
+    processor_struct::CLOVERS GEstruct;
 };
 
 #endif // __GEPROCESSOR_HPP_
