@@ -66,10 +66,10 @@ NEXTProcessor::NEXTProcessor(const std::vector<std::string> &typeList, const dou
     tofcut_ = tofcut;
     idealFP_ = idealFP;
 
-   /* if(typeList.empty())
-        requestedTypes_.insert("small");
+    if (typeList.empty())
+        requestedTypes_.insert("next");
     else
-        requestedTypes_ = set<string>(typeList.begin(), typeList.end()); */
+        requestedTypes_ = set<string>(typeList.begin(), typeList.end());
 }
 
 void NEXTProcessor::DeclarePlots(void) {
@@ -341,6 +341,6 @@ void NEXTProcessor::FillNEXTOnlyHists(void) {
 }
 
 std::pair<unsigned int, unsigned int> NEXTProcessor::ReturnOffset(const std::string &type) {
-        return (make_pair(OFFSET,NOCAL_OFFSET));
+        return (make_pair(0,NOCAL_OFFSET));
 //    return make_pair(numeric_limits<unsigned int>::max(),numeric_limits<unsigned int>::max());
 }

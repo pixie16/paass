@@ -104,9 +104,9 @@ void UtkUnpacker::ProcessRawEvent() {
 
     
     try {
-        if (nEvent){
+        
         driver->ProcessEvent(rawev);
-        }
+        
         rawev.Zero(usedDetectors);
         usedDetectors.clear();
 
