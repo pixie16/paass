@@ -114,7 +114,7 @@ struct VANDLES {
 static const VANDLES VANDLES_DEFAULT_STRUCT;
 
 struct NEXTS {
-        double tof = 0;
+        double tof = -9999;
         double corTof = 0;
         double qdcPos = 0;
         double phaseL = 0;
@@ -129,7 +129,20 @@ struct NEXTS {
         double fbqdc = -9999;
         double btqdc = -9999;
         double bbqdc = -9999;
-
+        double psd = -9999;
+        double Lpsd = -9999;
+        double Rpsd = -9999;
+        double rMax = -9999;
+        double lMax = -9999;
+        double lMaxPos = -9999;
+        double rMaxPos = -9999;
+        double sMax = -9999;
+        double sAveBase = -9999;
+        double sSdBase = -9999;
+        double lAveBase = -9999;
+        double rAveBase = -9999;
+        double lSdBase = -9999;
+        double rSdBase = -9999;
         double tdiff = -9999;
         unsigned int sNum = 0;  //start detector number
         int vMulti = 0;

@@ -251,8 +251,22 @@ void NEXTProcessor::AnalyzeStarts(const NEXTDetector &mod, unsigned int &modLoc)
                     nexts.sNum   = startLoc;
                     nexts.sTime  = start.GetTimeSansCfd();
                     nexts.sQdc   = start.GetTraceQdc();
+                    nexts.sMax   = start.GetMaximumValue();
+                    nexts.sSdBase = start.GetStdDevBaseline();
+                    nexts.sAveBase = start.GetAveBaseline();
                     
                     nexts.qdc    = mod.GetQdc();
+                    nexts.Lpsd = mod.GetLpsd();
+                    nexts.Rpsd = mod.GetRpsd();
+                    nexts.psd = mod.Getpsd();
+                    nexts.lMax = mod.GetlMax();
+                    nexts.rMax = mod.GetrMax();
+                    nexts.lMaxPos = mod.GetlMaxPos();
+                    nexts.rMaxPos = mod.GetrMaxPos();
+                    nexts.lAveBase = mod.GetlAveBase();
+                    nexts.rAveBase = mod.GetrAveBase();
+                    nexts.lSdBase = mod.GetlSdBase();
+                    nexts.rSdBase = mod.GetrSdBase();
                     nexts.aqdc   = mod.GetAnodeQdc();
                     nexts.modNum = modLoc;
                     nexts.tdiff  = mod.GetTimeDifference();

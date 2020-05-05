@@ -80,6 +80,39 @@ public:
     double GetQdc() const {
         return (sqrt(right_.GetTraceQdc() * left_.GetTraceQdc()));
     }
+    double GetLpsd() const{
+        return left_.GetDiscrimination();
+    }
+      double GetRpsd() const{
+        return right_.GetDiscrimination();
+    }
+      double Getpsd() const{
+        return (sqrt(left_.GetDiscrimination() * right_.GetDiscrimination())) ;
+    }
+      double GetlMax() const{
+          return left_.GetMaximumValue();
+      }
+       double GetrMax() const{
+          return right_.GetMaximumValue();
+      }
+        double GetlMaxPos() const{
+          return left_.GetMaximumPosition();
+      }
+       double GetrMaxPos() const{
+          return right_.GetMaximumPosition();
+      }
+        double GetrAveBase() const{
+          return right_.GetAveBaseline();
+      }
+        double GetlAveBase() const{
+          return left_.GetAveBaseline();
+      }
+          double GetrSdBase() const{
+          return right_.GetStdDevBaseline();
+      }
+        double GetlSdBase() const{
+          return left_.GetStdDevBaseline();
+      }
 
     double GetAnodeQdc() const {
         if ( GetHasEventPosition() )

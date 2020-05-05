@@ -229,7 +229,6 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
-    //if (sysrootbool_ ) {
     if (sysrootbool_) {
         if (fillLogic_) {
             FillLogicStruc();
