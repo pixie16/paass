@@ -17,6 +17,10 @@
 #include "Exceptions.hpp"
 #include "GeProcessor.hpp"
 #include "Messenger.hpp"
+#include "DetectorDriver.hpp"
+#include "HelperFunctions.hpp"
+#include "RawEvent.hpp"
+
 
 namespace dammIds {
     namespace ge {
@@ -50,6 +54,20 @@ bool GeProcessor::PreProcess(RawEvent &event) {
 
         plot(DD_ENERGY, (*ge)->GetCalibratedEnergy(),
              (*ge)->GetChanID().GetLocation());
+
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            HPGestruct.energy = (*ge)->GetCalibratedEnergy();
+            HPGestruct.rawEnergy = (*ge)->GetEnergy();
+            HPGestruct.time = (*ge)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*ge)->GetChanID().GetModFreq())*1e9;
+            HPGestruct.detNum = (*ge)->GetChanID().GetLocation();
+            HPGestruct.cloverNum = -1;
+            HPGestruct.modNum = (*ge)->GetModuleNumber();
+            HPGestruct.chanNum = (*ge)->GetChannelNumber();
+            pixie_tree_event_->ge_vec_.emplace_back(HPGestruct);
+            HPGestruct = processor_struct::CLOVERS_DEFAULT_STRUCT;
+
+        }
+
     }
     return true;
 }

@@ -26,6 +26,11 @@ public:
      * you must call the BuildBars method <strong> first </strong>.
      * \return A BarMap of the bars having traces. */
     BarMap GetBarMap(void) { return (hrtBars_); };
+    
+    /** Gets the built MTAS bar map. If you have used the default constructor
+     * you must call the BuildBars method <strong> first </strong>.
+     * \return A BarMap of the bars having traces. */
+    BarMap GetMtasBarMap(void) { return (mtasBars_); };
 
     /** Gets the built bar map. If you have used the default constructor
      * you must call the BuildBars method <strong> first </strong>.
@@ -63,6 +68,7 @@ private:
     void FillMaps(void);
 
     BarMap hrtBars_; //!< Map containing bars with high resolution timing..
+    BarMap mtasBars_; //!< Map containing bars for MTAS
     std::map<unsigned int, std::pair<double, double> > lrtBars_; //!<Map with low res bars
     std::map<unsigned int, unsigned int> lefts_; //!< Map containing the left sides of bars
     std::map<unsigned int, unsigned int> rights_; //!< Map containing the left sides of bars

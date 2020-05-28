@@ -15,6 +15,8 @@ struct CLOVERS {
     double time = -999;
     int detNum = -999;
     int cloverNum = -999;
+    int modNum = -999;
+    int chanNum = -999;
 };
 
 static const CLOVERS CLOVERS_DEFAULT_STRUCT;
@@ -62,6 +64,26 @@ struct LOGIC {
     int cycleNum = -999;
 };
 static const LOGIC LOGIC_DEFAULT_STRUCT;
+
+struct MTAS {
+	double rawEnergy = -999;
+	double calEnergy = -999;
+	double time = -999;
+	TString subtype = "";
+};
+static const MTAS MTAS_DEFAULT_STRUCT;
+
+struct MTASPSPMT {
+    double energy = -999;
+    double time  = -999;
+    int modNum = -999;
+    int chanNum = -999;
+    bool double_beta_hit = false;
+    TString subtype = "";
+    TString tag = "";
+    TString group = "";
+};
+static const MTASPSPMT MTASPSPMT_DEFAULT_STRUCT;
 
 struct PSPMT {
     double energy = -999;
@@ -134,21 +156,7 @@ struct VANDLES {
 };
 static const VANDLES VANDLES_DEFAULT_STRUCT;
 
-struct MTAS {
-	double rawEnergy = -999;
-	double calEnergy = -999;
-	double time = -999;
-	TString subtype = "";
-};
-static const MTAS MTAS_DEFAULT_STRUCT;
 
-struct MTASPSPMT {
-    double energy = -999;
-    double time  = -999;
-    TString subtype = "";
-    TString tag = "";
-};
-static const MTASPSPMT MTASPSPMT_DEFAULT_STRUCT;
 }  // namespace processor_struct
 
 class PixTreeEvent : public TObject {
@@ -164,8 +172,10 @@ class PixTreeEvent : public TObject {
         clover_vec_ = obj.clover_vec_;
         doublebeta_vec_ = obj.doublebeta_vec_;
         gamma_scint_vec_ = obj.gamma_scint_vec_;
+        ge_vec_ = obj.ge_vec_;
         logic_vec_ = obj.logic_vec_;
         mtas_vec_ = obj.mtas_vec_;
+        mtaspspmt_vec_ = obj.mtaspspmt_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
         root_dev_vec_ = obj.root_dev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
@@ -183,8 +193,10 @@ class PixTreeEvent : public TObject {
         clover_vec_.clear();
         doublebeta_vec_.clear();
         gamma_scint_vec_.clear();
+        ge_vec_.clear();
         logic_vec_.clear();
         mtas_vec_.clear();
+        mtaspspmt_vec_.clear();
         pspmt_vec_.clear();
         root_dev_vec_.clear();
         singlebeta_vec_.clear();
@@ -199,8 +211,10 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::CLOVERS> clover_vec_;
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;
+    std::vector<processor_struct::CLOVERS> ge_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::MTAS> mtas_vec_;
+    std::vector<processor_struct::MTASPSPMT> mtaspspmt_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::ROOTDEV> root_dev_vec_;
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;

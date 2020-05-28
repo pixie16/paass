@@ -25,6 +25,12 @@ void BarBuilder::BuildBars(void) {
                     make_pair(it->first, list_.at(it->second)->GetChanID().GetSubtype());
             hrtBars_.insert(make_pair(key, BarDetector(HighResTimingData(*(list_.at(it->second))),
                                                        HighResTimingData(*(list_.at(mate->second))), key)));
+        } else if (list_.at(it->second)->GetChanID().GetType() == "mtas" && list_.at(mate->second)->GetChanID().GetType() == "mtas") {
+            TimingDefs::TimingIdentifier key =
+                    make_pair(it->first, list_.at(it->second)->GetChanID().GetGroup());
+                    // cout << "the key.second is " << key.second << endl;
+            mtasBars_.insert(make_pair(key, BarDetector(HighResTimingData(*(list_.at(it->second))),
+                                                       HighResTimingData(*(list_.at(mate->second))), key)));
         } else {
             lrtBars_.insert(make_pair(it->first,
                                       make_pair(0.5 * (list_.at(it->second)->GetWalkCorrectedTime() +
@@ -44,6 +50,7 @@ void BarBuilder::ClearMaps(void) {
     hrtBars_.clear();
     lefts_.clear();
     rights_.clear();
+    mtasBars_.clear();
 }
 
 void BarBuilder::FillMaps(void) {
@@ -51,9 +58,11 @@ void BarBuilder::FillMaps(void) {
         ChannelConfiguration id = (*it)->GetChanID();
         unsigned int barNum = CalcBarNumber(id.GetLocation());
         unsigned int idx = (unsigned int) (it - list_.begin());
-        if (id.HasTag("left") || id.HasTag("up") || id.HasTag("top"))
+        if (id.HasTag("left") || id.HasTag("up") || id.HasTag("top") || id.HasTag("front")){
             lefts_.insert(make_pair(barNum, idx));
-        if (id.HasTag("right") || id.HasTag("down") || id.HasTag("bottom"))
+            }
+        if (id.HasTag("right") || id.HasTag("down") || id.HasTag("bottom") || id.HasTag("back")){
             rights_.insert(make_pair(barNum, idx));
+        }
     }
 }

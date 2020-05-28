@@ -18,10 +18,11 @@
 #include "RawEvent.hpp"
 #include "EventProcessor.hpp"
 #include "PaassRootStruct.hpp"
+#include "BarDetector.hpp"
+#include "HighResTimingData.hpp"
 
 
-using std::vector;
-using std::string;
+using namespace std;
 
 
 // forward declarations
@@ -50,6 +51,10 @@ public:
     //@param [in] event : the event to process
     //@return Returns true if the processing was successful
     virtual bool Process(RawEvent &event);
+    double siliconThresh = 10;
+    bool beta_ev;
+    double MTAS_time,siliTime,T_diff_MTAS_Sili,max_sili_en,max_raw_sili_en;
+    const ChanEvent* silimax;
 
 private:
     DetectorSummary *mtasSummary;
@@ -66,7 +71,10 @@ private:
     static unsigned cycleNumber;
     static double measureOnTime;
     double firstTime;
-
+    BarMap bars_;
+    // vector<ChanEvent *> mtasList;
+    // ChanEvent *maxEvent_;
+    map<string,int> silimap = {{"a",9},{"b",10},{"c",11},{"d",12},{"e",13},{"f",14},{"g",15},{"h",1},{"i",2},{"j",3},{"k",4},{"l",5},{"m",6},{"n",7}};
     struct MtasData // you have to convert it
     {
         MtasData(ChanEvent *chan); //single argument constructor
@@ -76,6 +84,7 @@ private:
         double calEnergy;
         double time;
         double location;
+        string detGroup;
     };
 
     struct SiliData

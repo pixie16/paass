@@ -184,9 +184,33 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
             string place = (*it)->GetChanID().GetPlaceName();
             if (place == "__9999")
                 continue;
+            
+            if ((*it)->GetChanID().GetSubtype() == "beam_on") {
+                double time = (*it)->GetTimeSansCfd();
+                double energy = (*it)->GetCalibratedEnergy();
+                int location = (*it)->GetChanID().GetLocation();
 
-            if ((*it)->IsSaturated() || (*it)->IsPileup())
+                EventData data(time, energy, location);
+                TreeCorrelator::get()->place("Beam_On")->activate(time);
+                cout<<"triggered beam_on"<<endl;                 
+            }
+
+            // Added by Cooper
+            // if ((*it)->GetChanID().GetSubtype() == "cycle_on") {
+            //     double time = (*it)->GetTimeSansCfd();
+            //     double energy = (*it)->GetCalibratedEnergy();
+            //     int location = (*it)->GetChanID().GetLocation();
+
+            //     EventData data(time, energy, location);
+            //     TreeCorrelator::get()->place("Cycle_On")->activate(time);
+            //     cout<<"triggered cycle_on"<<endl;                 
+            // }
+
+            //
+
+            if ((*it)->IsSaturated() || (*it)->IsPileup()) 
                 continue;
+
 
             double time = (*it)->GetTime();
             double energy = (*it)->GetCalibratedEnergy();
@@ -194,6 +218,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
             EventData data(time, energy, location);
             TreeCorrelator::get()->place(place)->activate(data);
+         
             if (innerEvtCounter == 0) {
                 eventFirstTime_ = (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
             }

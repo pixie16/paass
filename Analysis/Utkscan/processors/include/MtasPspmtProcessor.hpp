@@ -8,14 +8,26 @@
 
 #include <string>
 #include <map>
+#include <algorithm>
+#include <climits>
+#include <cmath>
+#include <csignal>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <stdexcept>
+#include <fstream>
 
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
 #include "PaassRootStruct.hpp"
 
+
 /// Class to handle processing of MTAS implant and beam diagnostics detector
 class MtasPspmtProcessor : public EventProcessor {
 public:
+
     ///Default Constructor */
     MtasPspmtProcessor(void){};
 
@@ -54,5 +66,16 @@ public:
     unsigned long evtNum_ = 0.0;
     int bin_num = 0;
     double first_time;
+    const int geThreshold = 10;
+    double first_time_beta;
+    double delta_beta_T;
+    double currentTime;
+    double currentTimegamma = 0;
+    bool beta_ev;
+
+    
+    //bool beta_ev,gamma_ev,dual_ev;
+
+
 };
 #endif //_MTASPSPMTPROCESSOR_HPP_

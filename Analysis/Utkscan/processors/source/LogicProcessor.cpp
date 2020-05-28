@@ -255,6 +255,10 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
             plot(D_COUNTER_BEAM, BEAM_ANALOG);
         } else if (place == "logic_none_0") {
             plot(D_COUNTER_BEAM, BEAM_NONE);
+        } else if (place == "logic_MSU_0"){
+            TreeCorrelator::get()->place("Measure")->activate(time);
+        } else if (place == "logic_MSD_0"){
+            TreeCorrelator::get()->place("Measure")->deactivate(time);
         }
 
     }//events loop

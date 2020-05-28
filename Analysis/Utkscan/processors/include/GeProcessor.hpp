@@ -9,6 +9,8 @@
 #include <utility>
 #include <cmath>
 
+
+#include "PaassRootStruct.hpp"
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
 
@@ -25,6 +27,10 @@ public:
 
     ///Declare the plots for the processor
     virtual void DeclarePlots(void);
+
+private:
+    processor_struct::CLOVERS HPGestruct;  //!<Root Struct
+
 };
 
 #endif // __GEPROCESSOR_HPP_

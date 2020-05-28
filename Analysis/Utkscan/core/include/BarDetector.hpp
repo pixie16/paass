@@ -76,6 +76,16 @@ public:
     double GetQdc() const {
         return (sqrt(right_.GetTraceQdc() * left_.GetTraceQdc()));
     }
+    
+    /** \return the position independent energy for the bar */
+    double GetEnAvg() const {
+        return ((right_.GetCalibratedEnergy() + left_.GetCalibratedEnergy())*0.5);
+    }
+
+    /** \return the position independent raw energy for the bar */
+    double GetRawEnAvg() const {
+        return ((right_.GetEnergy() + left_.GetEnergy())*0.5);
+    }
 
     /** \return the Position derived from the QDC */
     double GetQdcPosition() const {
