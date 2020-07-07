@@ -83,7 +83,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         //Also if the avg baseline is lower than 10 ADC units (for any bit resolution),
         // this is also a sign of a bad trace capture.
         
-        static const double extremeBaselineVariation = 0.15 * baseline.first; //Checking for an std of 15% of the avg baseline (this way we are sensitive to the different bit resolutions)
+        const double extremeBaselineVariation = 0.15 * baseline.first; //Checking for an std of 15% of the avg baseline (this way we are sensitive to the different bit resolutions)
         if (baseline.second >= extremeBaselineVariation || baseline.first <= 10) {
             extremeBaselineRejectCounter_++;
             trace.SetHasValidWaveformAnalysis(false);
