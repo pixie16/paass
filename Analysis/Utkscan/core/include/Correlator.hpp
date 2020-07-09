@@ -22,9 +22,9 @@
 struct EventInfo {
     /// types of events passed to the correlator
     enum EEventTypes {
-        IMPLANT_EVENT, ALPHA_EVENT, BETA_EVENT, FISSION_EVENT,
-        PROTON_EVENT, DECAY_EVENT, PROJECTILE_EVENT, GAMMA_EVENT,
-        UNKNOWN_EVENT
+        IMPLANT_EVENT = 0, ALPHA_EVENT = 1, BETA_EVENT = 2, FISSION_EVENT = 3,
+        PROTON_EVENT = 4 , DECAY_EVENT = 5, PROJECTILE_EVENT = 6, GAMMA_EVENT = 7,
+        UNKNOWN_EVENT = 8
     };
 
     EEventTypes type; ///< event type
@@ -256,7 +256,7 @@ private:
         histo.DeclareHistogram2D(dammId, xSize, ySize, title);
     }
 
-    static const size_t arraySize = 40; /**< Size of the 2D array to hold the decay lists */
+    static const size_t arraySize = 64; /**< Size of the 2D array to hold the decay lists */
 
     // static const double minImpTime; /**< The minimum amount of time that must
 	// 			       pass before an implant will be considered

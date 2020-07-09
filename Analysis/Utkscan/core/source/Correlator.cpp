@@ -228,9 +228,8 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch, unsigned int bch)
             lastImplant = &theList.back();
             break;
         default:
-            if (theList.empty())
+            if (theList.empty() || theList.back().flagged)
                 break;
-
             if (std::isnan(theList.GetImplantTime())) {
                 cout << "No implant time for decay list" << endl;
                 break;
@@ -276,20 +275,20 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch, unsigned int bch)
             //         condition = DECAY_TOO_LATE;
             //     }
             // } 
-            if (theList.front().dtime >= minImpTime) { //check if there was no back to back implant too fast
-                if (dt  < corrTime) { // corr Time between to generation (implant/decay or decay/decay)
-                    event.dtime = event.time - theList.front().time; // FOR LERIBSS
-                    event.dtimegen = event.time - lastTime;
-                } else {
-                    event.dtime = event.time - theList.front().time; // FOR LERIBSS
-                    event.dtimegen = event.time - lastTime;
-                    condition = DECAY_TOO_LATE;
-                }
-            }else
-                condition = IMPLANT_TOO_SOON;
-
-            if (condition == VALID_DECAY)
-                event.generation = theList.back().generation + 1;
+            // if (theList.front().dtime >= minImpTime) { //check if there was no back to back implant too fast
+            //     if (dt  < corrTime) { // corr Time between to generation (implant/decay or decay/decay)
+            //         event.dtime = event.time - theList.front().time; // FOR LERIBSS Decay time frome the implantation
+            //         event.dtimegen = event.time - lastTime; // Decay time between generation of decays
+            //     } else {
+            //         event.dtime = event.time - theList.front().time; // FOR LERIBSS
+            //         event.dtimegen = event.time - lastTime;
+            //         condition = DECAY_TOO_LATE;
+            //     }
+            // }else
+            //     condition = IMPLANT_TOO_SOON;
+            event.dtime = event.time - theList.front().time; // FOR LERIBSS Decay time frome the implantation
+            event.dtimegen = event.time - lastTime; // Decay time between generation of decay
+            event.generation = theList.back().generation + 1;
 
             theList.push_back(event);
 
@@ -297,11 +296,10 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch, unsigned int bch)
                 cout << " Adding zero decay event " << endl;
             if (event.flagged)
                 theList.Flag();
-            if (condition == VALID_DECAY)
+            if (condition == VALID_DECAY && event.type != EventInfo::FISSION_EVENT)
                 lastDecay = &theList.back();
-            else if (condition == DECAY_TOO_LATE)
-                theList.clear();
-
+            else if (condition == DECAY_TOO_LATE || event.type == EventInfo::FISSION_EVENT)
+                theList.Flag();
             break;
     }
     plot(D_CONDITION, condition);

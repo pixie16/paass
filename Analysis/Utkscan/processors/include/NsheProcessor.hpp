@@ -41,6 +41,7 @@ namespace dammIds {
         const int DD_MAXEVENT_ENERGY__Y_POSITION = 20; //!< Max E vs. Y Pos
         const int DD_FRONTE__BACKE = 21; //!< Front Energy vs. Back Energy
         const int DD_MAXEVENT_FRONTE__BACKE = 28; //!< Front Energy vs. Back Energy
+        const int DD_ELA_ENERGY_RAW = 29; //!< Raw Back energy vs Elastic timing
 
         const int D_ENERGY_IMPLANT = 22; //!< Implant Energy 
         const int D_ENERGY_DECAY = 23; //!< Decay energy 
@@ -83,6 +84,9 @@ namespace dammIds {
         const int D_TOF_RAW = 67;
         const int DD_SIDE_N = 68;
 
+        /**Elastic Histogram **/
+        const int D_ELA_TOT = 70;
+        const int DD_ELA_TARGET = 71;
     }
 }
 
@@ -170,11 +174,9 @@ protected:
     };
 
     processor_struct::DSSD dssdstruc; //!<Working structure  
+    processor_struct::SHE_ELA elastruc; //!<Working structure  
 
     //SheCorrelator correlator_; //!< instance of the Correlator 
-
-    /** Events matched based on energy (MaxEvent) **/
-    std::vector<std::pair<StripEvent, StripEvent>> xyEventsEMatch_;
 
     /** Events matched based on timing correlation  **/
     std::vector<std::pair<StripEvent, StripEvent>> xyEventsTMatch_;
@@ -196,7 +198,6 @@ protected:
 
     /** Side detectors **/
     std::vector<std::pair<StripEvent, bool>> sideEventsTMatch;
-
 
     /** F/B correlation (0) or just calib (1) = raw data in the root file**/
     int calib_;
@@ -231,15 +232,23 @@ protected:
     /** Delta time minimum between two implantation (for corre) **/
     double minImpTime_;
 
-    /** Low Energy cut for interesting alphas (in keV) **/
+    /** Correlation time limit for online survey **/
     double corrTime_;
 
-    /** Low Energy cut for interesting alphas (in keV) **/
+    /** fast timming limit for online correlator survey **/
     double fastTime_;
 
+    /** decay time limit for alpha-alpha correlation on the online correlator survey **/
     double khs_limit_cor_;
 
+    /** which nshe exp for QDC selection **/
     int nshe_exp_;
+
+    /** Timming reset saved **/
+
+    double beforelast_reset;
+
+    double last_reset;
 
 };
 

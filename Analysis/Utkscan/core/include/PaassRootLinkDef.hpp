@@ -16,6 +16,9 @@
 #pragma link C++ struct processor_struct::DSSD+;
 #pragma link C++ class std::vector<processor_struct::DSSD>+;
 
+#pragma link C++ struct processor_struct::SHE_ELA+;
+#pragma link C++ class std::vector<processor_struct::SHE_ELA>+;
+
 #pragma link C++ struct processor_struct::GAMMASCINT+;
 #pragma link C++ class std::vector<processor_struct::GAMMASCINT>+;
 

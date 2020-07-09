@@ -47,18 +47,25 @@ struct DSSD {
     double TMCP2 = - 999;
     double Veto = -999;
     double Time = -999;
+    double Time_t = -999;
     double Side = -999;
-    int NSide = -1;
+    int NSide = -999;
     std::vector<unsigned int> Trace_Front;
     std::vector<unsigned int> Trace_Back;
     std::vector<unsigned int> Trace_TOF1;
     std::vector<unsigned int> Trace_TOF2;
-    std::vector<unsigned int> Trace_Side;
     std::vector<unsigned int> Trace_Veto;
 
     bool pile_up = false;
 };
 static const DSSD DSSD_DEFAULT_STRUCT;
+
+struct SHE_ELA { 
+    double Energy = -999;
+    double Time = -999;
+    double Time_t = -999;
+};
+static const SHE_ELA SHE_ELA_DEFAULT_STRUCT;
 
 struct GAMMASCINT {
     double energy = -999;
@@ -173,6 +180,7 @@ class PixTreeEvent : public TObject {
         clover_vec_ = obj.clover_vec_;
         doublebeta_vec_ = obj.doublebeta_vec_;
         dssd_vec_ = obj.dssd_vec_;
+        she_ela_vec_ = obj.she_ela_vec_;
         gamma_scint_vec_ = obj.gamma_scint_vec_;
         logic_vec_ = obj.logic_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
@@ -192,6 +200,7 @@ class PixTreeEvent : public TObject {
         clover_vec_.clear();
         doublebeta_vec_.clear();
         dssd_vec_.clear();
+        she_ela_vec_.clear();
         gamma_scint_vec_.clear();
         logic_vec_.clear();
         pspmt_vec_.clear();
@@ -208,6 +217,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::CLOVERS> clover_vec_;
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::DSSD> dssd_vec_;
+    std::vector<processor_struct::SHE_ELA> she_ela_vec_;
     std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
