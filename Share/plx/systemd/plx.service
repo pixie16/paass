@@ -1,14 +1,15 @@
-# @author S.V. Paulauskas
+# @author T.T. King, S.V. Paulauskas
 
 [Unit]
 Description=Service file for PLX Driver 9054 for communication with XIA Pixie16 Modules
+After=graphical.target
 
 [Service]
 Type=oneshot
-Environment="PLX_SDK_DIR=/opt/plx/current/PlxSdk"
-ExecStart=/bin/bash /opt/plx/current/PlxSdk/Bin/Plx_load 9054
-ExecStop=/bin/bash /opt/plx/current/PlxSdk/Bin/Plx_unload 9054
+Environment="PLX_SDK_DIR=/opt/plx/current/"
+ExecStart=/bin/bash -c '/opt/plx/current/Bin/Plx_load 9054'
+ExecStop=/bin/bash -c '/opt/plx/current/Bin/Plx_unload 9054'
 RemainAfterExit=yes
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical.target
