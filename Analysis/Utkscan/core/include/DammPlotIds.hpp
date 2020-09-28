@@ -151,6 +151,12 @@ namespace dammIds {
         const int RANGE = 20;//!< Range for the PulserProcessor Hists
     }
 
+    //in PidProcessor.cpp
+    namespace pid {
+        const int OFFSET = 3500; //!< Offset for the PidProcessor Hists
+        const int RANGE = 50;//!< Range for the PidProcessor Hists
+    }
+
     /// in SsdProcessor.cpp
     namespace ssd {
         const int OFFSET = 4100;//!< Offset for SsdProcessor

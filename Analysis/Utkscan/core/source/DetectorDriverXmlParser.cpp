@@ -41,6 +41,7 @@
 #include "LogicProcessor.hpp"
 #include "McpProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
+#include "PidProcessor.hpp"
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
 #include "RootDevProcessor.hpp"
@@ -213,6 +214,11 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
+        } else if (name == "PidProcessor") {
+            vecProcess.push_back(new PidProcessor(
+                processor.attribute("slope").as_double(0.0),
+                processor.attribute("intercept").as_double(0.0),
+                processor.attribute("pin_threshold").as_double(0.0)));
         } else if (name == "PspmtProcessor") {
             vecProcess.push_back(new PspmtProcessor(
                 processor.attribute("vd").as_string("SIB062_0926"),
