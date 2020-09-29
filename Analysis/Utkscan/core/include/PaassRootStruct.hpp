@@ -133,6 +133,20 @@ struct VANDLES {
     double sQdc = -999;
 };
 static const VANDLES VANDLES_DEFAULT_STRUCT;
+
+struct PID {
+    double rfq_time = -999;
+    double plastic_time = -999;
+    double pin_0_time = -999;
+    double pin_1_time = -999;
+    double pin_0_energy = -999;
+    double pin_1_energy = -999;
+    double tac_0 = -999;
+    double tac_1 = -999;
+    double tof = -999;
+};
+static const PID PID_DEFAULT_STRUCT;
+
 }  // namespace processor_struct
 
 class PixTreeEvent : public TObject {
@@ -153,6 +167,7 @@ class PixTreeEvent : public TObject {
         root_dev_vec_ = obj.root_dev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
+        pid_vec_ = obj.pid_vec_;
     }
 
     virtual ~PixTreeEvent() {}
@@ -171,6 +186,7 @@ class PixTreeEvent : public TObject {
         root_dev_vec_.clear();
         singlebeta_vec_.clear();
         vandle_vec_.clear();
+        pid_vec_.clear();
     }
 
     /* data structures to be filled in the ROOT TTree */
@@ -186,6 +202,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::ROOTDEV> root_dev_vec_;
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
     std::vector<processor_struct::VANDLES> vandle_vec_;
+    std::vector<processor_struct::PID> pid_vec_;
 
     ClassDef(PixTreeEvent, 1)
 };

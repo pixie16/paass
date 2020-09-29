@@ -3,8 +3,9 @@
 ///Processes PID information and constructs PID plots for fragmentation-
 ///type experiments
 ///
-///@author A. Keeler
+///@author A. Keeler, R. Yokoyama
 ///@date 29 July 2019
+///@details Updated for E19044 experiment
 
 #ifndef __PIDPROCESSOR_HPP_
 #define __PIDPROCESSOR_HPP_
@@ -15,16 +16,13 @@
 
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
-#include "ProcessorRootStruc.hpp"
+#include "PaassRootStruct.hpp"
 
 /// Class to process Particle ID information for implant events
 class PidProcessor : public EventProcessor {
 public:
   ///Constructor
-  ///param [in] slope : set slope for linear position correction of separator ToF
-  ///param [in] intercept : set intercept for linear ToF correction
-  ///param [in] threshold : set energy threshold for PIN to remove light ions
-  PidProcessor(double slope, double intercept, double threshold);
+  PidProcessor();
 
   ///Default Destructor
   ~PidProcessor() = default;
@@ -44,23 +42,12 @@ public:
 
 private:
 
-  double slope_ = 0;
-  double intercept_ = 0;
-  double threshold_ = 0;
-
-  double pin_energy = 0;
-
-  double tof = 0;
-  double position = 0;
-  double corrected_tof = 0;
-
-
   ///Functions for converting raw measurements into PID info
-  double CorrectTofByPosition(double &tof, double &position, double &slope, double &intercept);
+  virtual double CorrectTofByPosition(double &tof, double &position, double &slope, double &intercept);
 
-  double ConvertTofToAQ(double &tof);
+  virtual double ConvertTofToAQ(double &tof);
 
-  double ConvertPinToZ(double &pin);
+  virtual double ConvertPinToZ(double &pin);
 
   processor_struct::PID pid_struct;
 
