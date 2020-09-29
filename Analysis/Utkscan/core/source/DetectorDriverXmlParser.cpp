@@ -215,7 +215,10 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "PositionProcessor") {
             vecProcess.push_back(new PositionProcessor());
         } else if (name == "PidProcessor") {
-            vecProcess.push_back(new PidProcessor());
+            vecProcess.push_back(new PidProcessor(
+                processor.attribute("pin0").as_uint(0),
+                processor.attribute("pin1").as_uint(1)
+            ));
         } else if (name == "PspmtProcessor") {
             vecProcess.push_back(new PspmtProcessor(
                 processor.attribute("vd").as_string("SIB062_0926"),

@@ -37,10 +37,10 @@ namespace dammIds {
         const int D_PLASTIC_MULT = 2;
 
         // TAC energies
-        const int DD_TACS = 3;
+        const int D_TACS = 3;
 
         // Multiplicities of the TACs
-        const int DD_TACS_MULT = 4;
+        const int D_TACS_MULT = 4;
 
         // Energy deposits in the PINs
         const int DD_PINS_DE = 5;
@@ -48,14 +48,20 @@ namespace dammIds {
         // Multiplicities of the Pins
         const int DD_PINS_MULT = 6;
 
-        // Pin1 vs Pin2 dE
+        // Pin0 vs Pin1 dE
         const int DD_PIN0_1 = 7;
 
-        // Tdiff vs Pin1 dE
+        // Tdiff vs Pin0 dE
         const int DD_TOF_PIN0 = 8;
 
-        // Tdiff vs Pin2 dE
+        // Tdiff vs Pin1 dE
         const int DD_TOF_PIN1 = 9;
+
+        // TAC0 vs Pin0 dE
+        const int DD_TAC_PIN0 = 10;
+
+        // TAC0 vs Pin1 dE
+        const int DD_TAC_PIN1 = 11;
     }  // namespace pid
 }  // namespace dammIds
 
@@ -63,15 +69,22 @@ void PidProcessor::DeclarePlots(void) {
     DeclareHistogram1D(D_TOF, SB, "Tdiff histograms");
     DeclareHistogram1D(D_RFQ_MULT, S5, "Multiplicity of RFQ");
     DeclareHistogram1D(D_PLASTIC_MULT, S5, "Multiplicity of beamline plastic");
+    DeclareHistogram1D(D_TACS, SB, "TAC histogram");
+    DeclareHistogram1D(D_TACS_MULT, S5, "TAC multiplicity histogram");
     DeclareHistogram2D(DD_PINS_DE, S2, SB, "dE histogram of Pins");
     DeclareHistogram2D(DD_PINS_MULT, S2, S5, "Multiplicity histogram of Pins");
-    DeclareHistogram2D(DD_PIN0_1, SB, SB, "Pin1 vs Pin2 dE histogram");
-    DeclareHistogram2D(DD_TOF_PIN0, SB, SB, "Tdiff vs Pin1 dE histogram");
-    DeclareHistogram2D(DD_TOF_PIN1, SB, SB, "Tdiff vs Pin2 dE histogram");
+    DeclareHistogram2D(DD_PIN0_1, SB, SB, "Pin0 vs Pin1 dE histogram");
+    DeclareHistogram2D(DD_TOF_PIN0, SB, SB, "Tdiff vs Pin0 dE histogram");
+    DeclareHistogram2D(DD_TOF_PIN1, SB, SB, "Tdiff vs Pin1 dE histogram");
+    DeclareHistogram2D(DD_TAC_PIN0, SB, SB, "TAC vs Pin0 dE histogram");
+    DeclareHistogram2D(DD_TAC_PIN1, SB, SB, "TAC vs Pin1 dE histogram");
 
 }  // Declare plots
 
-PidProcessor::PidProcessor(): EventProcessor(OFFSET, RANGE, "PidProcessor") {
+PidProcessor::PidProcessor(unsigned int pin0, unsigned int pin1): EventProcessor(OFFSET, RANGE, "PidProcessor") {
+
+    pin0_location_ = pin0;
+    pin1_location_ = pin1;
 
     associatedTypes.insert("pid");
     associatedTypes.insert("pin");
@@ -90,15 +103,21 @@ bool PidProcessor::PreProcess(RawEvent &event) {
         pid_struct = processor_struct::PID_DEFAULT_STRUCT;
     }
 
-    static const vector<ChanEvent *> &pin_0_vec = event.GetSummary("pid:pin0",true)->GetList();
-    static const vector<ChanEvent *> &pin_1_vec = event.GetSummary("pid:pin1",true)->GetList();
-    static const vector<ChanEvent *> &tac_0_vec = event.GetSummary("pid:tac0",true)->GetList();
-    static const vector<ChanEvent *> &tac_1_vec = event.GetSummary("pid:tac1",true)->GetList();
+    static const vector<ChanEvent *> &pin_vec = event.GetSummary("pid:pin",true)->GetList();
+    static const vector<ChanEvent *> &tac_vec = event.GetSummary("pid:tac",true)->GetList();
     static const vector<ChanEvent *> &rfq_vec = event.GetSummary("pid:rfq",true)->GetList();
     static const vector<ChanEvent *> &plastic_vec = event.GetSummary("pid:plastic",true)->GetList();
 
+    // A set of locations for Pins
+    const auto pin_locations = DetectorLibrary::get()->GetLocations("pid", "pin");
+
     // Function that compares energies in two ChanEvent objects
     auto compare_energy = [](ChanEvent* x1, ChanEvent* x2) {return x1->GetEnergy() < x2->GetEnergy(); };
+    
+    // Function that returns time in ns
+    auto get_time_in_ns = [](ChanEvent* x) {
+        return x->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(x->GetChanID().GetModFreq()) * 1e9;
+    };
 
     //* Tof between rfq and beamline plastic */
     if (!rfq_vec.empty() && !plastic_vec.empty()) {
@@ -109,67 +128,67 @@ bool PidProcessor::PreProcess(RawEvent &event) {
         // Check for nullptr
         if (!*plastic) {
             // Calculate tof
-            auto tof = rfq->GetHighResTimeInNs() - (*plastic)->GetHighResTimeInNs();
+            auto tof = get_time_in_ns(rfq) - get_time_in_ns(*plastic);
             plot(D_TOF, tof);
             // ROOT outputs
             if (root_output) {
-                pid_struct.rfq_time = rfq->GetHighResTimeInNs();
-                pid_struct.plastic_time = (*plastic)->GetHighResTimeInNs();
+                pid_struct.rfq_time = get_time_in_ns(rfq);
+                pid_struct.plastic_time = get_time_in_ns(*plastic);
                 pid_struct.tof = tof;
             }
         }
     }
 
     //** TACs */
-    if (!tac_0_vec.empty()) {
-        auto tac0 = std::max_element(tac_0_vec.begin(), tac_0_vec.end(), compare_energy);
-        if (!*tac0) {
-            plot(DD_TACS, 0, (*tac0)->GetCalibratedEnergy());
-            if (root_output)
-                pid_struct.tac_0 = (*tac0)->GetCalibratedEnergy();
-        }
-    }
-    if (!tac_1_vec.empty()) {
-        auto tac1 = std::max_element(tac_1_vec.begin(), tac_1_vec.end(), compare_energy);
-        if (!*tac1) {
-            plot(DD_TACS, 1, (*tac1)->GetCalibratedEnergy());
-            if (root_output)
-                pid_struct.tac_1 = (*tac1)->GetCalibratedEnergy();
-        }
+    if (!tac_vec.empty()) {
+            auto tac = std::max_element(tac_vec.begin(), tac_vec.end(), compare_energy);
+            if (!*tac) {
+                plot(D_TACS, (*tac)->GetCalibratedEnergy());
+                if (root_output)
+                    pid_struct.tac = (*tac)->GetCalibratedEnergy();
+            }
     }
 
     //** Pins */
-    if (!pin_0_vec.empty()) {
-        auto pin0 = std::max_element(pin_0_vec.begin(), pin_0_vec.end(), compare_energy);
-        if (!*pin0) {
-            plot(DD_PINS_DE, 0, (*pin0)->GetCalibratedEnergy());
-            if (root_output)
-                pid_struct.pin_0_time = (*pin0)->GetHighResTimeInNs();
-                pid_struct.pin_0_energy = (*pin0)->GetCalibratedEnergy();
-        }
-    }
-    if (!pin_1_vec.empty()) {
-        auto pin1 = std::max_element(pin_1_vec.begin(), pin_1_vec.end(), compare_energy);
-        if (!*pin1) {
-            plot(DD_PINS_DE, 1, (*pin1)->GetCalibratedEnergy());
-            if (root_output)
-                pid_struct.pin_1_time = (*pin1)->GetHighResTimeInNs();
-                pid_struct.pin_1_energy = (*pin1)->GetCalibratedEnergy();
+    if (!pin_vec.empty()) {
+        for (const auto& location : pin_locations) {
+            std::vector<ChanEvent*> pin_i_vec;
+            std::copy_if(pin_vec.begin(), pin_vec.end(), std::back_inserter(pin_i_vec),
+                [location](ChanEvent* x) {return x->GetChanID().GetLocation() == (unsigned int)location; });
+            auto pin = std::max_element(pin_i_vec.begin(), pin_i_vec.end(), compare_energy);
+            if (!*pin) {
+                int idx = -999;
+                if (pin0_location_ == (unsigned int)location) {
+                    idx = 0;
+                    if (root_output) {
+                        pid_struct.pin_0_time = get_time_in_ns(*pin);
+                        pid_struct.pin_0_energy = (*pin)->GetCalibratedEnergy();
+                    }
+                }
+                else if (pin1_location_ == (unsigned int)location) {
+                    idx = 1;
+                    if (root_output) {
+                        pid_struct.pin_1_time = get_time_in_ns(*pin);
+                        pid_struct.pin_1_energy = (*pin)->GetCalibratedEnergy();
+                    }
+                }
+                plot(DD_PINS_DE, idx, (*pin)->GetCalibratedEnergy());
+                plot(DD_PINS_MULT, idx, pin_i_vec.size());
+            }
         }
     }
 
     // Fill the multiplicity plots
     plot(D_RFQ_MULT, rfq_vec.size());
     plot(D_PLASTIC_MULT, plastic_vec.size());
-    plot(DD_PINS_MULT, 0, pin_0_vec.size());
-    plot(DD_PINS_MULT, 1, pin_1_vec.size());
-    plot(DD_TACS_MULT, 0, tac_0_vec.size());
-    plot(DD_TACS_MULT, 1, tac_1_vec.size());
+    plot(D_TACS_MULT, 0, tac_vec.size());
 
     // Plot 2d histograms
     plot(DD_PIN0_1, pid_struct.pin_0_energy, pid_struct.pin_1_energy);
     plot(DD_TOF_PIN0, pid_struct.tof, pid_struct.pin_0_energy);
     plot(DD_TOF_PIN1, pid_struct.tof, pid_struct.pin_1_energy);
+    plot(DD_TAC_PIN0, pid_struct.tac, pid_struct.pin_0_energy);
+    plot(DD_TAC_PIN1, pid_struct.tac, pid_struct.pin_1_energy);
 
     if (root_output) {
         // Fill the event to the PixeTreeEvent object

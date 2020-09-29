@@ -141,8 +141,7 @@ struct PID {
     double pin_1_time = -999;
     double pin_0_energy = -999;
     double pin_1_energy = -999;
-    double tac_0 = -999;
-    double tac_1 = -999;
+    double tac = -999;
     double tof = -999;
 };
 static const PID PID_DEFAULT_STRUCT;
