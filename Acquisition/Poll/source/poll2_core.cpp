@@ -1522,7 +1522,9 @@ void Poll::CommandControl(){
 
             do_MCA_run = true;
         }
-        else if(!pac_mode){ // These command are only available when not running in pacman mode!
+        else if (pac_mode && do_MCA_run && cmd=="stop"){ // add explicit stop for mca in pacman mode
+            stop_run();
+        }else if(!pac_mode){ // These command are only available when not running in pacman mode!
             if(cmd == "run"){ // Tell POLL to start acq and start recording data to disk.
                 start_run();
             }
