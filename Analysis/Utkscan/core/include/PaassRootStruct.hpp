@@ -146,6 +146,12 @@ struct PID {
 };
 static const PID PID_DEFAULT_STRUCT;
 
+struct NEXT {
+    /* Data container for NEXT */
+    /* To be defined           */
+};
+static const NEXT NEXT_DEFAULT_STRUCT;
+
 }  // namespace processor_struct
 
 class PixTreeEvent : public TObject {
@@ -167,6 +173,7 @@ class PixTreeEvent : public TObject {
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
         pid_vec_ = obj.pid_vec_;
+        next_vec_ = obj.next_vec_;
     }
 
     virtual ~PixTreeEvent() {}
@@ -186,6 +193,7 @@ class PixTreeEvent : public TObject {
         singlebeta_vec_.clear();
         vandle_vec_.clear();
         pid_vec_.clear();
+        next_vec_.clear();
     }
 
     /* data structures to be filled in the ROOT TTree */
@@ -202,6 +210,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
     std::vector<processor_struct::VANDLES> vandle_vec_;
     std::vector<processor_struct::PID> pid_vec_;
+    std::vector<processor_struct::NEXT> next_vec_;
 
     ClassDef(PixTreeEvent, 1)
 };
