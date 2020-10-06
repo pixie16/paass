@@ -76,7 +76,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
         if (!(*it)->GetQdc().empty()) {
             RDstruct.qdcSums = (*it)->GetQdc();
         }
-        pixie_tree_event_->root_dev_vec_.emplace_back(RDstruct);
+        pixie_tree_event_->rootdev_vec_.emplace_back(RDstruct);
         RDstruct = processor_struct::ROOTDEV_DEFAULT_STRUCT;
     }
 

@@ -177,12 +177,12 @@ class PixTreeEvent : public TObject {
         bato_vec_ = obj.bato_vec_;
         clover_vec_ = obj.clover_vec_;
         doublebeta_vec_ = obj.doublebeta_vec_;
-        gamma_scint_vec_ = obj.gamma_scint_vec_;
+        gammascint_vec_ = obj.gammascint_vec_;
         logic_vec_ = obj.logic_vec_;
         next_vec_ = obj.next_vec_;
         pid_vec_ = obj.pid_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
-        rootdev_vec_ = obj.root_dev_vec_;
+        rootdev_vec_ = obj.rootdev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
     }
@@ -198,7 +198,7 @@ class PixTreeEvent : public TObject {
         bato_vec_.clear();
         clover_vec_.clear();
         doublebeta_vec_.clear();
-        gamma_scint_vec_.clear();
+        gammascint_vec_.clear();
         logic_vec_.clear();
         next_vec_.clear();
         pid_vec_.clear();
@@ -216,7 +216,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::BATO> bato_vec_;
     std::vector<processor_struct::CLOVER> clover_vec_;
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
-    std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;
+    std::vector<processor_struct::GAMMASCINT> gammascint_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::NEXT> next_vec_;
     std::vector<processor_struct::PID> pid_vec_;
