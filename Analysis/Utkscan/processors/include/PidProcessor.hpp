@@ -26,7 +26,7 @@ public:
 	 * @param pin0 : channel location id of pin0
 	 * @param pin1 : channel location id of pin1
 	*/
-	PidProcessor(unsigned int pin0, unsigned int pin1);
+	PidProcessor();
 
 	///Default Destructor
 	~PidProcessor() = default;
@@ -45,11 +45,6 @@ public:
 	//virtual bool Process(RawEvent &event);
 
 private:
-
-	/// Location of the pin0 channel
-	unsigned int pin0_location_;
-	/// Location of the pin1 channel
-	unsigned int pin1_location_;
 
 	///Functions for converting raw measurements into PID info
 	virtual double CorrectTofByPosition(double &tof, double &position, double &slope, double &intercept);
