@@ -81,10 +81,7 @@ void PidProcessor::DeclarePlots(void) {
 
 }  // Declare plots
 
-PidProcessor::PidProcessor(unsigned int pin0, unsigned int pin1): EventProcessor(OFFSET, RANGE, "PidProcessor") {
-
-    pin0_location_ = pin0;
-    pin1_location_ = pin1;
+PidProcessor::PidProcessor(): EventProcessor(OFFSET, RANGE, "PidProcessor") {
 
     associatedTypes.insert("pid");
     associatedTypes.insert("pin");
@@ -157,23 +154,12 @@ bool PidProcessor::PreProcess(RawEvent &event) {
                 [location](ChanEvent* x) {return x->GetChanID().GetLocation() == (unsigned int)location; });
             auto pin = std::max_element(pin_i_vec.begin(), pin_i_vec.end(), compare_energy);
             if (!*pin) {
-                int idx = -999;
-                if (pin0_location_ == (unsigned int)location) {
-                    idx = 0;
-                    if (root_output) {
-                        pid_struct.pin_0_time = get_time_in_ns(*pin);
-                        pid_struct.pin_0_energy = (*pin)->GetCalibratedEnergy();
-                    }
+                if (root_output) {
+                    pid_struct.pin_0_time = get_time_in_ns(*pin);
+                    pid_struct.pin_0_energy = (*pin)->GetCalibratedEnergy();
                 }
-                else if (pin1_location_ == (unsigned int)location) {
-                    idx = 1;
-                    if (root_output) {
-                        pid_struct.pin_1_time = get_time_in_ns(*pin);
-                        pid_struct.pin_1_energy = (*pin)->GetCalibratedEnergy();
-                    }
-                }
-                plot(DD_PINS_DE, idx, (*pin)->GetCalibratedEnergy());
-                plot(DD_PINS_MULT, idx, pin_i_vec.size());
+                plot(DD_PINS_DE, location, (*pin)->GetCalibratedEnergy());
+                plot(DD_PINS_MULT, location, pin_i_vec.size());
             }
         }
     }
