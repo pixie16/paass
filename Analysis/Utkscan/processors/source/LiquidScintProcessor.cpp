@@ -156,7 +156,7 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                         LSstruc.barType = liquid.GetChanID().GetSubtype();
                         LSstruc.barNum = liquid.GetChanID().GetLocation();
                         pixie_tree_event_->vandle_vec_.emplace_back(LSstruc);
-                        LSstruc = processor_struct::VANDLES_DEFAULT_STRUCT;
+                        LSstruc = processor_struct::VANDLE_DEFAULT_STRUCT;
                     }
                 }
             }

@@ -303,7 +303,7 @@ protected:
     double cycle_gate2_min_;//!< low value for second cycle gate
     double cycle_gate2_max_;//!< high value for second cycle gate
 
-    processor_struct::CLOVERS Cstruct;
+    processor_struct::CLOVER Cstruct;
 };
 
 #endif // __CloverProcessor_HPP_

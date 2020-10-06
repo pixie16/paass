@@ -118,7 +118,7 @@ private:
 
     std::set<std::string> requestedTypes_;//!< The list of bar types to expect
 
-    processor_struct::VANDLES vandles; //!<Working structure  
+    processor_struct::VANDLE vandles; //!<Working structure  
 };
 
 #endif

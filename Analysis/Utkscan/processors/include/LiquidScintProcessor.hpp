@@ -35,7 +35,7 @@ public:
 
 private:
     unsigned int counter;//!< A counter for counting...
-    processor_struct::VANDLES LSstruc;
+    processor_struct::VANDLE LSstruc;
 };
 
 #endif // __LIQUIDSCINTPROCSSEOR_HPP_
