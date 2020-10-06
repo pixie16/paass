@@ -57,7 +57,7 @@ private:
 
     double gammaThresh_,vetoThresh_,ionTrigThresh_,betaThresh_; //!<Thresholds
 
-    processor_struct::CLOVERS Cstruct; //!<Root Struct
+    processor_struct::CLOVER Cstruct; //!<Root Struct
 };
 
 #endif //PAASS_CLOVERFRAGPROCESSOR_H

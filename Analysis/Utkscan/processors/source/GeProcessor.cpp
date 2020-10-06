@@ -61,7 +61,7 @@ bool GeProcessor::PreProcess(RawEvent &event) {
             GEstruct.detNum = (*ge)->GetChanID().GetLocation();
             GEstruct.cloverNum = -1; //We Define the Single Channel Ge detectors to be cloverNum -1 so that we can use both clovers and single channels at the same time. 
             pixie_tree_event_->clover_vec_.emplace_back(GEstruct);
-            GEstruct = processor_struct::CLOVERS_DEFAULT_STRUCT;  //reset to initalized values (see PaassRootStruct.hpp
+            GEstruct = processor_struct::CLOVER_DEFAULT_STRUCT;  //reset to initalized values (see PaassRootStruct.hpp
         }
     }
     return true;

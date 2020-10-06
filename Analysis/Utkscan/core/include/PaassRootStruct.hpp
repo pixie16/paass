@@ -9,7 +9,17 @@
 
 namespace processor_struct {
 
-struct CLOVERS {
+struct BATO {
+    std::vector<double> pQDCsums = {};
+    double time = -999;
+    double energy = -999;
+    double qdc = -999;
+    int padNum = -999;
+    int detNum = -999;
+};
+static const BATO BATO_DEFAULT_STRUCT;
+
+struct CLOVER {
     double energy = -999;
     double rawEnergy = -999;
     double time = -999;
@@ -17,7 +27,7 @@ struct CLOVERS {
     int cloverNum = -999;
 };
 
-static const CLOVERS CLOVERS_DEFAULT_STRUCT;
+static const CLOVER CLOVER_DEFAULT_STRUCT;
 
 struct DOUBLEBETA {
     int detNum = -999;
@@ -63,6 +73,24 @@ struct LOGIC {
 };
 static const LOGIC LOGIC_DEFAULT_STRUCT;
 
+struct NEXT {
+    /* Data container for NEXT */
+    /* To be defined           */
+};
+static const NEXT NEXT_DEFAULT_STRUCT;
+
+struct PID {
+    double rfq_time = -999;
+    double plastic_time = -999;
+    double pin_0_time = -999;
+    double pin_1_time = -999;
+    double pin_0_energy = -999;
+    double pin_1_energy = -999;
+    double tac = -999;
+    double tof = -999;
+};
+static const PID PID_DEFAULT_STRUCT;
+
 struct PSPMT {
     double energy = -999;
     double time = -999;
@@ -107,16 +135,16 @@ struct SINGLEBETA {
     int detNum = -999;
     double energy = -999;
     double rawEnergy = -999;
-    double time = - 999;
+    double time = -999;
     double qdc = -999;
     double tMaxVal = -999;
     bool isLowResBeta = false;
     bool isHighResBeta = false;
     bool hasTraceFit = false;
-}; 
+};
 static const SINGLEBETA SINGLEBETA_DEFAULT_STRUCT;
 
-struct VANDLES {
+struct VANDLE {
     std::string barType = "";
     double tof = -999;
     double corTof = -999;
@@ -126,31 +154,13 @@ struct VANDLES {
     double tAvg = -999;
     double tDiff = -999;
     double wcTavg = -999;
-    double wcTdiff = -999;    
+    double wcTdiff = -999;
     int sNum = -999;  //start detector number
     int vMulti = 0;
     double sTime = -999;
     double sQdc = -999;
 };
-static const VANDLES VANDLES_DEFAULT_STRUCT;
-
-struct PID {
-    double rfq_time = -999;
-    double plastic_time = -999;
-    double pin_0_time = -999;
-    double pin_1_time = -999;
-    double pin_0_energy = -999;
-    double pin_1_energy = -999;
-    double tac = -999;
-    double tof = -999;
-};
-static const PID PID_DEFAULT_STRUCT;
-
-struct NEXT {
-    /* Data container for NEXT */
-    /* To be defined           */
-};
-static const NEXT NEXT_DEFAULT_STRUCT;
+static const VANDLE VANDLE_DEFAULT_STRUCT;
 
 }  // namespace processor_struct
 
@@ -164,16 +174,17 @@ class PixTreeEvent : public TObject {
         externalTS2 = obj.externalTS2;
         eventNum = obj.eventNum;
         fileName = obj.fileName;
+        bato_vec_ = obj.bato_vec_;
         clover_vec_ = obj.clover_vec_;
         doublebeta_vec_ = obj.doublebeta_vec_;
         gamma_scint_vec_ = obj.gamma_scint_vec_;
         logic_vec_ = obj.logic_vec_;
+        next_vec_ = obj.next_vec_;
+        pid_vec_ = obj.pid_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
-        root_dev_vec_ = obj.root_dev_vec_;
+        rootdev_vec_ = obj.root_dev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
-        pid_vec_ = obj.pid_vec_;
-        next_vec_ = obj.next_vec_;
     }
 
     virtual ~PixTreeEvent() {}
@@ -184,16 +195,17 @@ class PixTreeEvent : public TObject {
         externalTS2 = 0;
         eventNum = 0;
         fileName = "";
+        bato_vec_.clear();
         clover_vec_.clear();
         doublebeta_vec_.clear();
         gamma_scint_vec_.clear();
         logic_vec_.clear();
+        next_vec_.clear();
+        pid_vec_.clear();
         pspmt_vec_.clear();
-        root_dev_vec_.clear();
+        rootdev_vec_.clear();
         singlebeta_vec_.clear();
         vandle_vec_.clear();
-        pid_vec_.clear();
-        next_vec_.clear();
     }
 
     /* data structures to be filled in the ROOT TTree */
@@ -201,16 +213,17 @@ class PixTreeEvent : public TObject {
     ULong64_t externalTS2 = 0;
     Double_t eventNum = 0;
     std::string fileName = "";
-    std::vector<processor_struct::CLOVERS> clover_vec_;
+    std::vector<processor_struct::BATO> bato_vec_;
+    std::vector<processor_struct::CLOVER> clover_vec_;
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::GAMMASCINT> gamma_scint_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
-    std::vector<processor_struct::PSPMT> pspmt_vec_;
-    std::vector<processor_struct::ROOTDEV> root_dev_vec_;
-    std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
-    std::vector<processor_struct::VANDLES> vandle_vec_;
-    std::vector<processor_struct::PID> pid_vec_;
     std::vector<processor_struct::NEXT> next_vec_;
+    std::vector<processor_struct::PID> pid_vec_;
+    std::vector<processor_struct::PSPMT> pspmt_vec_;
+    std::vector<processor_struct::ROOTDEV> rootdev_vec_;
+    std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
+    std::vector<processor_struct::VANDLE> vandle_vec_;
 
     ClassDef(PixTreeEvent, 1)
 };

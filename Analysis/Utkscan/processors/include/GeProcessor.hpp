@@ -27,7 +27,7 @@ public:
     virtual void DeclarePlots(void);
 
 private:
-    processor_struct::CLOVERS GEstruct;
+    processor_struct::CLOVER GEstruct;
 };
 
 #endif // __GEPROCESSOR_HPP_
