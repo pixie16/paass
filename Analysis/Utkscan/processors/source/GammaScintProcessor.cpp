@@ -353,7 +353,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             if (!(*it)->GetTrace().empty() && (*it)->GetTrace().HasValidWaveformAnalysis()) {
                 GSstruct.qdc = (*it)->GetTrace().GetQdc();
             }
-            pixie_tree_event_->gamma_scint_vec_.emplace_back(GSstruct);
+            pixie_tree_event_->gammascint_vec_.emplace_back(GSstruct);
             GSstruct = processor_struct::GAMMASCINT_DEFAULT_STRUCT; //reset structure
             //Dont fill because we want 1 pixie event per tree entry, so we add the current structure in the last spot
             //on a vector<> and then reset the structure. and we will at the end or Process()
