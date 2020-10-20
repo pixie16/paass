@@ -73,11 +73,26 @@ struct LOGIC {
 };
 static const LOGIC LOGIC_DEFAULT_STRUCT;
 
-struct NEXT {
+struct NEXTS {
     /* Data container for NEXT */
-    /* To be defined           */
+   double tof = -9999;
+   double corTof = -9999;
+   double qdcPos = -9999;
+   double phaseL = -9999;
+   double phaseR = -9999;
+   double Zpos = -9999;
+   double Ypos = -9999;
+   double qdc = -9999;
+   double aqdc = -9999;
+   int modNum = -9999;
+   double psd = -9999;
+   double tdiff = -9999;
+   unsigned int sNum = 0; //start detector number
+   int vMulti = 0;
+   double sTime = -9999;
+   double sQdc = -9999;
 };
-static const NEXT NEXT_DEFAULT_STRUCT;
+static const NEXTS NEXTS_DEFAULT_STRUCT;
 
 struct PID {
     double rfq_time = -999;
@@ -218,7 +233,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::GAMMASCINT> gammascint_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
-    std::vector<processor_struct::NEXT> next_vec_;
+    std::vector<processor_struct::NEXTS> next_vec_;
     std::vector<processor_struct::PID> pid_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::ROOTDEV> rootdev_vec_;
