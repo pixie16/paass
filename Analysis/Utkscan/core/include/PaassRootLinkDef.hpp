@@ -22,8 +22,8 @@
 #pragma link C++ struct processor_struct::LOGIC+;
 #pragma link C++ class std::vector<processor_struct::LOGIC>+;
 
-#pragma link C++ struct processor_struct::NEXTS+;
-#pragma link C++ class std::vector<processor_struct::NEXTS>+;
+#pragma link C++ struct processor_struct::NEXT+;
+#pragma link C++ class std::vector<processor_struct::NEXT>+;
 
 #pragma link C++ struct processor_struct::PID+;
 #pragma link C++ class std::vector<processor_struct::PID>+;
