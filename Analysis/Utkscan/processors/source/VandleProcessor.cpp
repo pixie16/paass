@@ -77,7 +77,7 @@ VandleProcessor::VandleProcessor(const std::vector<std::string> &typeList, const
 void VandleProcessor::DeclarePlots(void) {
     for(set<string>::iterator it = requestedTypes_.begin(); it != requestedTypes_.end(); it++) {
         pair<unsigned int,unsigned int> offset = ReturnOffset(*it);
-        DeclareHistogram2D(DD_TQDCBARS + offset.first, SD, S8, "Det Loc vs Trace QDC - Right Even - Left Odd");
+        DeclareHistogram2D(DD_TQDCBARS + offset.first, SE, S8, "Det Loc vs Trace QDC - Right Even - Left Odd");
         DeclareHistogram2D(DD_MAXIMUMBARS + offset.first, SD, S8,"Det Loc vs Maximum - Right Even - Left Odd");
         DeclareHistogram2D(DD_TIMEDIFFBARS + offset.first, SB, S6, "Bars vs. Time Differences");
         DeclareHistogram2D(DD_TOFBARS + offset.first, SC, S6, "Bar vs. Time of Flight");
