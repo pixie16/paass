@@ -23,6 +23,7 @@
 #include "WaveformAnalyzer.hpp"
 
 //These headers handle processing of specific detector types
+#include "BatoProcessor.hpp"
 #include "BetaScintProcessor.hpp"
 #include "CloverCalibProcessor.hpp"
 #include "CloverFragProcessor.hpp"
@@ -103,7 +104,9 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         string name = processor.attribute("name").as_string();
 
         messenger_.detail("Loading " + name);
-        if (name == "BetaScintProcessor") {
+        if (name == "BatoProcessor") {
+            vecProcess.push_back(new BatoProcessor());
+        } else if (name == "BetaScintProcessor") {
             vecProcess.push_back(new BetaScintProcessor(
                 processor.attribute("gamma_beta_limit").as_double(200.e-9),
                 processor.attribute("energy_contraction").as_double(1.0)));

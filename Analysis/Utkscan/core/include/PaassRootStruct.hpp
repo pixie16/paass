@@ -14,7 +14,6 @@ struct BATO {
     double time = -999;
     double energy = -999;
     double qdc = -999;
-    int padNum = -999;
     int detNum = -999;
 };
 static const BATO BATO_DEFAULT_STRUCT;
