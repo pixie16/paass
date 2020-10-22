@@ -124,6 +124,9 @@ struct ROOTDEV {
     double rawEnergy = -999;
     double timeSansCfd = -999;
     double time = -999;
+    bool cfdForcedBit = false;
+    double cfdFraction = -999;
+    int cfdSourceBit = -999;
     int detNum = -999;   //the instance number of RD in the xml Map
     int modNum = -999;   // the physical module number
     int chanNum = -999;  // the physical channel number
