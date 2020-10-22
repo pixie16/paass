@@ -44,6 +44,9 @@ bool RootDevProcessor::Process(RawEvent &event) {
         if (Rev == "F") {
             RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
             RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
+            RDstruct.cfdForcedBit = (*it)->GetCfdForcedTriggerBit();
+            RDstruct.cfdFraction = (*it)->GetCfdFractionalTime();
+            RDstruct.cfdSourceBit = (*it)->GetCfdTriggerSourceBit();
         } else {
             RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9;
             RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds() * 1e9;
