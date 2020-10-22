@@ -24,6 +24,7 @@ struct CLOVER {
     double time = -999;
     int detNum = -999;
     int cloverNum = -999;
+    bool cloverHigh = false;
 };
 
 static const CLOVER CLOVER_DEFAULT_STRUCT;
