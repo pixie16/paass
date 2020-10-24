@@ -44,12 +44,16 @@ const int DD_SEPAR_YSO_GATED = 18;
 const int DD_POS_ION = 20;
 const int DD_SEPAR_GATED_ION = 21;
 const int DD_DESI_GATED_ION = 22;
+
+const int DD_LOWDYN_FITE = 23;
+const int DD_POS_LOW_PINGATED = 24;
 }  // namespace pspmt
 }  // namespace dammIds
 
 void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DYNODE_QDC, SD, S2, "Dynode QDC- Low gain 0, High gain 1");
     DeclareHistogram2D(DD_POS_LOW, SB, SB, "Low-gain Positions");
+    DeclareHistogram2D(DD_POS_LOW_PINGATED, SB, SB, "Low-gain Pin Gated Positions");
     DeclareHistogram2D(DD_POS_HIGH, SB, SB, "High-gain Positions");
     DeclareHistogram2D(DD_PLASTIC_EN, SD, S4, "Plastic Energy, 0-3 = VETO, 5-8 = Ion Trigger");
     DeclareHistogram2D(DD_MULTI, S3, S3, "Dynode:Anode(+2) Multi Low gain 0, High gain 1");
@@ -66,6 +70,8 @@ void PspmtProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_POS_ION, SB, SB, "Ion-scint positions - ungated");
     DeclareHistogram2D(DD_SEPAR_GATED_ION, SB, SB, "Ion-scint positions - separator-gated");
     DeclareHistogram2D(DD_DESI_GATED_ION, SB, SB, "Ion-scint positions - silicon dE-gated");
+
+    DeclareHistogram2D(DD_LOWDYN_FITE,SE,SE, "implant dynode qdc vs FIT energy");
 }
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, const unsigned int &yso_offset,
@@ -99,21 +105,37 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
     }
 
+    bool Pin_Implant = false;
+     if (TreeCorrelator::get()->checkPlace("pid_pin0")) {
+        if (TreeCorrelator::get()->place("pid_pin0")->last().energy > front_threshold_) {
+            Pin_Implant = true;
+        };
+    } else if (TreeCorrelator::get()->checkPlace("pid_pin1")) {
+        if (TreeCorrelator::get()->place("pid_pin1")->last().energy > front_threshold_) {
+            Pin_Implant = true;
+        };
+    }
+
+
     //read in anode & dynode signals
     static const vector<ChanEvent *> &hiDynode = event.GetSummary("pspmt:dynode_high")->GetList();
     static const vector<ChanEvent *> &lowDynode = event.GetSummary("pspmt:dynode_low")->GetList();
     static const vector<ChanEvent *> &hiAnode = event.GetSummary("pspmt:anode_high")->GetList();
     static const vector<ChanEvent *> &lowAnode = event.GetSummary("pspmt:anode_low")->GetList();
 
-    static const vector<ChanEvent *> &veto = event.GetSummary("pspmt:veto")->GetList();
-    static const vector<ChanEvent *> &ionTrig = event.GetSummary("pspmt:ion")->GetList();
+    static const vector<ChanEvent *> &veto = event.GetSummary("pspmt:RIT")->GetList();
+    static const vector<ChanEvent *> &ionTrig = event.GetSummary("pspmt:FIT")->GetList();
     static const vector<ChanEvent *> &desi = event.GetSummary("pspmt:desi")->GetList();
     static const vector<ChanEvent *> &separatorScint = event.GetSummary("pspmt:f11")->GetList();
 
     //Plot Dynode QDCs
+    double Highest_dynL_qdc=0;
     for (auto it = lowDynode.begin(); it != lowDynode.end(); it++) {
         if (DetectorDriver::get()->GetSysRootOutput()) {
             FillPSPMTStruc(*(*it));
+        }
+        if ((*it)->GetTrace().GetQdc() > Highest_dynL_qdc){
+            Highest_dynL_qdc = (*it)->GetTrace().GetQdc();
         }
         plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc(), 0);
     }
@@ -131,7 +153,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     double energy = 0;
     double xa_l = 0, ya_l = 0, xb_l = 0, yb_l = 0;
     double xa_h = 0, ya_h = 0, xb_h = 0, yb_h = 0;
-    double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
+    // double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
     bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,
          hasDeSi = false, hasVeto = false;
 
@@ -206,6 +228,10 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         position_low.second = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).second;
         plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
              position_low.second * positionScale_ + positionOffset_);
+        if (Pin_Implant){
+            plot(DD_POS_LOW_PINGATED, position_low.first * positionScale_ + positionOffset_,
+             position_low.second * positionScale_ + positionOffset_);
+        }
     }
 
     if (xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0) {
@@ -217,7 +243,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     }
 
     //---------------VETO LOOP------------------------------------------------
-    int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "veto")).size();
+    int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
 
     for (auto it = veto.begin(); it != veto.end(); it++) {
         int loc = (*it)->GetChanID().GetLocation();
@@ -233,7 +259,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
     //------------Positions from ion scintillator---------------------------------
     //using top - bottom and left - right computation scheme
-
+    double Highest_FIT_energy = 0;
     for (auto it = ionTrig.begin(); it != ionTrig.end(); it++) {
         //check signals energy vs threshold
 
@@ -244,28 +270,33 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         if (energy < 10)
             continue;
 
+         if ((*it)->GetCalibratedEnergy() > Highest_FIT_energy){
+            Highest_FIT_energy = (*it)->GetCalibratedEnergy();
+        }
+
         // damm plotting of energies
         int loc = (*it)->GetChanID().GetLocation();
         plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc + numOfVetoChans + 1);  //max veto chan +1 for readablility
 
-        //parcel out position signals by tag
-        if ((*it)->GetChanID().GetGroup() == "black" && top_l == 0)
-            top_l = energy;
-        if ((*it)->GetChanID().GetGroup() == "blue" && top_r == 0)
-            top_r = energy;
-        if ((*it)->GetChanID().GetGroup() == "white" && bottom_l == 0)
-            bottom_l = energy;
-        if ((*it)->GetChanID().GetGroup() == "green" && bottom_r == 0)
-            bottom_r = energy;
+        // parcel out position signals by tag
+        // if ((*it)->GetChanID().GetGroup() == "black" && top_l == 0)
+            // top_l = energy;
+        // if ((*it)->GetChanID().GetGroup() == "blue" && top_r == 0)
+            // top_r = energy;
+        // if ((*it)->GetChanID().GetGroup() == "white" && bottom_l == 0)
+            // bottom_l = energy;
+        // if ((*it)->GetChanID().GetGroup() == "green" && bottom_r == 0)
+            // bottom_r = energy;
     }
 
-    if (top_l > 0 && top_r > 0 && bottom_l > 0 && bottom_r > 0) {
-        hasPosition_ion = true;
-        position_ion.first = (top_l + bottom_l - top_r - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
-        position_ion.second = (top_l + top_r - bottom_l - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
-        plot(DD_POS_ION, position_ion.first * front_positionScale_ + front_positionOffset_,
-             position_ion.second * front_positionScale_ + front_positionOffset_);
-    }
+   plot(DD_LOWDYN_FITE, Highest_FIT_energy, Highest_dynL_qdc);
+    // if (top_l > 0 && top_r > 0 && bottom_l > 0 && bottom_r > 0) {
+    //     hasPosition_ion = true;
+    //     position_ion.first = (top_l + bottom_l - top_r - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
+    //     position_ion.second = (top_l + top_r - bottom_l - bottom_r) / (top_l + top_r + bottom_l + bottom_r);
+    //     plot(DD_POS_ION, position_ion.first * front_positionScale_ + front_positionOffset_,
+    //          position_ion.second * front_positionScale_ + front_positionOffset_);
+    // }
 
     //----------------------------------------------------------------------------
     //------------Check Transmission efficiencies---------------------------------
