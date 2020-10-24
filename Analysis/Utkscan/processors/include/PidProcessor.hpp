@@ -26,7 +26,7 @@ public:
 	 * @param pin0 : channel location id of pin0
 	 * @param pin1 : channel location id of pin1
 	*/
-	PidProcessor();
+	PidProcessor(const double &YSO_Implant_thresh,const double &FIT_thresh);
 
 	///Default Destructor
 	~PidProcessor() = default;
@@ -42,7 +42,7 @@ public:
 	///Process the PID data
 	///param [in] event : the event to process
 	///return true if successful
-	//virtual bool Process(RawEvent &event);
+	virtual bool Process(RawEvent &event);
 
 private:
 
@@ -53,6 +53,8 @@ private:
 
 	virtual double ConvertPinToZ(double &pin);
 
+	double yso_threshold_; //threshold for yso implant gating
+	double fit_threshold_; //threshold for fit implant gating
 	processor_struct::PID pid_struct;
 
 
