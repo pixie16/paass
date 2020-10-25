@@ -97,13 +97,15 @@ static const NEXT NEXT_DEFAULT_STRUCT;
 struct PID {
     double rfq_time = -999;
     double fp_time = -999;
+    double pinCfd_time = -999;
     double pin_0_time = -999;
     double pin_1_time = -999;
     double pin_0_energy = -999;
     double pin_1_energy = -999;
     double tac_0 = -999;
     double tac_1 = -999;
-    double tof = -999;
+    double tof0 = -999;
+    double tof1 = -999;
 };
 static const PID PID_DEFAULT_STRUCT;
 
