@@ -98,8 +98,8 @@ bool CloverFragProcessor::Process(RawEvent &event) {
 
     //vector <ChanEvent*>
     static const auto &cloverEvents = event.GetSummary("clover", true)->GetList();
-    static const auto &vetoEvents = event.GetSummary("pspmt:veto", true)->GetList();
-    static const auto &ionTriggerEvents = event.GetSummary("pspmt:ion", true)->GetList();
+    static const auto &vetoEvents = event.GetSummary("pspmt:RIT", true)->GetList();
+    static const auto &ionTriggerEvents = event.GetSummary("pspmt:FIT", true)->GetList();
     static const auto &pspmtBetaEvents = event.GetSummary("pspmt:dynode_high", true)->GetList();
 
     // loop through gater events for either light ion veto (behind) or ion trigger (in front)
