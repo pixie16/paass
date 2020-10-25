@@ -166,7 +166,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     double lowAnodeSum = 0;
     for (auto it = lowAnode.begin(); it != lowAnode.end(); it++) {
         //check signals energy vs threshold
-        energy = (*it)->GetCalibratedEnergy();
+        energy = (*it)->GetTrace().GetMaxInfo().second;
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
             FillPSPMTStruc(*(*it));
@@ -200,7 +200,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
         }
 
         //check signals energy vs threshold
-        energy = (*it)->GetCalibratedEnergy();
+        energy = (*it)->GetTrace().GetMaxInfo().second;
         if (energy < threshold_ || energy > 63000)
             continue;
         //parcel out position signals by tag
