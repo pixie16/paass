@@ -53,8 +53,8 @@ const int DD_TAC0_PIN1_GATED_YSO = 17;  //! GATED TAC0 vs Pin1 dE
 const int DD_TAC1_PIN1 = 18;            //! TAC1 vs Pin1 dE
 const int DD_TAC1_PIN1_GATED_YSO = 19;  //! GATED TAC1 vs Pin1 dE
 
-const int DD_TOF0_PIN0_GATED_FIT = 20;   //! GATED ToF vs Pin0 dE
-const int DD_TOF0_PIN1_GATED_FIT = 21;   //! GATED ToF vs Pin1 dE
+const int DD_TOF0_PIN0_GATED_FIT = 20;  //! GATED ToF vs Pin0 dE
+const int DD_TOF0_PIN1_GATED_FIT = 21;  //! GATED ToF vs Pin1 dE
 const int DD_TAC0_PIN0_GATED_FIT = 22;  //! GATED TAC0 vs Pin0 dE
 const int DD_TAC1_PIN0_GATED_FIT = 23;  //! GATED TAC1 vs Pin0 dE
 const int DD_TAC0_PIN1_GATED_FIT = 24;  //! GATED TAC0 vs Pin1 dE
@@ -89,7 +89,7 @@ void PidProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_TOF0_PIN1_GATED_FIT, SB, SD, "FIT:Tof0 vs Pin1 dE ");
 
     DeclareHistogram2D(DD_TOF1_PIN0, SB, SD, "Tof1 vs Pin0 dE ");
-    // DeclareHistogram2D(DD_TOF1_PIN0_GATED_YSO, SB, SD, "YSO: Tof1 vs Pin0 dE ");
+    DeclareHistogram2D(DD_TOF1_PIN0_GATED_YSO, SB, SD, "YSO: Tof1 vs Pin0 dE ");
     // DeclareHistogram2D(DD_TOF1_PIN0_GATED_FIT, SB, SD, "FIT: Tof1 vs Pin0 dE ");
     DeclareHistogram2D(DD_TOF1_PIN1, SB, SD, "Tof1 vs Pin1 dE ");
     // DeclareHistogram2D(DD_TOF1_PIN1_GATED_YSO, SB, SD, "YSO:Tof1 vs Pin1 dE ");
@@ -130,7 +130,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
     bool YSO_Implant = false, FIT_Implant = false;
     if (TreeCorrelator::get()->checkPlace("pspmt_dynode_low_0")) {
         if (TreeCorrelator::get()->place("pspmt_dynode_low_0")->last().energy > yso_threshold_) {
-            // cout<<"YSO_Implant"<<endl;
+            // cout<<"YSO_Implant energy = " << TreeCorrelator::get()->place("pspmt_dynode_low_0")->last().energy<<endl;
             YSO_Implant = true;
         };
     };
@@ -162,17 +162,14 @@ bool PidProcessor::PreProcess(RawEvent &event) {
         return x->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(x->GetChanID().GetModFreq()) * 1e9;
     };
 
-    //* Tof between rfq and beamline FocalPlane */ 
+    //* Tof between rfq and beamline FocalPlane */
 
-    //TODO 
-    //! add FP pin virtual tac 
-
-    double tof0 = 0, tof1 = 0, pin0_energy = 0, pin1_energy = 0, tac0 = 0, tac1 = 0;
+    double tof0 = 0, tof1 = 0, pin0_energy = 0, pin1_energy = 0, tac0_energy = 0, tac1_energy = 0;
     if (!rfq_vec.empty() && !fp_vec.empty()) {
         // Get the first element in this event for RFQ
         auto rfq = rfq_vec.at(0);
         double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds(rfq->GetChanID().GetModFreq()) * 1e9;
-       
+
         // Get elements with the largest energy in this event for fp
         auto fp = std::max_element(fp_vec.begin(), fp_vec.end(), compare_energy);
         // Check for nullptr
@@ -189,17 +186,16 @@ bool PidProcessor::PreProcess(RawEvent &event) {
             }
         }
     }
-     if (!fp_vec.empty() && !pinCfd_vec.empty()) {
-
-       // Get elements with the largest energy in this event for fp
+    if (!fp_vec.empty() && !pinCfd_vec.empty()) {
+        // Get elements with the largest energy in this event for fp
         auto fp = std::max_element(fp_vec.begin(), fp_vec.end(), compare_energy);
         // Check for nullptr
         double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*fp)->GetChanID().GetModFreq()) * 1e9;
-      
+
         // Get elements with the largest energy in this event for pinCfd
         auto pinCfd = std::max_element(pinCfd_vec.begin(), pinCfd_vec.end(), compare_energy);
         // Check for nullptr
-        if ((*pinCfd) && (*fp) ) {
+        if ((*pinCfd) && (*fp)) {
             // Calculate tof
             tof1 = ((*fp)->GetTime() * internalTAC_Convert_Tick_adc) - ((*pinCfd)->GetTime() * internalTAC_Convert_Tick_adc);
             plot(D_TOF1, tof1);
@@ -212,24 +208,36 @@ bool PidProcessor::PreProcess(RawEvent &event) {
             }
         }
     }
-  
-
 
     //** TACs */
     if (!tac0_vec.empty()) {
+        tac0_energy = 0;
+        if (tac0_vec.size() >= 2) {
+            auto tac_max = max_element(tac0_vec.begin(), tac0_vec.end(), compare_energy);
+            tac0_energy = (*tac_max)->GetCalibratedEnergy();
+        } else {
+            tac0_energy = tac0_vec.at(0)->GetCalibratedEnergy();
+        }
+        if (root_output) {  // only record to root the largest one
+            pid_struct.tac_0 = tac0_energy;
+        }
         for (auto tac = tac0_vec.begin(); tac != tac0_vec.end(); ++tac) {
             plot(DD_TACS, 0, (*tac)->GetCalibratedEnergy());
-            if (root_output) {
-                pid_struct.tac_0 = (*tac)->GetCalibratedEnergy();
-            }
         }
     }
     if (!tac1_vec.empty()) {
+        tac1_energy = 0;
+        if (tac1_vec.size() >= 2) {
+            auto tac_max = max_element(tac1_vec.begin(), tac1_vec.end(), compare_energy);
+            tac1_energy = (*tac_max)->GetCalibratedEnergy();
+        } else {
+            tac1_energy = tac1_vec.at(0)->GetCalibratedEnergy();
+        }
+        if (root_output) {
+            pid_struct.tac_1 = tac1_energy;
+        }
         for (auto tac = tac1_vec.begin(); tac != tac1_vec.end(); ++tac) {
             plot(DD_TACS, 1, (*tac)->GetCalibratedEnergy());
-            if (root_output) {
-                pid_struct.tac_1 = (*tac)->GetCalibratedEnergy();
-            }
         }
     }
 
@@ -237,17 +245,19 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
     if (!pin0_vec.empty()) {
         auto pin = max_element(pin0_vec.begin(), pin0_vec.end(), compare_energy);
-        plot(DD_PINS_DE, 0, (*pin)->GetCalibratedEnergy());
+        pin0_energy = (*pin)->GetCalibratedEnergy();
+        plot(DD_PINS_DE, 0, pin0_energy);
         if (root_output) {
-            pid_struct.pin_0_energy = (*pin)->GetCalibratedEnergy();
+            pid_struct.pin_0_energy = pin0_energy;
             pid_struct.pin_0_time = get_time_in_ns(*pin);
         }
     }
     if (!pin1_vec.empty()) {
         auto pin = max_element(pin1_vec.begin(), pin1_vec.end(), compare_energy);
-        plot(DD_PINS_DE, 1, (*pin)->GetCalibratedEnergy());
+        pin1_energy = (*pin)->GetCalibratedEnergy();
+        plot(DD_PINS_DE, 1, pin1_energy);
         if (root_output) {
-            pid_struct.pin_1_energy = (*pin)->GetCalibratedEnergy();
+            pid_struct.pin_1_energy = pin1_energy;
             pid_struct.pin_0_time = get_time_in_ns(*pin);
         }
     }
@@ -261,37 +271,38 @@ bool PidProcessor::PreProcess(RawEvent &event) {
     plot(DD_PINS_MULT, 1, pin1_vec.size());
 
     // Plot 2d histograms
-    plot(DD_PIN0_1, pid_struct.pin_0_energy, pid_struct.pin_1_energy);
+    plot(DD_PIN0_1, pin0_energy, pin1_energy);
 
-    plot(DD_TOF0_PIN0, pid_struct.tof0, pid_struct.pin_0_energy);
-    plot(DD_TOF0_PIN1, pid_struct.tof0, pid_struct.pin_1_energy);
+    plot(DD_TOF0_PIN0, tof0, pin0_energy);
+    plot(DD_TOF0_PIN1, tof0, pin1_energy);
 
-    plot(DD_TOF1_PIN0, pid_struct.tof1, pid_struct.pin_0_energy);
-    plot(DD_TOF1_PIN1, pid_struct.tof1, pid_struct.pin_1_energy);
+    plot(DD_TOF1_PIN0, tof1, pin0_energy);
+    plot(DD_TOF1_PIN1, tof1, pin1_energy);
 
-    plot(DD_TAC0_PIN0, pid_struct.tac_0, pid_struct.pin_0_energy);
-    plot(DD_TAC0_PIN1, pid_struct.tac_0, pid_struct.pin_1_energy);
+    plot(DD_TAC0_PIN0, tac0_energy, pin0_energy);
+    plot(DD_TAC0_PIN1, tac0_energy, pin1_energy);
 
-    plot(DD_TAC1_PIN0, pid_struct.tac_1, pid_struct.pin_0_energy);
-    plot(DD_TAC1_PIN1, pid_struct.tac_1, pid_struct.pin_1_energy);
+    plot(DD_TAC1_PIN0, tac1_energy, pin0_energy);
+    plot(DD_TAC1_PIN1, tac1_energy, pin1_energy);
 
     if (YSO_Implant) {
+        // cout << "In YSO_Implant" << endl;
         plot(DD_TOF0_PIN0_GATED_YSO, tof0, pin0_energy);
         plot(DD_TOF0_PIN1_GATED_YSO, tof0, pin1_energy);
-        plot(DD_TAC0_PIN0_GATED_YSO, tac0, pin0_energy);
-        plot(DD_TAC0_PIN1_GATED_YSO, tac0, pin1_energy);
-        plot(DD_TAC1_PIN0_GATED_YSO, tac1, pin0_energy);
-        plot(DD_TAC1_PIN1_GATED_YSO, tac1, pin1_energy);
+        plot(DD_TAC0_PIN0_GATED_YSO, tac0_energy, pin0_energy);
+        plot(DD_TAC0_PIN1_GATED_YSO, tac0_energy, pin1_energy);
+        plot(DD_TAC1_PIN0_GATED_YSO, tac1_energy, pin0_energy);
+        plot(DD_TAC1_PIN1_GATED_YSO, tac1_energy, pin1_energy);
+        plot(DD_TOF1_PIN0_GATED_YSO, tof1, pin0_energy);
     }
     if (FIT_Implant) {
         plot(DD_TOF0_PIN0_GATED_FIT, tof0, pin0_energy);
         plot(DD_TOF0_PIN1_GATED_FIT, tof0, pin1_energy);
-        plot(DD_TAC0_PIN0_GATED_FIT, tac0, pin0_energy);
-        plot(DD_TAC0_PIN1_GATED_FIT, tac0, pin1_energy);
-        plot(DD_TAC1_PIN0_GATED_FIT, tac1, pin0_energy);
-        plot(DD_TAC1_PIN1_GATED_FIT, tac1, pin1_energy);
+        plot(DD_TAC0_PIN0_GATED_FIT, tac0_energy, pin0_energy);
+        plot(DD_TAC0_PIN1_GATED_FIT, tac0_energy, pin1_energy);
+        plot(DD_TAC1_PIN0_GATED_FIT, tac1_energy, pin0_energy);
+        plot(DD_TAC1_PIN1_GATED_FIT, tac1_energy, pin1_energy);
     }
-    
 
     if (root_output) {
         // Fill the event to the PixeTreeEvent object
