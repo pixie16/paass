@@ -111,6 +111,7 @@ static const PID PID_DEFAULT_STRUCT;
 
 struct PSPMT {
     double energy = -999;
+     double qdc = -999;
     double time = -999;
     TString subtype = "";
     TString tag = "";
