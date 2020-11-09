@@ -56,6 +56,7 @@ option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
 option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
+# option(PAASS_BUILD_PAASSROOTSTRUCT "Build PaassRootStuct" OFF)
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
 option(PAASS_USE_NCURSES "Use ncurses for terminal" ON)
@@ -150,6 +151,31 @@ if (PAASS_USE_ROOT)
     link_directories(${ROOT_LIBRARY_DIR})
     add_definitions("-D USE_ROOT")
     add_definitions("-D useroot")
+    
+    if (PAASS_BUILD_SHARED_LIBS)
+        #added by T.T. King for Vector Root Libs
+        SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+        SET(CMAKE_SKIP_INSTALL_RPATH FALSE)
+        SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+        SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+        ROOT_GENERATE_DICTIONARY(PaassRootStruct  Analysis/Utkscan/core/include/PaassRootStruct.hpp LINKDEF Analysis/Utkscan/core/include/PaassRootLinkDef.hpp )
+        add_library(PaassRootStruct SHARED PaassRootStruct.cxx PaassRootStruct)
+        install(TARGETS PaassRootStruct DESTINATION lib)
+
+        install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/core/include/PaassRootStruct.hpp DESTINATION include/)
+        #Install the ROOT 6 PCM.
+        if (${ROOT_VERSION} VERSION_GREATER "6.0")
+        install( FILES ${CMAKE_CURRENT_BINARY_DIR}/PaassRootStruct_rdict.pcm DESTINATION lib/)
+        endif (${ROOT_VERSION} VERSION_GREATER "6.0")
+
+
+        #End T.T. King Additions
+        #----
+    endif(PAASS_BUILD_SHARED_LIBS)
+
 endif (PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
