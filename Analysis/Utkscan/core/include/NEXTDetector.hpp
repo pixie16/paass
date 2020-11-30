@@ -61,14 +61,16 @@ public:
     }
 
     bool GetHasEvent(void) const{
+    // std::cout<<GetLeftSide().GetTrace().HasValidAnalysis()<<"  "<<GetLeftSide().GetTrace().GetPhase()<<std::endl;
 	return (GetHasEventPosition() && GetHasEventTiming() ) ;
+	// return ( GetHasEventTiming() ) ;
     }
 
     /** \return the flight path of the particle to the detector */
     double GetFlightPath(void) const {
 //        if (GetType() == "small")
-            return (sqrt( ( GetCalibration().GetZ0() + GetAverageZPos() * 24.0 ) *
-                          ( GetCalibration().GetZ0() + GetAverageZPos() * 24.0 ) +
+            return (sqrt( ( GetCalibration().GetZ0() + GetAvgZPos() * 24.0 ) *
+                          ( GetCalibration().GetZ0() + GetAvgZPos() * 24.0 ) +
                          pow(Globals::get()->GetNEXTSpeedOfLightInCmPerNs() *
                              0.5 * GetTimeDifference() +
                              GetCalibration().GetXOffset(), 2) 
@@ -79,6 +81,15 @@ public:
     /** \return the position independent qdc for the bar */
     double GetQdc() const {
         return (sqrt(right_.GetTraceQdc() * left_.GetTraceQdc()));
+    }
+    double GetPQdc() const{
+	return (sqrt(right_.GetPixieQdc() * left_.GetPixieQdc()));
+    }
+    double GetlQdc() const {
+        return (left_.GetTraceQdc());
+    }
+    double GetrQdc() const {
+        return (right_.GetTraceQdc());
     }
     double GetLpsd() const{
         return left_.GetDiscrimination();
@@ -113,6 +124,72 @@ public:
         double GetlSdBase() const{
           return left_.GetStdDevBaseline();
       }
+
+      double GetlFTtqdc() const {
+        return ( GetLeftPos().GetFTtqdc() );
+    }
+    double GetlFBtqdc() const {
+        return ( GetLeftPos().GetFBtqdc() );
+    }
+    double GetlBTtqdc() const {
+        return ( GetLeftPos().GetBTtqdc() );
+    }
+    double GetlBBtqdc() const {
+        return ( GetLeftPos().GetBBtqdc() );
+    }
+      double GetrFTtqdc() const {
+        return ( GetRightPos().GetFTtqdc() );
+    }
+    double GetrFBtqdc() const {
+        return ( GetRightPos().GetFBtqdc() );
+    }
+    double GetrBTtqdc() const {
+        return ( GetRightPos().GetBTtqdc() );
+    }
+    double GetrBBtqdc() const {
+        return ( GetRightPos().GetBBtqdc() );
+    }
+
+     double GetlFTqdc() const {
+        return ( GetLeftPos().GetFTqdc() );
+    }
+    double GetlFBqdc() const {
+        return ( GetLeftPos().GetFBqdc() );
+    }
+    double GetlBTqdc() const {
+        return ( GetLeftPos().GetBTqdc() );
+    }
+    double GetlBBqdc() const {
+        return ( GetLeftPos().GetBBqdc() );
+    }
+      double GetrFTqdc() const {
+        return ( GetRightPos().GetFTqdc() );
+    }
+    double GetrFBqdc() const {
+        return ( GetRightPos().GetFBqdc() );
+    }
+    double GetrBTqdc() const {
+        return ( GetRightPos().GetBTqdc() );
+    }
+    double GetrBBqdc() const {
+        return ( GetRightPos().GetBBqdc() );
+    }
+
+    double Getraqdc() const {
+        return ( GetRightPos().GetFTqdc() + GetRightPos().GetFBqdc() + GetRightPos().GetBTqdc() + GetRightPos().GetBBqdc() );
+    }
+
+    double Getlaqdc() const {
+        return ( GetLeftPos().GetFTqdc() + GetLeftPos().GetFBqdc() + GetLeftPos().GetBTqdc() + GetLeftPos().GetBBqdc() );
+    }
+
+      double Getratqdc() const {
+        return ( GetRightPos().GetFTqdc() + GetRightPos().GetFBqdc() + GetRightPos().GetBTqdc() + GetRightPos().GetBBqdc() );
+    }
+
+    double Getlatqdc() const {
+        return ( GetLeftPos().GetFTtqdc() + GetLeftPos().GetFBtqdc() + GetLeftPos().GetBTtqdc() + GetLeftPos().GetBBtqdc() );
+    }
 
     double GetAnodeQdc() const {
         if ( GetHasEventPosition() )
@@ -157,28 +234,53 @@ public:
                 GetCalibration().GetLeftRightTimeOffset());
     }
 
-    /** \return the average high resolution X position */
-    double GetAverageZPos() const {
+    /** \return the average high resolution Z position */
+    double GetAvgZPos() const {
         return ( aright_.GetHighResZPos() + aleft_.GetHighResZPos() ) / 2.0;
     }
 
-    /**  \return the average high resolution Y position */
-    double GetAverageYPos() const {
+    /** \return the average high resolution Y position */
+    double GetAvgYPos() const {
         return ( aright_.GetHighResYPos() + aleft_.GetHighResYPos() ) / 2.0;
     }
 
-    double GetFT() const {
-        return ( GetLeftPos().GetFTQdc() + GetRightPos().GetFTQdc() );
+    /** \return the average high resolution Z position from Pixie Filter */
+    double GetAvgFilterZPos() const {
+        //return -0.5;
+        return ( aright_.GetFilterZPos() + aleft_.GetFilterZPos() ) / 2.0;
     }
-    double GetFB() const {
-        return ( GetLeftPos().GetFBQdc() + GetRightPos().GetFBQdc() );
+
+    /** \return the average high resolution Y position from Pixie Filter */
+    double GetAvgFilterYPos() const {
+        //return -0.5;
+        return ( aright_.GetFilterYPos() + aleft_.GetFilterYPos() ) / 2.0;
     }
-    double GetBT() const {
-        return ( GetLeftPos().GetBTQdc() + GetRightPos().GetBTQdc() );
+
+    /** \return the average high resolution Z position from Pixie QDC*/
+    double GetAvgQdcZPos() const {
+        //return 0.5;
+        return ( aright_.GetPixieQdcZPos() + aleft_.GetPixieQdcZPos() ) / 2.0;
     }
-    double GetBB() const {
-        return ( GetLeftPos().GetBBQdc() + GetRightPos().GetBBQdc() );
+
+    /** \return the average high resolution Y position from Pixie QDC */
+    double GetAvgQdcYPos() const {
+        //return 0.5;
+        return ( aright_.GetPixieQdcYPos() + aleft_.GetPixieQdcYPos() ) / 2.0;
     }
+
+
+    // double GetFT() const {
+    //     return ( GetLeftPos().GetFTQdc() + GetRightPos().GetFTQdc() );
+    // }
+    // double GetFB() const {
+    //     return ( GetLeftPos().GetFBQdc() + GetRightPos().GetFBQdc() );
+    // }
+    // double GetBT() const {
+    //     return ( GetLeftPos().GetBTQdc() + GetRightPos().GetBTQdc() );
+    // }
+    // double GetBB() const {
+    //     return ( GetLeftPos().GetBBQdc() + GetRightPos().GetBBQdc() );
+    // }
 
     /** \return the left_ var */
     const HighResTimingData &GetLeftSide() const { return (left_); }

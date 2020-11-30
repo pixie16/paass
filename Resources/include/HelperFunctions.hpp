@@ -214,6 +214,7 @@ namespace Statistics {
     template<class T>
     inline double CalculateIntegral(const vector<T> &data) {
         if (data.size() < 2)
+	//	return -9999;
             throw range_error("Statistical::CalculateIntegral - The data "
                                       "vector was too small to integrate. We "
                                       "need at least a size of 2.");

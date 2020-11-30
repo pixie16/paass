@@ -9,7 +9,7 @@
 #include <iostream>
 #include <limits>
 #include <map>
-
+#include "Trace.hpp"
 #include "HighResTimingData.hpp"
 #include "TimingCalibrator.hpp"
 

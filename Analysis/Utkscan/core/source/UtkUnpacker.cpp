@@ -97,15 +97,16 @@ void UtkUnpacker::ProcessRawEvent() {
         usedDetectors.insert((*detectorLibrary)[(*it)->GetId()].GetType());
         rawev.AddChan(event);
 
-        //if(event->GetChanID().GetType() == "vandle" || event->GetChanID().GetType() == "RD") nEvent=true;
-        if(event->GetChanID().GetType() == "vandle") nEvent=true;
+        if(event->GetChanID().GetType() == "next" || event->GetChanID().GetType() == "RD") nEvent=true;
+       // if(event->GetChanID().GetType() == "vandle") nEvent=true;
+        //   if(event->GetChanID().GetType() == "next") nEvent=true;
         ///@TODO Add back in the processing for the dtime.
     }//for(deque<PixieData*>::iterator
 
     
     try {
         
-        driver->ProcessEvent(rawev);
+        if (nEvent) driver->ProcessEvent(rawev);
         
         rawev.Zero(usedDetectors);
         usedDetectors.clear();

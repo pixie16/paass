@@ -79,11 +79,12 @@ public:
 
 private:
     ///Analyze the data for scenarios with Bar Starts; e.g. Double Beta detectors
-    void AnalyzeModStarts(const NEXTDetector &bar, unsigned int &modLoc);
+    void AnalyzeBarStarts(const NEXTDetector &bar, unsigned int &modLoc);
 
     ///Analyze the data for scenarios with Single sided Starts; e.g. LeRIBSS beta scintillators.
     void AnalyzeStarts(const NEXTDetector &bar, unsigned int &modLoc);
 
+    void FillPairWise(const NEXTDetector &bar, unsigned int &modLoc);
     ///Fill up the basic histograms
     void FillNEXTOnlyHists();
 
@@ -117,6 +118,8 @@ private:
     bool hasMed_; //!< True if medium bars were requested in the Config
 */
     unsigned int numStarts_; //!< The number of starts set in the Config File
+    unsigned int numDyn;
+    unsigned int numAnd;
 
     std::set<std::string> requestedTypes_;//!< The list of bar types to expect
 

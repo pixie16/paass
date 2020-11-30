@@ -91,9 +91,14 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
 
         //Finally, we calculate the QDC in the waveform range and subtract
         // the baseline from it.
-        pair<unsigned int, unsigned int> waveformRange(max.first - range.first, max.first + range.second);
+       pair<unsigned int, unsigned int> waveformRange(max.first - range.first, max.first + range.second);
+        int endRange = (max.first+50 > trace.size()) ? trace.size()-2 : max.first+50;
+        pair<unsigned int, unsigned int> qdcRange(max.first - range.first, endRange);
+        pair<unsigned int, unsigned int> tqdcRange(max.first +4, endRange); 
+
+        /* pair<unsigned int, unsigned int> waveformRange(max.first - range.first, max.first + range.second);
         pair<unsigned int, unsigned int> qdcRange(max.first - range.first, max.first + 50);
-        pair<unsigned int, unsigned int> tqdcRange(max.first +4, max.first + 50);
+        pair<unsigned int, unsigned int> tqdcRange(max.first+4, max.first + 50); */
         double qdc = TraceFunctions::CalculateQdc(traceNoBaseline, qdcRange);
         double tailRatio = TraceFunctions::CalculateTailRatio(traceNoBaseline, tqdcRange, qdc);
         //Now we are going to set all the different values into the trace.

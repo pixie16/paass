@@ -39,7 +39,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
     static const auto &Events = event.GetSummary("RD", true)->GetList();
 
     for (auto it = Events.begin(); it != Events.end(); it++) {
-        RDstruct.energy = (*it)->GetCalibratedEnergy();
+	    RDstruct.energy = (*it)->GetCalibratedEnergy();
         RDstruct.rawEnergy = (*it)->GetEnergy();
         if (Rev != "D") {
             RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
@@ -51,7 +51,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
         RDstruct.detNum = (*it)->GetChanID().GetLocation();
         RDstruct.modNum = (*it)->GetModuleNumber();
         RDstruct.chanNum = (*it)->GetChannelNumber();
-        RDstruct.subtype = (*it)->GetChanID().GetSubtype();
+	    RDstruct.subtype = (*it)->GetChanID().GetSubtype();
         RDstruct.group = (*it)->GetChanID().GetGroup();
         RDstruct.pileup = (*it)->IsPileup();
         RDstruct.saturation = (*it)->IsSaturated();
@@ -64,8 +64,8 @@ bool RootDevProcessor::Process(RawEvent &event) {
             RDstruct.highResTime = (*it)->GetHighResTimeInNs();
         }
         if (!(*it)->GetQdc().empty()) {
-            RDstruct.qdcSums = (*it)->GetQdc();
-        }
+           RDstruct.qdcSums = (*it)->GetQdc();
+    }
         pixie_tree_event_->root_dev_vec_.emplace_back(RDstruct);
         RDstruct = processor_struct::ROOTDEV_DEFAULT_STRUCT;
     }

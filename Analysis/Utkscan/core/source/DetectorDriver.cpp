@@ -229,6 +229,8 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         cout << Display::WarningStr("Warning caught at DetectorDriver::ProcessEvent") << endl;
         cout << "\t" << Display::WarningStr(w.what()) << endl;
     }
+       // cout << "NEXT VEC SIZE:  " << pixie_tree_event_.next_vec_.size() << endl;
+
     if (sysrootbool_) {
         if (fillLogic_) {
             FillLogicStruc();

@@ -63,6 +63,8 @@ public:
 
     ///@return The value of the QDC for the waveform
     double GetQdc() const { return qdc_; }
+    double GetlQdc() const { return lqdc_; }
+    double GetrQdc() const { return rqdc_; }
 
     ///@returns the Signal to noise ratio of the trace
     double GetSignalToNoiseRatio() const { return 20 * std::log10(max_.second / baseline_.second); }
@@ -186,6 +188,8 @@ private:
 
     double phase_; ///< The sub-sampling phase of the trace.
     double qdc_; ///< The qdc that was calculated from the waveform.
+    double rqdc_; 
+    double lqdc_; 
     double tailRatio_; ///< The tail-ratio of the trace.
     double tau_; ///< The tau as calculated from the waveform
     double filteredBaseline_; ///< Baseline calculated from filtering the trc.

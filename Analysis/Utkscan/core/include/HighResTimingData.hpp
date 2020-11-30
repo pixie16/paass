@@ -71,6 +71,12 @@ public:
         return GetTrace().GetQdc();
     }
 
+    double GetPixieQdc() const{
+	if (GetQdc().size()==8)
+		return GetQdc().at(0)-GetQdc().at(1); 
+	else
+		return -9999;
+    }
 #ifdef useroot
     struct HrtRoot {
         double qdc;

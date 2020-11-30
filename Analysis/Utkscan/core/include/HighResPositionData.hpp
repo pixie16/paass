@@ -19,57 +19,149 @@ public:
     /** Default destructor */
     virtual ~HighResPositionData() {};
 
-    /** Constructor using the channel event
-    * \param [in] chan : the channel event for grabbing values from */
-    HighResPositionData(double ft, double fb, double bt, double bb) {
-        _ft = ft;
-        _fb = fb;
-        _bt = bt;
-        _bb = bb;
-        
-        _sum = _ft + _fb + _bt + _bb;
-    }
+    double GetTotIntegral() const {return T_sum;}
 
-    double GetTotIntegral() const {return _sum;}
-
-    ///@return high resolution position parallel to r^hat
+    ///@return high resolution position parallel to r^hat from Trace QDC
     double GetHighResZPos() const {
-      return -1.0*(_ft + _fb - _bt - _bb) / _sum ;
+      return -1.0*(T_ft + T_fb - T_bt - T_bb) / T_sum ;
     }
 
-    ///@return high resolution position perpendicular to r^(hat) (parallel to phi^hat)
+    ///@return high resolution position perpendicular to r^(hat) (parallel to phi^hat) from Trace QDC
     double GetHighResYPos() const {
-      return (_ft + _bt - _fb - _bb) / _sum ;      
+      return (T_ft + T_bt - T_fb - T_bb) / T_sum ;      
     }
 
-    double GetFTQdc() const {
-     return _ft;
+    ///@return high resolution position parallel to r^hat from Pixie Filter
+    double GetFilterZPos() const {
+      return -1.0*(F_ft + F_fb - F_bt - F_bb) / F_sum ;
     }
 
-    double GetBTQdc() const {
-      return _bt;
+    ///@return high resolution position perpendicular to r^(hat) (parallel to phi^hat) from Pixie Filter
+    double GetFilterYPos() const {
+      return (F_ft + F_bt - F_fb - F_bb) / F_sum ;      
     }
 
-    double GetFBQdc() const {
-      return _fb;
+    ///@return high resolution position parallel to r^hat from Pixie QDC
+    double GetPixieQdcZPos() const {
+      return -1.0*(Q_ft + Q_fb - Q_bt - Q_bb) / Q_sum ;
     }
 
-    double GetBBQdc() const {
-      return _bb;
+    ///@return high resolution position perpendicular to r^(hat) (parallel to phi^hat) from Pixie QDC
+    double GetPixieQdcYPos() const {
+      return (Q_ft + Q_bt - Q_fb - Q_bb) / Q_sum ;      
     }
+
+    double GetFTtqdc() const {
+     return T_ft;
+    }
+
+    double GetBTtqdc() const {
+      return T_bt;
+    }
+
+    double GetFBtqdc() const {
+      return T_fb;
+    }
+
+    double GetBBtqdc() const {
+      return T_bb;
+    }
+
+     double GetFTqdc() const {
+     return Q_ft;
+    }
+
+    double GetBTqdc() const {
+      return Q_bt;
+    }
+
+    double GetFBqdc() const {
+      return Q_fb;
+    }
+
+    double GetBBqdc() const {
+      return Q_bb;
+    }
+
+    bool GetSaturation() const{
+         return kSaturated;
+}
 
     ///@return True if the trace was successfully analyzed
     bool GetIsValid() const {
-        if ( _ft > 0 && _fb > 0 && _bt > 0 && _bb > 0 ) return (true);
+      //  if ( T_ft > 0 && T_fb > 0 && T_bt > 0 && T_bb > 0) return (true);
+        if ( Q_ft > 0 && Q_fb > 0 && Q_bt > 0 && Q_bb > 0 && !kSaturated) return (true);
         else return (false);
     }
 
+    void AddChanEvent(ChanEvent *chIn){
+        if(chIn->GetChanID().HasTag("FT") ){
+          T_ft = chIn->GetTrace().GetQdc(); F_ft = chIn->GetEnergy(); if(chIn->GetQdc().size()==8) Q_ft = chIn->GetQdc().at(0)-chIn->GetQdc().at(1);
+        }
+        if(chIn->GetChanID().HasTag("FB") ){
+          T_fb = chIn->GetTrace().GetQdc(); F_fb = chIn->GetEnergy(); if(chIn->GetQdc().size()==8) Q_fb = chIn->GetQdc().at(0)-chIn->GetQdc().at(1);
+        }
+        if(chIn->GetChanID().HasTag("BB") ){
+          T_bb = chIn->GetTrace().GetQdc(); F_bb = chIn->GetEnergy(); if(chIn->GetQdc().size()==8) Q_bb = chIn->GetQdc().at(0)-chIn->GetQdc().at(1);
+        }
+        if(chIn->GetChanID().HasTag("BT") ){
+          T_bt = chIn->GetTrace().GetQdc(); F_bt = chIn->GetEnergy(); if(chIn->GetQdc().size()==8) Q_bt = chIn->GetQdc().at(0)-chIn->GetQdc().at(1);
+        }
+
+      if (!kSaturated && chIn->IsSaturated()) kSaturated=true;
+    
+      T_sum = T_ft + T_fb + T_bb + T_bt;
+      F_sum = F_ft + F_fb + F_bb + F_bt;
+      Q_sum = Q_ft + Q_fb + Q_bb + Q_bt;
+      //Q_sum = 9999;
+    }
+
+    void ClearEvent(){
+      T_ft = 0.0;
+      T_fb = 0.0;
+      T_bt = 0.0;
+      T_bb = 0.0;
+      T_sum = 0.0;
+      
+      F_ft = 0.0;
+      F_fb = 0.0;
+      F_bt = 0.0;
+      F_bb = 0.0;
+      F_sum = 0.0;
+      
+      Q_ft = 0.0;
+      Q_fb = 0.0;
+      Q_bt = 0.0;
+      Q_bb = 0.0;
+      Q_sum = 0.0;
+    }
+
 private:
-    double _ft;
-    double _fb;
-    double _bt;
-    double _bb;
-    double _sum;
+    double T_ft;
+    double T_fb;
+    double T_bt;
+    double T_bb;
+    double T_sum;
+
+    double F_ft;
+    double F_fb;
+    double F_bt;
+    double F_bb;
+    double F_sum;
+
+    //unsigned int Q_ft;
+    //unsigned int Q_fb;
+    //unsigned int Q_bt;
+    //unsigned int Q_bb;
+    //unsigned int Q_sum;
+
+    double Q_ft;
+    double Q_fb;
+    double Q_bt;
+    double Q_bb;
+    double Q_sum;
+    
+    bool kSaturated=false;
 
 };
 

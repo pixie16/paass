@@ -115,30 +115,74 @@ static const VANDLES VANDLES_DEFAULT_STRUCT;
 
 struct NEXTS {
         double tof = -9999;
-        double corTof = 0;
-        double qdcPos = 0;
-        double phaseL = 0;
-        double phaseR = 0;
-        double Zpos = 0;
-        double Ypos = 0;
+        double corTof = -9999;
+        double qdcPos = -9999;
+        double phaseL = -9999;
+        double phaseR = -9999;
+        
+        double Zpos = -9999;
+        double Ypos = -9999;
+        double FZpos = -9999;
+        double FYpos = -9999;
+        double QZpos = -9999;
+        double QYpos = -9999;
+        bool   saturation = false;
+        
         double qdc = -9999;
+        double pqdc = -9999;
+	    double lqdc = -9999;
+        double rqdc = -9999;
         double aqdc = -9999;
-        int modNum = 0;
+        int modNum = -9999;
+        // double sRawTime = -9999;
+        // double RawTime = -9999;
+        // double lRawTime = -9999;
+        // double rRawTime = -9999;
+        // double sHRT = -9999;
+        // double lHRT = -9999;
+        // double rHRT = -9999;
 
-        double ftqdc = -9999;
-        double fbqdc = -9999;
-        double btqdc = -9999;
-        double bbqdc = -9999;
+
+        double lftqdc = -9999;
+        double lfbqdc = -9999;
+        double lbtqdc = -9999;
+        double lbbqdc = -9999;
+        double rftqdc = -9999;
+        double rfbqdc = -9999;
+        double rbtqdc = -9999;
+        double rbbqdc = -9999;
+
+        double lfttqdc = -9999;
+        double lfbtqdc = -9999;
+        double lbttqdc = -9999;
+        double lbbtqdc = -9999;
+        double rfttqdc = -9999;
+        double rfbtqdc = -9999;
+        double rbttqdc = -9999;
+        double rbbtqdc = -9999;
+
+        double alqdc = -9999;
+        double altqdc = -9999;
+        double arqdc = -9999;
+        double artqdc = -9999;
+
+
         double psd = -9999;
-        double Lpsd = -9999;
-        double Rpsd = -9999;
+        // double Lpsd = -9999;
+        // double Rpsd = -9999;
         double rMax = -9999;
         double lMax = -9999;
         double lMaxPos = -9999;
         double rMaxPos = -9999;
+        double slMax = -9999;
+        double slAveBase = -9999;
+        double slSdBase = -9999;
         double sMax = -9999;
         double sAveBase = -9999;
         double sSdBase = -9999;
+        double srMax = -9999;
+        double srAveBase = -9999;
+        double srSdBase = -9999;
         double lAveBase = -9999;
         double rAveBase = -9999;
         double lSdBase = -9999;
