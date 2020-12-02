@@ -156,11 +156,17 @@ namespace dammIds {
         const int OFFSET = 3500; //!< Offset for the PidProcessor Hists
         const int RANGE = 50;//!< Range for the PidProcessor Hists
     }
-
+    
     //in BatoProcessor.cpp
     namespace bato {
         const int OFFSET = 3600; //!< Offset for the BatoProcessor Hists
         const int RANGE = 50;//!< Range for the BatoProcessor Hists
+    }
+
+   ///in NEXTProcessor.cpp
+    namespace next {
+        const int OFFSET = 3700;
+        const int RANGE = 100;
     }
 
     /// in SsdProcessor.cpp

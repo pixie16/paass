@@ -120,9 +120,9 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
                 sstream_.str("");
             }
 
-            bool isVandle = false;
-            if (chanCfg.GetType()=="vandle")
-                isVandle = true;
+            bool isStandardNDet = false;
+            if (chanCfg.GetType()=="vandle" || chanCfg.GetType()=="next")
+                isStandardNDet = true;
 
 
             if (channel.child("Calibration").text())
@@ -130,7 +130,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             else if (isVerbose)
                 messenger_.detail("This channel has no calibration associated with it.", 2);
 
-            if (channel.child("Cfd") || isVandle)
+            if (channel.child("Cfd") || isStandardNDet)
                 ParseCfdNode(channel.child("Cfd"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default CFD settings for this channel.", 2);
@@ -140,12 +140,12 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             else if (isVerbose)
                 messenger_.detail("Using default filter settings for this channel.", 2);
 
-            if (channel.child("Fit") || isVandle)
+            if (channel.child("Fit") || isStandardNDet)
                 ParseFittingNode(channel.child("Fit"), chanCfg, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default fitter settings for this channel.", 2);
 
-            if (channel.child("Trace") || isVandle )
+            if (channel.child("Trace") || isStandardNDet )
                 ParseTraceNode(channel.child("Trace"), chanCfg, module_freq, module_TdelayNs, isVerbose);
             else if (isVerbose)
                 messenger_.detail("Using default trace settings for this channel.", 2);

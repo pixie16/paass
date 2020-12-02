@@ -49,6 +49,7 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         max = TraceFunctions::FindMaximum(trace, cfg.GetTraceDelayInSamples());
     } catch (range_error &ex) {
         trace.SetHasValidWaveformAnalysis(false);
+	cout << "Error in Channel: " << cfg.GetType() << ":" << cfg.GetSubtype() << endl;
         cout << "WaveformAnalyzer::Analyze - " << ex.what() << endl;
         EndAnalyze();
         return;
@@ -106,11 +107,23 @@ void WaveformAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
 
         //Finally, we calculate the QDC in the waveform range and subtract
         // the baseline from it.
+        double qdc = -9999, tailRatio = -9999;
         pair<unsigned int, unsigned int> waveformRange(max.first - range.first, max.first + range.second);
-        double qdc = TraceFunctions::CalculateQdc(traceNoBaseline, waveformRange);
+        
+        if (cfg.GetType() == "next" || cfg.HasTag("psd")) {
+            int endRange = (max.first + 50 > trace.size()) ? trace.size() - 2 : max.first + 50;
+            pair<unsigned int, unsigned int> qdcRange(max.first - range.first, endRange);
+            pair<unsigned int, unsigned int> tqdcRange(max.first + 4, endRange);
+            qdc = TraceFunctions::CalculateQdc(traceNoBaseline, qdcRange);
+            tailRatio = TraceFunctions::CalculateTailRatio(traceNoBaseline, tqdcRange, qdc);
+        } else {
+            qdc = TraceFunctions::CalculateQdc(traceNoBaseline, waveformRange);
+            tailRatio = 0;
+        }
 
         //Now we are going to set all the different values into the trace.
         trace.SetQdc(qdc);
+        trace.SetTailRatio(tailRatio);
         trace.SetBaseline(baseline);
         trace.SetMax(max);
         trace.SetExtrapolatedMax(make_pair(max.first,

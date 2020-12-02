@@ -51,6 +51,7 @@ void GlobalsXmlParser::ParseNode(Globals *globals) {
             globals->SetVandleBigSpeedOfLight(15.22998);
             globals->SetVandleMediumSpeedOfLight(15.5);
             globals->SetVandleSmallSpeedOfLight(12.65822);
+            globals->SetNEXTSpeedOfLight(12.65822);
         }
     } catch (exception &e) {
         m.detail("Globals::Globals : Exception caught while parsing configuration file.");
@@ -214,7 +215,12 @@ void GlobalsXmlParser::ParseVandleNode(const pugi::xml_node &node, Globals *glob
     messenger_.detail(sstream_.str());
     sstream_.str("");
 
-    set <string> knownNodes = {"SpeedOfLightBig", "SpeedOfLightMedium", "SpeedOfLightSmall"};
+    if (!node.child("SpeedOfLightNEXT").empty())
+        globals->SetNEXTSpeedOfLight(node.child("SpeedOfLightSmall").attribute("value").as_double());
+    else
+        globals->SetNEXTSpeedOfLight(12.65822);
+
+    set <string> knownNodes = {"SpeedOfLightBig", "SpeedOfLightMedium", "SpeedOfLightSmall", "SpeedOfLightNEXT"};
     WarnOfUnknownChildren(node, knownNodes);
 }
 

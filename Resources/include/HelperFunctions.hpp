@@ -18,25 +18,25 @@
 using namespace std;
 
 namespace Polynomial {
-template <class T>
-static const pair<double, vector<double> > CalculatePoly1(
-    const vector<T> &data, const unsigned int &startBin) {
-    if (data.size() < 2)
-        throw range_error(
-            "Polynomial::CalculatePoly1 - The data vector "
-            "had the wrong size : " +
-            std::to_string(data.size()));
 
-    double x[2] = {(double)startBin, (double)startBin + 1};
+    template<class T>
+    static const pair<double, vector<double> > CalculatePoly1(
+            const vector<T> &data, const unsigned int &startBin){
+        if (data.size() < 2 )
+            throw range_error("Polynomial::CalculatePoly1 - The data vector "
+                                      "had the wrong size : " + std::to_string(data.size()));
 
-    double p1 = (data[x[1]] - data[x[0]]) / (x[1] - x[0]);
+        double x[2] = {(double)startBin, (double)startBin + 1};
 
-    double p0 = data[x[1]] - p1 * x[1];
+        double p1 = (data[x[1]]-data[x[0]]) / (x[1]-x[0]);
 
-    vector<double> coeffs = {p0, p1};
+        double p0 = data[x[1]]-p1*x[1];
 
-    return make_pair(p1, coeffs);
+        vector<double> coeffs = {p0, p1};
+
+        return make_pair( p1 , coeffs);
     }
+
     template<class T>
     static const pair<double, vector<double> > CalculatePoly2(
             const vector<T> &data, const unsigned int &startBin) {
@@ -214,6 +214,7 @@ namespace Statistics {
     template<class T>
     inline double CalculateIntegral(const vector<T> &data) {
         if (data.size() < 2)
+	//	return -9999;
             throw range_error("Statistical::CalculateIntegral - The data "
                                       "vector was too small to integrate. We "
                                       "need at least a size of 2.");

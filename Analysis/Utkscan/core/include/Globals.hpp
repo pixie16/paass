@@ -132,6 +132,9 @@ public:
     ///@return the speed of light in the small VANDLE bars in cm/ns
     double GetVandleSmallSpeedOfLightInCmPerNs() const { return vandleSmallSpeedOfLight_; }
 
+    ///@return the speed of light in a NEXT module in cm/ns
+    double GetNEXTSpeedOfLightInCmPerNs() const { return nextSpeedOfLight_; }
+
     ///@return true if any reject region was defined
     bool HasRejectionRegion() const { return !reject_.empty(); }
 
@@ -217,6 +220,10 @@ public:
     ///@param[in] a : The speed of light in units of cm/ns
     void SetVandleSmallSpeedOfLight(const double &a) { vandleSmallSpeedOfLight_ = a; }
 
+    ///Sets the speed of light in a NEXT module.
+    ///@param[in] a : The speed of light in units of cm/ns
+    void SetNEXTSpeedOfLight(const double &a) { nextSpeedOfLight_ = a; }
+
 private:
     ///Default Constructor 
     Globals(const std::string &file);
@@ -254,6 +261,7 @@ private:
     double vandleBigSpeedOfLight_;                               //!< speed of light in big VANDLE bars in cm/ns
     double vandleMediumSpeedOfLight_;                            //!< speed of light in medium VANDLE bars in cm/ns
     double vandleSmallSpeedOfLight_;                             //!< speed of light in small VANDLE bars in cm/ns
+    double nextSpeedOfLight_;                                    //!< speed of light in NEXT module in cm/ns
 };
 
 #endif  // #ifdef _PAASS_GLOBALS_HPP_
