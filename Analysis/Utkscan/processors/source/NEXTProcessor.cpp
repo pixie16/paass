@@ -149,6 +149,8 @@ bool NEXTProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &betaStarts = event.GetSummary("beta_scint:beta")->GetList();
     static const vector<ChanEvent *> &liquidStarts = event.GetSummary("liquid:scint:start")->GetList();
     static const vector<ChanEvent *> &pspmtStarts = event.GetSummary("pspmt:dynode_high:start")->GetList();
+    static const vector<ChanEvent *> &doubleBetaStarts = event.GetSummary("beta:double:start")->GetList();
+    static const vector<ChanEvent *> &singleBetaStarts = event.GetSummary("beta:single:start")->GetList();
 
     static const vector<ChanEvent *> &LIonVeto =  event.GetSummary("pspmt:veto")->GetList();
     static const vector<ChanEvent *> &IondE=  event.GetSummary("pspmt:ion")->GetList();
@@ -156,13 +158,14 @@ bool NEXTProcessor::Process(RawEvent &event) {
 
     vector<ChanEvent *> startEvents;
     startEvents.insert(startEvents.end(), betaStarts.begin(), betaStarts.end());
+    startEvents.insert(startEvents.end(), singleBetaStarts.begin(), singleBetaStarts.end());
     startEvents.insert(startEvents.end(), liquidStarts.begin(), liquidStarts.end());
     startEvents.insert(startEvents.end(),pspmtStarts.begin(),pspmtStarts.end());
 
     TimingMapBuilder bldStarts(startEvents);
     starts_ = bldStarts.GetMap();
 
-    static const vector<ChanEvent *> &doubleBetaStarts = event.GetSummary("beta:double:start")->GetList();
+   
     BarBuilder startBars(doubleBetaStarts);
     startBars.BuildBars();
     barStarts_ = startBars.GetBarMap();
