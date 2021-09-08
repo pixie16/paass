@@ -4,7 +4,7 @@
 #ifndef __PIXIEINTERFACE_H_
 #define __PIXIEINTERFACE_H_
 
-#include "pixie16app_defs.h"
+#include <pixie16/pixie16.h>
 
 #define MIN_FIFO_READ 9
 
@@ -52,7 +52,6 @@ const int CCSRA_SUMMED_SINGLE_EVENT = 18;
 
 class PixieInterface {
 public:
-    static const size_t STAT_SIZE = N_DSP_PAR - DSP_IO_BORDER;
     static const size_t HISTO_SIZE = MAX_HISTOGRAM_LENGTH;
 #ifdef PIF_CATCHER
     enum CatcherModes {PC_STANDARD, PC_REJECT, PC_HYBRID, PC_ACCEPT};
@@ -61,7 +60,7 @@ public:
     typedef uint32_t word_t;
     typedef uint16_t halfword_t;
 
-    typedef word_t stats_t[STAT_SIZE];
+    typedef std::vector<word_t> stats_t;
 
     class Histogram {
     public:
@@ -231,7 +230,7 @@ private:
 
     static const size_t MAX_MODULES = 14;
     static const size_t CONFIG_LINE_LENGTH = 80;
-    static const size_t TRACE_LENGTH = RANDOMINDICES_LENGTH;
+    static const size_t TRACE_LENGTH = MAX_ADC_TRACE_LEN;
 
 #ifdef PIF_CATCHER
     void CatcherMessage(void);

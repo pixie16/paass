@@ -74,7 +74,7 @@ mark_as_advanced(PAASS_EXPORT_COMPILE_COMMANDS)
 if(PAASS_EXPORT_COMPILE_COMMANDS)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Generates compile_commands.json, needed for some IDEs among other things" FORCE)
 else ()
-    set(CMAKE_EXPORT_COMPILE_COMMANDS OFF CACHE BOOL "Generates compile_commands.json, needed for some IDEs among other things" FORCE)   
+    set(CMAKE_EXPORT_COMPILE_COMMANDS OFF CACHE BOOL "Generates compile_commands.json, needed for some IDEs among other things" FORCE)
 endif (PAASS_EXPORT_COMPILE_COMMANDS)
 
 #------------------------------------------------------------------------------
@@ -88,16 +88,16 @@ endif (PAASS_USE_DAMM)
 #------------------------------------------------------------------------------
 #Find packages needed for the software.
 #Load additional find_package scripts.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Cmake/modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Cmake/modules/" "$ENV{XIA_PIXIE_SDK}/cmake/modules")
 
 #Find thread library for poll2 and scanLib
 find_package(Threads REQUIRED)
 
 #Find the PLX Library
-find_package(PLX)
+find_package(BroadcomAPI)
 
 #Find the Pixie Firmware
-find_package(XIA)
+find_package(PixieSDK)
 
 #Find curses library used for pretty much everything at this point.
 if (PAASS_USE_NCURSES)
@@ -125,16 +125,17 @@ if (PAASS_BUILD_ACQ)
         set(PAASS_BUILD_ACQ OFF CACHE BOOL "Build and install Acquisition" FORCE)
     else (PLX_FOUND OR XIA_FOUND)
         #Find the PLX Library
-        find_package(PLX REQUIRED)
+        find_package(BroadcomAPI REQUIRED)
+        include_directories(${PLX_INCLUDE_DIR})
         link_directories(${PLX_LIBRARY_DIR})
 
         #Find the Pixie Firmware
-        find_package(XIA REQUIRED)
-        include_directories(${XIA_INCLUDE_DIR})
-        link_directories(${XIA_LIBRARY_DIR})
+        find_package(PixieSDK REQUIRED)
+        include_directories(${PIXIESDK_INCLUDE_DIR})
+        link_directories(${PIXIESDK_LIBRARY_DIR})
 
         #Create pixie.cfg and copy slot_def.set as well as default.set to current.set
-        XIA_CONFIG()
+        #XIA_CONFIG()
     endif ()
     set(PAASS_BUILD_ACQ_ATTEMPTED ON CACHE INTERNAL "Build Suite Attempted")
 endif (PAASS_BUILD_ACQ)

@@ -5,11 +5,11 @@
 #include <cmath>
 #include <unistd.h>
 
+#include <pixie16/pixie16.h>
+
 #include "Display.h"
 
 #include "PixieSupport.h"
-#include "pixie16app_defs.h"
-#include "pixie16app_export.h"
 
 std::string PadStr(const std::string &input_, int width_) {
     std::string output = input_;

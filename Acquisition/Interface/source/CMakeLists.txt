@@ -4,8 +4,7 @@ set(Interface_SOURCES PixieInterface.cpp Lock.cpp)
 add_library(PixieInterface STATIC ${Interface_SOURCES})
 
 #Order is important, XIA before PLX
-target_link_libraries(PixieInterface PaassCoreStatic ${XIA_LIBRARIES}
-        ${PLX_LIBRARIES})
+target_link_libraries(PixieInterface PaassCoreStatic ${PIXIESDK_PIXIE16_LIBRARIES} ${PLX_STATIC_LIB})
 
 set(Support_SOURCES PixieSupport.cpp)
 add_library(PixieSupport STATIC ${Support_SOURCES})
