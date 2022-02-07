@@ -227,11 +227,14 @@ bool ScanInterface::open_input_file(const string &fname_) {
         file_format = 0;
     } else if (extension == "pld") { // Pixie list data file format
         file_format = 1;
+    } else if (extension == "evt") { // NSCLDAQ presort ring buffer format
+        file_format = 3;
     } else {
         cout << " ERROR! Invalid file format '" << extension << "'\n";
         cout << "  The current valid data formats are:\n";
         cout << "   ldf - list data format (HRIBF)\n";
         cout << "   pld - pixie list data format\n";
+        cout << "   evt - NSCLDAQ presort ring buffer format\n";
         return false;
     }
 
@@ -295,6 +298,8 @@ bool ScanInterface::open_input_file(const string &fname_) {
 
             pldHead.Print();
             cout << endl;
+        } else if (file_format == 3) {
+            // just skip "header" information for now...
         }
     }
 
@@ -583,6 +588,8 @@ void ScanInterface::RunControl() {
 
             delete[] shm_data;
         } else if (file_format == 0) {
+            if (debug_mode) cout << "debug: file_format == 0: ldf" << endl;
+
             unsigned int *data = NULL;
             bool full_spill;
             bool bad_spill;
@@ -667,6 +674,8 @@ void ScanInterface::RunControl() {
                 term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
             } else { cout << endl << endl; }
         } else if (file_format == 1) {
+            if (debug_mode) cout << "debug: file_format == 1: pld" << endl;
+
             unsigned int *data = NULL;
             unsigned int nBytes;
 
@@ -717,6 +726,137 @@ void ScanInterface::RunControl() {
                 term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
             } else { cout << endl << endl; }
         } else if (file_format == 2) {
+            if (debug_mode) cout << "debug: file_format == 2: root (not implemented)" << endl;
+        }
+        else if (file_format == 3) {
+            if (debug_mode) cout << "debug: file_format == 3: evt" << endl;
+
+            std::vector<unsigned int> spillbuf; // spill buffer
+            std::vector<unsigned int> modfifo; // module fifo
+            int prevmodn = 0;
+            unsigned int prevnBytes = 0;
+
+            while (true) {
+                if (!input_file.is_open() || !input_file.good()) { break; }
+                std::vector<unsigned int> modfifofrag; // module fifo fragment, this is needed because module fifo data is chopped into multiple ring items
+                unsigned int nBytes = 0; // module fifo data fragment size in bytes
+                // ring item size is self inclusive
+                unsigned int ringitemsize = 0;
+                unsigned int ringitemtype;
+                unsigned int bodyhdrsize = 0;
+                input_file.read((char *) &ringitemsize, 4); // ring item size (in bytes) self inclusive
+                input_file.read((char *) &ringitemtype, 4); // 30 for PHYSICS_EVENTS
+                if (ringitemtype == 30) {
+                    input_file.read((char *) &bodyhdrsize, 4);
+                    if (bodyhdrsize == 0) { // PHYSICS_EVENT of pre-sort ring has no body header
+                        if (debug_mode) std::cout << "debug: got a PHYSICS_EVENT item (ring item type " << ringitemtype << ")" << std::endl;
+                        // skip two words inserted by NSCLDAQ
+                        input_file.seekg(8, input_file.cur);
+                        nBytes = ringitemsize-20;
+                        // this is raw pixie list-mode data
+                        modfifofrag.resize(nBytes/4);
+                        input_file.read((char *) modfifofrag.data(), nBytes);
+                    } else { // if body header size is NOT zero, it's NOT a PHYSICS_EVENT we are looking for
+                        if (debug_mode) std::cout << "debug: got a PHYSICS_EVENT item (ring item type " << ringitemtype << ") but non-zero body header size" << std::endl;
+                        // most likely bodyhdrsize == 20 but it doesn't matter, just skip the rest
+                        input_file.seekg(ringitemsize-12, input_file.cur);
+                    }
+                } else {
+                    if (debug_mode) std::cout << "debug: got a non-PHYSICS_EVENT item (ring item type " << ringitemtype << "), skipping..." << std::endl;
+                    input_file.seekg(ringitemsize-8, input_file.cur);
+                    if(input_file.eof()) break;
+                }
+
+                if (kill_all == true) {
+                    break;
+                } else if (!is_running) {
+                    IdleTask();
+                    usleep(100000); //0.1 seconds
+                    continue;
+                }
+
+                if (nBytes == 0) { continue; }
+
+                stringstream status;
+                status << "\033[0;32m" << "[READ] " << "\033[0m" << nBytes / 4 << " words ("
+                       << 100 * input_file.tellg() / file_length << "%)";
+                if (!batch_mode) { term->SetStatus(status.str()); }
+                else { cout << "\r" << status.str(); }
+
+                if (debug_mode) {
+                    cout << "debug: Retrieved *partial* module fifo data of " << nBytes << " bytes (" << nBytes / 4 << " words)\n";
+                    cout << "debug: Read up to word number " << input_file.tellg() / 4 << " in input file\n";
+                }
+
+                if (!dry_run_mode) {
+                    int modn = 9999;
+                    // peek the first pixie event
+                    // a bit of sanity check + module (slot) number extraction
+                    if (nBytes >= 32) { // there's one pixie event at least
+                        unsigned int pixhead1 = modfifofrag[0];
+                        // this is revision specific!! has to be changed for RevH
+                        modn = (pixhead1 >> 4) & 0xf;
+                        modn -= 2; // modnum is slotnum - 2
+                        if (debug_mode) {
+                            std::cout << "debug: first pixie event header in this module fifo fragment 0x"  << std::setfill('0') << std::setw(8) << std::right << std::hex << pixhead1;
+                            std::cout << " (module number " << std::dec << modn << ")" << std::endl;
+                        }
+                        if (modn < 0) {
+                            std::cout << "invalid slot number, likely corrupted data" << std::endl;
+                            continue;
+                        }
+                    } else {
+                        std::cout << "data size of this ring item is too small (" << nBytes << " bytes), likely corrupted data" << std::endl;
+                        continue;
+                    }
+
+                    // detect completion of module fifo
+                    if (prevmodn < modn) {
+                        if (debug_mode) std::cout << "debug: module fifo completion detected" << std::endl;
+                        spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
+                        spillbuf.push_back(prevmodn);
+                        spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
+                        modfifo.clear();
+                    }
+                    // detect completion of a spill
+                    // second condition is for systems where only one module is present
+                    else if ( (prevmodn > modn) || (prevmodn == modn && prevnBytes < nBytes)){
+                        if (debug_mode) std::cout << "debug: spill completion detected" << std::endl;
+                        spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
+                        spillbuf.push_back(prevmodn);
+                        spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
+                        // spill delimiter
+                        spillbuf.push_back(2);
+                        spillbuf.push_back(9999);
+                        unpacker_->ReadSpill(spillbuf.data(), spillbuf.size(), is_verbose);
+                        IdleTask();
+                        num_spills_recvd++;
+                        spillbuf.clear();
+                        modfifo.clear();
+                    }
+
+                    modfifo.insert(modfifo.end(), modfifofrag.begin(), modfifofrag.begin()+nBytes/4);
+                    prevnBytes = nBytes;
+                    prevmodn = modn;
+                }
+            }
+
+            if (!dry_run_mode) {
+                if (debug_mode) std::cout << "debug: closing out last spill" << std::endl;
+                if (spillbuf.size()>0 || modfifo.size()>0) {
+                    spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
+                    spillbuf.push_back(prevmodn);
+                    spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
+                    spillbuf.push_back(2);
+                    spillbuf.push_back(9999);
+                    unpacker_->ReadSpill(spillbuf.data(), spillbuf.size(), is_verbose);
+                    num_spills_recvd++;
+                }
+            }
+
+            if (!batch_mode) {
+                term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
+            } else { cout << endl << endl; }
         }
 
         // Notify that the scan has completed.
