@@ -284,7 +284,7 @@ private:
     std::string outputPath_;
 
     int max_spill_size; /// Maximum size of a spill to read.
-    int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root).
+    int file_format; /// Input file format to use (0=.ldf, 1=.pld, 2=.root, 3=.evt).
 
     unsigned long num_spills_recvd; /// The total number of good spills received from either the input file or shared memory.
     unsigned long file_start_offset; /// The first word in the file at which to start scanning.
