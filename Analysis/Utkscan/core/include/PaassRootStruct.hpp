@@ -194,6 +194,7 @@ class PixTreeEvent : public TObject {
     PixTreeEvent(const PixTreeEvent &obj) : TObject(obj) {
         externalTS1 = obj.externalTS1;
         externalTS2 = obj.externalTS2;
+        internalTS = obj.internalTS;
         eventNum = obj.eventNum;
         fileName = obj.fileName;
         bato_vec_ = obj.bato_vec_;
@@ -215,6 +216,7 @@ class PixTreeEvent : public TObject {
     virtual void Reset() {
         externalTS1 = 0;
         externalTS2 = 0;
+        internalTS = 0;
         eventNum = 0;
         fileName = "";
         bato_vec_.clear();
@@ -233,6 +235,7 @@ class PixTreeEvent : public TObject {
     /* data structures to be filled in the ROOT TTree */
     ULong64_t externalTS1 = 0;
     ULong64_t externalTS2 = 0;
+    ULong64_t internalTS = 0;
     Double_t eventNum = 0;
     std::string fileName = "";
     std::vector<processor_struct::BATO> bato_vec_;
