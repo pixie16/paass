@@ -181,6 +181,10 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
             ThreshAndCal((*it), rawev);
             PlotCal((*it));
 
+            //internal TS for the FDSi experiment (Xu)
+            if ((*it)->GetChanID().HasTag("its")) {
+                pixie_tree_event_.internalTS = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
+            }
             string place = (*it)->GetChanID().GetPlaceName();
             if (place == "__9999")
                 continue;

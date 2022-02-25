@@ -516,9 +516,14 @@ void PspmtProcessor::FillPSPMTStruc(const ChanEvent &chan_event) {
     /* fills PSstruct members */
     PSstruct.invalidTrace = InvalidTrace;
     PSstruct.energy = chan_event.GetCalibratedEnergy();
+    ///////////////////////////////////////////////////////
+    //quick modification for the test data at UTK by Xu
     if (!chan_event.GetQdc().empty()) {
         PSstruct.qdc = chan_event.GetQdc().at(0) - chan_event.GetQdc().at(2);
+    }else if(!chan_event.GetTrace().empty()){
+        PSstruct.qdc = chan_event.GetTrace().GetQdc();
     }
+    ///////////////////////////////////////////////////////
     PSstruct.time = chan_event.GetTimeSansCfd() * Globals::get()->GetClockInSeconds(chan_event.GetChanID().GetModFreq()) * 1e9;  //store ns
     PSstruct.subtype = chan_event.GetChanID().GetSubtype();
     PSstruct.tag = chan_event.GetChanID().GetGroup();
