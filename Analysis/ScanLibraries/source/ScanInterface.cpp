@@ -737,6 +737,14 @@ void ScanInterface::RunControl() {
             unsigned int prevnBytes = 0;
 
             while (true) {
+                if (kill_all == true) {
+                    break;
+                } else if (!is_running) {
+                    IdleTask();
+                    usleep(100000); //0.1 seconds
+                    continue;
+                }
+
                 if (!input_file.is_open() || !input_file.good()) { break; }
                 std::vector<unsigned int> modfifofrag; // module fifo fragment, this is needed because module fifo data is chopped into multiple ring items
                 unsigned int nBytes = 0; // module fifo data fragment size in bytes
@@ -765,14 +773,6 @@ void ScanInterface::RunControl() {
                     if (debug_mode) std::cout << "debug: got a non-PHYSICS_EVENT item (ring item type " << ringitemtype << "), skipping..." << std::endl;
                     input_file.seekg(ringitemsize-8, input_file.cur);
                     if(input_file.eof()) break;
-                }
-
-                if (kill_all == true) {
-                    break;
-                } else if (!is_running) {
-                    IdleTask();
-                    usleep(100000); //0.1 seconds
-                    continue;
                 }
 
                 if (nBytes == 0) { continue; }
