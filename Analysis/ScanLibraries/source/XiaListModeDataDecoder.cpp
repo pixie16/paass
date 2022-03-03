@@ -227,7 +227,8 @@ std::pair<unsigned int, unsigned int> XiaListModeDataDecoder::DecodeWordZero(con
 
     data.SetChannelNumber(word & mask.GetChannelNumberMask().first);
     data.SetSlotNumber((word & mask.GetSlotIdMask().first) >> mask.GetSlotIdMask().second);
-    data.SetCrateNumber((word & mask.GetCrateIdMask().first) >> mask.GetCrateIdMask().second);
+    // Crate number in Pixie list-mode data is ignored
+    data.SetCrateNumber(0);
     data.SetPileup((word & mask.GetFinishCodeMask().first) != 0);
 
     //We have to check if we have one of these three firmwares since they
