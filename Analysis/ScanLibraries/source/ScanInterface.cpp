@@ -816,6 +816,13 @@ void ScanInterface::RunControl() {
                         spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
                         spillbuf.push_back(prevmodn);
                         spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
+                        if(prevmodn != modn-1){
+                           int diff = modn-prevmodn-1;
+                           for(int i=0; i<diff; i++){
+                              spillbuf.push_back(2); // number of words (including this header)
+                              spillbuf.push_back(prevmodn+i+1);
+                           }
+                        }
                         modfifo.clear();
                     }
                     // detect completion of a spill
@@ -825,6 +832,13 @@ void ScanInterface::RunControl() {
                         spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
                         spillbuf.push_back(prevmodn);
                         spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
+                        if(prevmodn != 12){
+                           int diff = 12-prevmodn;
+                           for(int i=0; i<diff; i++){
+                              spillbuf.push_back(2); // number of words (including this header)
+                              spillbuf.push_back(prevmodn+i+1);
+                           }
+                        }
                         // spill delimiter
                         spillbuf.push_back(2);
                         spillbuf.push_back(9999);
