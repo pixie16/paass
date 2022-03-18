@@ -79,9 +79,9 @@ void VandleProcessor::DeclarePlots(void) {
         pair<unsigned int,unsigned int> offset = ReturnOffset(*it);
         DeclareHistogram2D(DD_TQDCBARS + offset.first, SE, S8, "Det Loc vs Trace QDC - Right Even - Left Odd");
         DeclareHistogram2D(DD_MAXIMUMBARS + offset.first, SD, S8,"Det Loc vs Maximum - Right Even - Left Odd");
-        DeclareHistogram2D(DD_TIMEDIFFBARS + offset.first, SB, S6, "Bars vs. Time Differences");
-        DeclareHistogram2D(DD_TOFBARS + offset.first, SC, S6, "Bar vs. Time of Flight");
-        DeclareHistogram2D(DD_CORTOFBARS + offset.first, SC, S6, "Bar vs  Cor Time of Flight");
+        DeclareHistogram2D(DD_TIMEDIFFBARS + offset.first, SB, S7, "Bars vs. Time Differences");
+        DeclareHistogram2D(DD_TOFBARS + offset.first, SC, S7, "Bar vs. Time of Flight");
+        DeclareHistogram2D(DD_CORTOFBARS + offset.first, SC, S7, "Bar vs  Cor Time of Flight");
         DeclareHistogram2D(DD_TQDCAVEVSTOF + offset.first, SC, SD, "<E> vs. TOF(0.5ns/bin)");
         DeclareHistogram2D(DD_TQDCAVEVSCORTOF + offset.first, SC, SD, "<E> vs. CorTOF(0.5ns/bin)");
         DeclareHistogram2D(DD_GAMMAENERGYVSTOF + offset.first, SC, S9, "C-ToF vs. E_gamma");
@@ -91,8 +91,8 @@ void VandleProcessor::DeclarePlots(void) {
         DeclareHistogram2D(DD_TQDCAVEVSTOF+ offset.second, SC, SD, "UNCALIBRATED: <E> vs. TOF (0.5ns/bin)");
 
         DeclareHistogram2D(DD_QDCTOF_DECAY+offset.first,SC,SD, "<E> vs. TOF (0.5ns/bin) Rough Decay Gated ");
-        DeclareHistogram2D(DD_TOFBARS_DECAY+offset.first,SC,S6, "Bar vs. TOF (0.5ns/bin) Rough Decay Gated ");
-        DeclareHistogram2D(DD_TDIFF_DECAY+offset.first,SC,S6, "Bar vs. TDiff(0.5ns/bin) Rough Decay Gated ");
+        DeclareHistogram2D(DD_TOFBARS_DECAY+offset.first,SC,S7, "Bar vs. TOF (0.5ns/bin) Rough Decay Gated ");
+        DeclareHistogram2D(DD_TDIFF_DECAY+offset.first,SC,S7, "Bar vs. TDiff(0.5ns/bin) Rough Decay Gated ");
     }
 
     DeclareHistogram1D(D_DEBUGGING, S5, "1D Debugging");
