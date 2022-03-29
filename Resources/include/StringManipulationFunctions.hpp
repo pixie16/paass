@@ -12,6 +12,15 @@
 #include <vector>
 
 namespace StringManipulation {
+    ///Converts full string to lower case. 
+    /// @param [in] s : String to make lowercase
+    /// @return the lowercase string
+    inline std::string StringLower(std::string s){
+        std::transform(s.begin(),s.end(),s.begin(),::tolower);
+        return s;
+    }
+
+
     ///Converts string to bool (True, true, 1 and False, false, 0) are
     /// accepted; throws an exception if not succesful. Notice tolower
     /// will work only with ascii, not with utf-8, but shouldn't be a
