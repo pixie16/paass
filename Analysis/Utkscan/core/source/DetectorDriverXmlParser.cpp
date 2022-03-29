@@ -41,6 +41,7 @@
 #include "LitePositionProcessor.hpp"
 #include "LogicProcessor.hpp"
 #include "McpProcessor.hpp"
+#include "MtasProcessor.hpp"
 #include "NeutronScintProcessor.hpp"
 #include "PidProcessor.hpp"
 #include "PositionProcessor.hpp"
@@ -213,6 +214,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
                 processor.attribute("double_start").as_bool(false)));
         } else if (name == "McpProcessor") {
             vecProcess.push_back(new McpProcessor());
+        } else if (name == "MtasProcessor") {
+            vecProcess.push_back(new MtasProcessor());
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {

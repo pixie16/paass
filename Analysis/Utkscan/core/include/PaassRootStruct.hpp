@@ -182,8 +182,23 @@ struct VANDLE {
     double sTime = -999;
     double sQdc = -999;
 };
-static const VANDLE VANDLE_DEFAULT_STRUCT;
+static const VANDLES VANDLES_DEFAULT_STRUCT;
 
+struct MTAS {
+    double energy = -999;
+    double rawEnergy = -999;
+    double timeSansCfd = -999;
+    double time = -999;
+    int detNum = -999;   //the instance number of RD in the xml Map
+    int modNum = -999;   // the physical module number
+    int chanNum = -999;  // the physical channel number
+    TString subtype = "";
+    TString group = "";
+    bool pileup = false;                   //Did pixie detect pileup in the event
+    bool saturation = false;               //Did the trace go out of the ADC range
+
+};
+static const MTAS MTAS_DEFAULT_STRUCT;
 }  // namespace processor_struct
 
 class PixTreeEvent : public TObject {
@@ -207,6 +222,7 @@ class PixTreeEvent : public TObject {
         rootdev_vec_ = obj.rootdev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
+	mtas_vec_ = obj.mtas_vec_;
     }
 
     virtual ~PixTreeEvent() {}
@@ -228,6 +244,7 @@ class PixTreeEvent : public TObject {
         rootdev_vec_.clear();
         singlebeta_vec_.clear();
         vandle_vec_.clear();
+	mtas_vec_.clear();
     }
 
     /* data structures to be filled in the ROOT TTree */
@@ -245,7 +262,8 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::ROOTDEV> rootdev_vec_;
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
-    std::vector<processor_struct::VANDLE> vandle_vec_;
+    std::vector<processor_struct::VANDLES> vandle_vec_;
+    std::vector<processor_struct::MTAS> mtas_vec_;
 
     ClassDef(PixTreeEvent, 1)
 };
