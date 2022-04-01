@@ -55,6 +55,7 @@ class MtasProcessor : public EventProcessor {
 
    private:
     processor_struct::MTAS Mtasstruct;  //!<Root Struct
+    std::string PixieRev; //! pixie revision
     
 };
 
