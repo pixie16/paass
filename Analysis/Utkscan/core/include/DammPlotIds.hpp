@@ -213,8 +213,8 @@ namespace dammIds {
     }
 
     namespace mtas { 
-        const int OFFSET = 7500; //!< Offset for MTASProcessor
-        const int RANGE = 300; //!< Range for MTASProcessor 
+        const int OFFSET = 7200; //!< Offset for MTASProcessor
+        const int RANGE = 800; //!< Range for MTASProcessor 
     }
 
     /// Definitions for all of the traces
