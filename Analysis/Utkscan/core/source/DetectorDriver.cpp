@@ -169,7 +169,11 @@ void DetectorDriver::Init(RawEvent &rawev) {
 }
 
 void DetectorDriver::ProcessEvent(RawEvent &rawev) {
-
+    // Segmentation violation issue workaround 
+    // rawev.Size() can be zero. This happens when only one channel is fired in an event and that channel is defined as "ignore"
+    if (rawev.Size() == 0) {
+	return;
+    }
     if (sysrootbool_) {
 	pixie_tree_event_.Reset();
     }
