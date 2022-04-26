@@ -50,13 +50,26 @@ if (ROOT_CONFIG_EXECUTABLE)
             COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-minuit2
             OUTPUT_VARIABLE ROOT_HAS_MINUIT2
             OUTPUT_STRIP_TRAILING_WHITESPACE)
+    
+    execute_process(
+            COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx17
+            OUTPUT_VARIABLE ROOT_HAS_CXX17)
+     
+    execute_process(
+            COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx14
+            OUTPUT_VARIABLE ROOT_HAS_CXX14)
+                 
+    execute_process(
+            COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx11
+            OUTPUT_VARIABLE ROOT_HAS_CXX11)
+
 endif ()
 
 #---Report the status of finding ROOT-------------------
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ROOT DEFAULT_MSG
         ROOTSYS ROOT_CONFIG_EXECUTABLE ROOTCINT_EXECUTABLE GENREFLEX_EXECUTABLE
-        ROOT_VERSION ROOT_INCLUDE_DIR ROOT_LIBRARIES ROOT_LIBRARY_DIR)
+        ROOT_VERSION ROOT_INCLUDE_DIR ROOT_LIBRARIES ROOT_LIBRARY_DIR ROOT_HAS_CXX17 ROOT_HAS_CXX14 ROOT_HAS_CXX11)
 
 mark_as_advanced(FORCE ROOT_LIBRARIES ROOT_GUI_LIBRARIES)
 
