@@ -97,6 +97,7 @@ endif (PAASS_USE_ROOT)
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
 install(DIRECTORY share/utkscan DESTINATION share)
 install(TARGETS PaassRootStruct DESTINATION lib)
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/lib/PaassRootStruct_rdict.pcm ${CMAKE_INSTALL_PREFIX}/bin/PaassRootStruct_rdict.pcm)")
 
 install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/core/include/PaassRootStruct.hpp DESTINATION include/)
 install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/processors/include/GSaddback.hpp DESTINATION include/)
