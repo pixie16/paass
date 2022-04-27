@@ -73,6 +73,18 @@ struct LOGIC {
 };
 static const LOGIC LOGIC_DEFAULT_STRUCT;
 
+struct MTAS {
+    double energy = -999;
+    double fEnergy = -999;
+    double bEnergy = -999;
+    double time = -999;
+    double tdiff = -999;
+    int gSegmentID = -999;   //Global Segment ID (0-47)
+    int segmentNum = -999;  //Segment id per ring (1-6)
+    int RingNum = -999;     //Ring ID as a number (0 -> Center, 1 -> Inner etc)
+    TString Ring = "";
+};
+static const MTAS MTAS_DEFAULT_STRUCT;
 struct NEXT {
     /* Data container for NEXT */
    double tof = -9999;
@@ -184,21 +196,6 @@ struct VANDLE {
 };
 static const VANDLES VANDLES_DEFAULT_STRUCT;
 
-struct MTAS {
-    double energy = -999;
-    double rawEnergy = -999;
-    double timeSansCfd = -999;
-    double time = -999;
-    int detNum = -999;   //the instance number of RD in the xml Map
-    int modNum = -999;   // the physical module number
-    int chanNum = -999;  // the physical channel number
-    TString subtype = "";
-    TString group = "";
-    bool pileup = false;                   //Did pixie detect pileup in the event
-    bool saturation = false;               //Did the trace go out of the ADC range
-
-};
-static const MTAS MTAS_DEFAULT_STRUCT;
 }  // namespace processor_struct
 
 class PixTreeEvent : public TObject {
@@ -216,13 +213,14 @@ class PixTreeEvent : public TObject {
         doublebeta_vec_ = obj.doublebeta_vec_;
         gammascint_vec_ = obj.gammascint_vec_;
         logic_vec_ = obj.logic_vec_;
+        mtas_vec_ = obj.mtas_vec_;
         next_vec_ = obj.next_vec_;
         pid_vec_ = obj.pid_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
         rootdev_vec_ = obj.rootdev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
-	mtas_vec_ = obj.mtas_vec_;
+	
     }
 
     virtual ~PixTreeEvent() {}
@@ -238,13 +236,14 @@ class PixTreeEvent : public TObject {
         doublebeta_vec_.clear();
         gammascint_vec_.clear();
         logic_vec_.clear();
+        mtas_vec_.clear();
         next_vec_.clear();
         pid_vec_.clear();
         pspmt_vec_.clear();
         rootdev_vec_.clear();
         singlebeta_vec_.clear();
         vandle_vec_.clear();
-	mtas_vec_.clear();
+
     }
 
     /* data structures to be filled in the ROOT TTree */
@@ -257,13 +256,13 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::DOUBLEBETA> doublebeta_vec_;
     std::vector<processor_struct::GAMMASCINT> gammascint_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
+    std::vector<processor_struct::MTAS> mtas_vec_;
     std::vector<processor_struct::NEXT> next_vec_;
     std::vector<processor_struct::PID> pid_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::ROOTDEV> rootdev_vec_;
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
     std::vector<processor_struct::VANDLES> vandle_vec_;
-    std::vector<processor_struct::MTAS> mtas_vec_;
 
     ClassDef(PixTreeEvent, 1)
 };
