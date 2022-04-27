@@ -147,10 +147,9 @@ void MtasProcessor::DeclarePlots(void){
 	DeclareHistogram2D(D_ONE_OFFS + 0, S6, S6, "Mtas Multiplicity x=ID y=multi");
 }
 
-
 MtasProcessor::MtasProcessor() : EventProcessor(OFFSET, RANGE, "MtasProcessor") {
 	associatedTypes.insert("mtas");
-	PixieRev = Globals::get()->GetPixieRevision();
+	PixieRevision = Globals::get()->GetPixieRevision();
 }
 
 bool MtasProcessor::PreProcess(RawEvent &event) {
@@ -205,23 +204,24 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 		if( (*chanEvtIter)->IsSaturated() || (*chanEvtIter)->IsPileup()){
 			continue;
 		} else {
+                    MtasSegMulti.at(GlobalMtasChanID)++;  // increment the multipliciy "map" based on GlobalMtasSegID
 
-			MtasSegMulti.at(GlobalMtasChanID)++; // increment the multipliciy "map" based on GlobalMtasSegID
+                    MtasSegVec.at(GlobalMtasSegID).gMtasSegID_ = GlobalMtasSegID;
+                    MtasSegVec.at(GlobalMtasSegID).segRing_ = Ring;
+					MtasSegVec.at(GlobalMtasSegID).RingSegNum_ = segmentNum;
+                    if (isFront && MtasSegVec.at(GlobalMtasSegID).GetSegFront() == nullptr) {
+                        MtasSegVec.at(GlobalMtasSegID).SetSegFront((*chanEvtIter));
+                        MtasSegVec.at(GlobalMtasSegID).SetPixieRev(PixieRevision);
+                    }
+                    //! Thomas Ruland Gets a gold star
+                    else if (isBack && MtasSegVec.at(GlobalMtasSegID).GetSegBack() == nullptr) {
+                        MtasSegVec.at(GlobalMtasSegID).SetSegBack((*chanEvtIter));
+                        MtasSegVec.at(GlobalMtasSegID).SetPixieRev(PixieRevision);
+                    }
+                }
+        }  //! end loop over chanEvents.
 
-			MtasSegVec.at(GlobalMtasSegID).gMtasSegID_ = GlobalMtasSegID;
-			if(isFront && MtasSegVec.at(GlobalMtasSegID).segFront_ == nullptr){  
-				MtasSegVec.at(GlobalMtasSegID).segFront_ = (*chanEvtIter);
-				MtasSegVec.at(GlobalMtasSegID).PixieRev = PixieRev;
-			}
-			//! Thomas Ruland Gets a gold star 
-			else if (isBack && MtasSegVec.at(GlobalMtasSegID).segBack_ == nullptr) { 
-				MtasSegVec.at(GlobalMtasSegID).segBack_ = (*chanEvtIter);
-				MtasSegVec.at(GlobalMtasSegID).PixieRev = PixieRev;
-			}
-		}
-	}  //! end loop over chanEvents.
-
-	//! begin loop over segments for sums
+        //! begin loop over segments for sums
 	double centerSum = 0;
 	double innerSum = 0;
 	double middleSum = 0;
@@ -233,19 +233,19 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 	for (auto segIter = MtasSegVec.begin(); segIter != MtasSegVec.end(); ++segIter) {
 		int segmentID = segIter->gMtasSegID_;
 		if (segmentID >= 0 && segmentID <= 5 && segIter->IsValidSegment() ){
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
+			double segmentAvg = segIter->GetSegAvgEnergy();
 			totalSum += segmentAvg;
 			centerSum += segmentAvg;
 		} else if (segmentID >= 6 && segmentID <= 11 && segIter->IsValidSegment() ){
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
+			double segmentAvg = segIter->GetSegAvgEnergy();
 			totalSum += segmentAvg;
 			innerSum += segmentAvg;
 		} else if (segmentID >= 12 && segmentID <= 17 && segIter->IsValidSegment() ){
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
+			double segmentAvg = segIter->GetSegAvgEnergy();
 			totalSum += segmentAvg;
 			middleSum += segmentAvg;
 		} else if (segmentID >= 18 && segmentID <= 23 && segIter->IsValidSegment() ){
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
+			double segmentAvg = segIter->GetSegAvgEnergy();
 			totalSum += segmentAvg;
 			outerSum += segmentAvg;
 		}
@@ -253,17 +253,42 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 	//! loop over segments for ploting
 	for (auto segIter = MtasSegVec.begin(); segIter != MtasSegVec.end(); ++segIter) {
 		int segmentID = segIter->gMtasSegID_;
-		if (segmentID >= 0 && segmentID <= 5 && segIter->IsValidSegment() ){
 
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
-			double segTdiff = segIter->GetSegmentTdiffInNS();
-			double position = ((SD/2)*(1.0 + segIter->GetSegmentPosition()));
+    	//! Begin Root Output stuff.
+    	if (DetectorDriver::get()->GetSysRootOutput() && segIter->IsValidSegment()) {
+            Mtasstruct.energy = segIter->GetSegAvgEnergy();
+            Mtasstruct.fEnergy = segIter->GetFrontEnergy();
+            Mtasstruct.bEnergy = segIter->GetBackEnergy();
+            Mtasstruct.time = segIter->GetSegTimeAvgInNs();
+            Mtasstruct.tdiff = segIter->GetSegTdiffInNs();
+            Mtasstruct.gSegmentID = segIter->gMtasSegID_;
+			Mtasstruct.segmentNum = segIter->RingSegNum_;
+            Mtasstruct.Ring = segIter->segRing_;
+            if (strcmp(segIter->segRing_.c_str(), "center") == 0 ) {
+                Mtasstruct.RingNum = 1;
+            } else if (strcmp(segIter->segRing_.c_str(), "inner") == 0 ) {
+                Mtasstruct.RingNum = 2;
+            } else if (strcmp(segIter->segRing_.c_str(), "middle") == 0 ) {
+                Mtasstruct.RingNum = 3;
+            } else if (strcmp(segIter->segRing_.c_str(), "outer") == 0 ) {
+                Mtasstruct.RingNum = 4;
+            }
+
+			pixie_tree_event_->mtas_vec_.emplace_back(Mtasstruct);
+			Mtasstruct = processor_struct::MTAS_DEFAULT_STRUCT;
+        }
+
+        if (segmentID >= 0 && segmentID <= 5 && segIter->IsValidSegment() ){
+
+			double segmentAvg = segIter->GetSegAvgEnergy();
+			double segTdiff = segIter->GetSegTdiffInNs();
+			double position = ((SD/2)*(1.0 + segIter->GetSegPosition()));
 			//D_MTAS_SUM_FB + 50 + OUTER_OFFSET + (2* i ),
 
 			plot(D_MTAS_TDIFF_OFFSET + CENTER_OFFSET + segmentID, segTdiff + SE/2 );
 
-			plot(D_CONICIDENCE+ (2 * segmentID), segIter->segFront_->GetCalibratedEnergy());
-			plot(D_CONICIDENCE+ (2 * segmentID + 1), segIter->segBack_->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ (2 * segmentID), segIter->GetSegFront()->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ (2 * segmentID + 1), segIter->GetSegBack()->GetCalibratedEnergy());
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + CENTER_OFFSET + segmentID, segmentAvg);
@@ -271,43 +296,44 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 			plot(DD_MTAS_CS_T, totalSum, segmentAvg);
 			plot(DD_MTAS_CS_CR,centerSum,segmentAvg);
 			
-			if( segmentID == 0 )
+			if( segmentID == 0 ){
 				plot(DD_MTAS_C1_POSITION,position,segmentAvg);
+			}
 		} else if (segmentID >= 6 && segmentID <= 11 && segIter->IsValidSegment() ){
 
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
-			double segTdiff = segIter->GetSegmentTdiffInNS();
+			double segmentAvg = segIter->GetSegAvgEnergy();
+			double segTdiff = segIter->GetSegTdiffInNs();
 
 			plot(D_MTAS_TDIFF_OFFSET + INNER_OFFSET + (segmentID - 6), segTdiff + SE / 2);
 
-			plot(D_CONICIDENCE+ 12 + (2 * (segmentID-6)), segIter->segFront_->GetCalibratedEnergy());
-			plot(D_CONICIDENCE+ 12 + (2 * (segmentID-6) + 1), segIter->segBack_->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ 12 + (2 * (segmentID-6)), segIter->GetSegFront()->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ 12 + (2 * (segmentID-6) + 1), segIter->GetSegBack()->GetCalibratedEnergy());
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + INNER_OFFSET + (segmentID - 6), segmentAvg);  //! subtract 12 to put it back in segments 1 - 6
 			plot(DD_MTAS_IMO_T, totalSum, segmentAvg);
 		} else if (segmentID >= 12 && segmentID <= 17 && segIter->IsValidSegment() ){
 
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
-			double segTdiff = segIter->GetSegmentTdiffInNS();
+			double segmentAvg = segIter->GetSegAvgEnergy();
+			double segTdiff = segIter->GetSegTdiffInNs();
 
 			plot(D_MTAS_TDIFF_OFFSET + MIDDLE_OFFSET +  (segmentID-12), segTdiff + SE/2 );
 
-			plot(D_CONICIDENCE+ 24 + (2 * (segmentID - 12)), segIter->segFront_->GetCalibratedEnergy());
-			plot(D_CONICIDENCE+ 24 + (2 * (segmentID - 12) + 1), segIter->segBack_->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ 24 + (2 * (segmentID - 12)), segIter->GetSegFront()->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ 24 + (2 * (segmentID - 12) + 1), segIter->GetSegBack()->GetCalibratedEnergy());
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + MIDDLE_OFFSET + (segmentID-12), segmentAvg); //! subtract 12 to put it back in segments 1 - 6 
 			plot(DD_MTAS_IMO_T,totalSum,segmentAvg);
 		}else if (segmentID >= 18 && segmentID <= 23 && segIter->IsValidSegment() ){
 
-			double segmentAvg = segIter->GetSegmentAverageEnergy();
-			double segTdiff = segIter->GetSegmentTdiffInNS();
+			double segmentAvg = segIter->GetSegAvgEnergy();
+			double segTdiff = segIter->GetSegTdiffInNs();
 
 			plot(D_MTAS_TDIFF_OFFSET + OUTER_OFFSET +  (segmentID-18), segTdiff + SE/2 );
 
-			plot(D_CONICIDENCE+ 36 + (2 * (segmentID-18)), segIter->segFront_->GetCalibratedEnergy());
-			plot(D_CONICIDENCE+ 36 + (2 * (segmentID-18) + 1), segIter->segBack_->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ 36 + (2 * (segmentID-18)), segIter->GetSegFront()->GetCalibratedEnergy());
+			plot(D_CONICIDENCE+ 36 + (2 * (segmentID-18) + 1), segIter->GetSegBack()->GetCalibratedEnergy());
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + OUTER_OFFSET + (segmentID-18), segmentAvg); //! subtract 12 to put it back in segments 1 - 6 
@@ -315,33 +341,39 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 		}
 	}
 
-	for(unsigned int ii = 0; ii < 6; ++ii){
-		bool isSingleSegmentFire = true;
-		for(unsigned int jj = 0; jj < 6; ++jj){
-			if( ii == jj )
-				continue;
-			if( MtasSegVec.at(jj).IsValidSegment() ){
-				isSingleSegmentFire = false;
-			}
-		}
-		if( isSingleSegmentFire ){
-			plot(D_SINGLE_CENTER_OFFSET + ii,MtasSegVec.at(ii).GetSegmentAverageEnergy());
-		}
-		if( ii == 0 and (not MtasSegVec.at(1).IsValidSegment()) and (not MtasSegVec.at(5).IsValidSegment()) )
-			plot(D_SINGLE_CENTER_OFFSET + ii + 6,MtasSegVec.at(0).GetSegmentAverageEnergy());
-		if( ii == 1 and (not MtasSegVec.at(2).IsValidSegment()) and (not MtasSegVec.at(0).IsValidSegment()) )
-			plot(D_SINGLE_CENTER_OFFSET + ii + 6,MtasSegVec.at(1).GetSegmentAverageEnergy());
-		if( ii == 2 and (not MtasSegVec.at(3).IsValidSegment()) and (not MtasSegVec.at(1).IsValidSegment()) )
-			plot(D_SINGLE_CENTER_OFFSET + ii + 6,MtasSegVec.at(2).GetSegmentAverageEnergy());
-		if( ii == 3 and (not MtasSegVec.at(4).IsValidSegment()) and (not MtasSegVec.at(2).IsValidSegment()) )
-			plot(D_SINGLE_CENTER_OFFSET + ii + 6,MtasSegVec.at(3).GetSegmentAverageEnergy());
-		if( ii == 4 and (not MtasSegVec.at(5).IsValidSegment()) and (not MtasSegVec.at(3).IsValidSegment()) )
-			plot(D_SINGLE_CENTER_OFFSET + ii + 6,MtasSegVec.at(4).GetSegmentAverageEnergy());
-		if( ii == 5 and (not MtasSegVec.at(0).IsValidSegment()) and (not MtasSegVec.at(4).IsValidSegment()) )
-			plot(D_SINGLE_CENTER_OFFSET + ii + 6,MtasSegVec.at(5).GetSegmentAverageEnergy());
-	}
+        for (unsigned int ii = 0; ii < 6; ++ii) {
+            bool isSingleSegmentFire = true;
+            for (unsigned int jj = 0; jj < 6; ++jj) {
+                if (ii == jj)
+                    continue;
+                if (MtasSegVec.at(jj).IsValidSegment()) {
+                    isSingleSegmentFire = false;
+                }
+            }
+            if (isSingleSegmentFire) {
+                plot(D_SINGLE_CENTER_OFFSET + ii, MtasSegVec.at(ii).GetSegAvgEnergy());
+            }
+            if (ii == 0 && !MtasSegVec.at(1).IsValidSegment() && !MtasSegVec.at(5).IsValidSegment()) {
+                plot(D_SINGLE_CENTER_OFFSET + ii + 6, MtasSegVec.at(0).GetSegAvgEnergy());
+            }
+            if (ii == 1 && !MtasSegVec.at(2).IsValidSegment() && !MtasSegVec.at(0).IsValidSegment()) {
+                plot(D_SINGLE_CENTER_OFFSET + ii + 6, MtasSegVec.at(1).GetSegAvgEnergy());
+            }
+            if (ii == 2 && !MtasSegVec.at(3).IsValidSegment() && !MtasSegVec.at(1).IsValidSegment()) {
+                plot(D_SINGLE_CENTER_OFFSET + ii + 6, MtasSegVec.at(2).GetSegAvgEnergy());
+            }
+            if (ii == 3 && !MtasSegVec.at(4).IsValidSegment() && !MtasSegVec.at(2).IsValidSegment()) {
+                plot(D_SINGLE_CENTER_OFFSET + ii + 6, MtasSegVec.at(3).GetSegAvgEnergy());
+            }
+            if (ii == 4 && !MtasSegVec.at(5).IsValidSegment() && !MtasSegVec.at(3).IsValidSegment()) {
+                plot(D_SINGLE_CENTER_OFFSET + ii + 6, MtasSegVec.at(4).GetSegAvgEnergy());
+            }
+            if (ii == 5 && !MtasSegVec.at(0).IsValidSegment() && !MtasSegVec.at(4).IsValidSegment()) {
+                plot(D_SINGLE_CENTER_OFFSET + ii + 6, MtasSegVec.at(5).GetSegAvgEnergy());
+            }
+        }
 
-	//! sum spectra
+        //! sum spectra
 	plot(D_MTAS_TOTAL, totalSum);
 	plot(D_MTAS_CENTER, centerSum);
 	plot(D_MTAS_INNER, innerSum);
@@ -350,15 +382,15 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 
 	plot(DD_MTAS_CR_T, totalSum, centerSum);
 
-	plot(DD_MTAS_C1_C2,MtasSegVec.at(1).GetSegmentAverageEnergy(),MtasSegVec.at(0).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C1_C6,MtasSegVec.at(5).GetSegmentAverageEnergy(),MtasSegVec.at(0).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C3_C2,MtasSegVec.at(1).GetSegmentAverageEnergy(),MtasSegVec.at(2).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C3_C4,MtasSegVec.at(3).GetSegmentAverageEnergy(),MtasSegVec.at(2).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C5_C4,MtasSegVec.at(3).GetSegmentAverageEnergy(),MtasSegVec.at(4).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C5_C6,MtasSegVec.at(5).GetSegmentAverageEnergy(),MtasSegVec.at(4).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C1_C3,MtasSegVec.at(2).GetSegmentAverageEnergy(),MtasSegVec.at(0).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C1_C4,MtasSegVec.at(3).GetSegmentAverageEnergy(),MtasSegVec.at(0).GetSegmentAverageEnergy());
-	plot(DD_MTAS_C1_C5,MtasSegVec.at(4).GetSegmentAverageEnergy(),MtasSegVec.at(0).GetSegmentAverageEnergy());
+	plot(DD_MTAS_C1_C2,MtasSegVec.at(1).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
+	plot(DD_MTAS_C1_C6,MtasSegVec.at(5).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
+	plot(DD_MTAS_C3_C2,MtasSegVec.at(1).GetSegAvgEnergy(),MtasSegVec.at(2).GetSegAvgEnergy());
+	plot(DD_MTAS_C3_C4,MtasSegVec.at(3).GetSegAvgEnergy(),MtasSegVec.at(2).GetSegAvgEnergy());
+	plot(DD_MTAS_C5_C4,MtasSegVec.at(3).GetSegAvgEnergy(),MtasSegVec.at(4).GetSegAvgEnergy());
+	plot(DD_MTAS_C5_C6,MtasSegVec.at(5).GetSegAvgEnergy(),MtasSegVec.at(4).GetSegAvgEnergy());
+	plot(DD_MTAS_C1_C3,MtasSegVec.at(2).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
+	plot(DD_MTAS_C1_C4,MtasSegVec.at(3).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
+	plot(DD_MTAS_C1_C5,MtasSegVec.at(4).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
 
 	//! Plot Multis 
 	for (unsigned it = 0; it < MtasSegMulti.size(); ++it){
@@ -373,30 +405,6 @@ bool MtasProcessor::Process(RawEvent &event) {
 	if (!EventProcessor::Process(event))
 		return false;
 
-	//! This is ROOT output stuff
-	// for (auto it = Events.begin(); it != Events.end(); it++) {
-	//     Mtasstruct.energy = (*it)->GetCalibratedEnergy();
-	//     Mtasstruct.rawEnergy = (*it)->GetEnergy();
-	//     if (Rev == "F") {
-	//         Mtasstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
-	//         Mtasstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
-	//     } else {
-	//         Mtasstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9;
-	//         Mtasstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds() * 1e9;
-	//     }
-	//     Mtasstruct.detNum = (*it)->GetChanID().GetLocation();
-	//     Mtasstruct.modNum = (*it)->GetModuleNumber();
-	//     Mtasstruct.chanNum = (*it)->GetChannelNumber();
-	//     Mtasstruct.subtype = (*it)->GetChanID().GetSubtype();
-	//     Mtasstruct.group = (*it)->GetChanID().GetGroup();
-	//     Mtasstruct.pileup = (*it)->IsPileup();
-	//     Mtasstruct.saturation = (*it)->IsSaturated();
-
-	//     pixie_tree_event_->mtas_vec_.emplace_back(Mtasstruct);
-	//     Mtasstruct = processor_struct::Mtas_DEFAULT_STRUCT;
-	// }
-
-	//!---- END root output stuff
 
 	EndProcess();
 	return true;
