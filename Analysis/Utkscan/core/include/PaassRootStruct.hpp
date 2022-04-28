@@ -85,6 +85,7 @@ struct MTAS {
     TString Ring = "";
 };
 static const MTAS MTAS_DEFAULT_STRUCT;
+
 struct NEXT {
     /* Data container for NEXT */
    double tof = -9999;
@@ -194,7 +195,7 @@ struct VANDLE {
     double sTime = -999;
     double sQdc = -999;
 };
-static const VANDLES VANDLES_DEFAULT_STRUCT;
+static const VANDLE VANDLE_DEFAULT_STRUCT;
 
 }  // namespace processor_struct
 
@@ -262,7 +263,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::PSPMT> pspmt_vec_;
     std::vector<processor_struct::ROOTDEV> rootdev_vec_;
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
-    std::vector<processor_struct::VANDLES> vandle_vec_;
+    std::vector<processor_struct::VANDLE> vandle_vec_;
 
     ClassDef(PixTreeEvent, 1)
 };
