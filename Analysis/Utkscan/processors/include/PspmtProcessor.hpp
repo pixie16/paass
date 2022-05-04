@@ -24,7 +24,7 @@ public:
     PspmtProcessor(const std::string &vd, const double &yso_scale,
                    const unsigned int &yso_offset, const double &yso_threshold,
                    const double &front_scale,
-                   const unsigned int &front_offset, const double &front_threshold, const double &rotation);
+                   const unsigned int &front_offset, const double &front_threshold, const double &rotation, const bool &xflip);
 
     ///Default Destructor
     ~PspmtProcessor() {};
@@ -76,7 +76,7 @@ private:
     /// will use to calculate the position.
     ///@return The x,y position of the interaction
     std::pair<double, double> CalculatePosition(double &xa, double &xb, double &ya,
-                                                double &yb, const VDTYPES &vdtype, double &rot);
+                                                double &yb, const VDTYPES &vdtype, double &rot, bool &xfilp);
 
     ///@brief A method to fill PSStruc members. Trace analysis is also implementd here.
     void FillPSPMTStruc(const ChanEvent &chan_event);
@@ -93,6 +93,7 @@ private:
     ///< the Pixie-16 trapezoidal filter needs to reach
     ///< before we can analyze the signals.
     double rotation_; ///< rotation angle for Pspmt positions
+    bool xflip_; ///< flip Pspmt x position
 
     processor_struct::PSPMT PSstruct; //!< PSPMT root Struct
 
