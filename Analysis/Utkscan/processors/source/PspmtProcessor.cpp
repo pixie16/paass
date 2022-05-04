@@ -91,7 +91,7 @@ void PspmtProcessor::DeclarePlots(void) {
 
 PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, const unsigned int &yso_offset,
                                const double &yso_threshold, const double &front_scale,
-                               const unsigned int &front_offset, const double &front_threshold, const double &rotation)
+                               const unsigned int &front_offset, const double &front_threshold, const double &rotation, const bool &xflip)
     : EventProcessor(OFFSET, RANGE, "PspmtProcessor") {
     if (vd == "SIB064_1018" || vd == "SIB064_1730")
         vdtype_ = corners;
@@ -109,6 +109,7 @@ PspmtProcessor::PspmtProcessor(const std::string &vd, const double &yso_scale, c
     front_threshold_ = front_threshold;
     ThreshStr = yso_threshold;
     rotation_ = rotation * 3.1415926 / 180.;  // convert from degrees to radians
+    xflip_ = xflip;
     associatedTypes.insert("pspmt");
 }
 
@@ -275,9 +276,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     //compute position only if all 4 signals are present
     if ((xa_l > 0 && xb_l > 0 && ya_l > 0 && yb_l > 0) || (xa_l_qdc > 0 && xb_l_qdc > 0 && ya_l_qdc > 0 && yb_l_qdc > 0)) {
         hasPosition_low = true;
-        std::pair<double, double> qdc_based_POS = CalculatePosition(xa_l_qdc, xb_l_qdc, ya_l_qdc, yb_l_qdc, vdtype_, rotation_);
-        // position_low.first = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).first;
-        // position_low.second = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_).second;
+        std::pair<double, double> qdc_based_POS = CalculatePosition(xa_l_qdc, xb_l_qdc, ya_l_qdc, yb_l_qdc, vdtype_, rotation_, xflip_);
 
         position_low.first = qdc_based_POS.first;
         position_low.second = qdc_based_POS.second;
@@ -297,9 +296,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
 
     if ((xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0) || (xa_l_qdc > 0 && xb_l_qdc > 0 && ya_l_qdc > 0 && yb_l_qdc > 0)) {
         hasPosition_high = true;
-        std::pair<double, double> qdc_based_POS = CalculatePosition(xa_h_qdc, xb_h_qdc, ya_h_qdc, yb_h_qdc, vdtype_, rotation_);
-        // position_high.first = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_).first;
-        // position_high.second = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_).second;
+        std::pair<double, double> qdc_based_POS = CalculatePosition(xa_h_qdc, xb_h_qdc, ya_h_qdc, yb_h_qdc, vdtype_, rotation_, xflip_);
 
         position_high.first = qdc_based_POS.first;
         position_high.second = qdc_based_POS.second;
@@ -458,14 +455,20 @@ bool PspmtProcessor::PreProcess(RawEvent &event) {
     return (true);
 }
 
-pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype, double &rot) {
+pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype, double &rot, bool &xflip) {
     double x = 0, y = 0, x_tmp = 0, y_tmp = 0, center = 0;
 
     switch (vdtype) {
         case corners:
-            x_tmp = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
-            y_tmp = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
-            center = 0.2;
+            if (xflip) {
+               x_tmp = (0.5 * (ya + xb)) / (xa + xb + ya + yb);
+               y_tmp = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
+               center = 0.2;
+            } else {
+               x_tmp = (0.5 * (yb + xa)) / (xa + xb + ya + yb);
+               y_tmp = (0.5 * (xa + xb)) / (xa + xb + ya + yb);
+               center = 0.2;
+            }
             break;
         case sides:
             x_tmp = (xa - xb) / (xa + xb);
