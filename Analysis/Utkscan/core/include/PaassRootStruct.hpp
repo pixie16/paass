@@ -94,18 +94,40 @@ struct NEXT {
 };
 static const NEXT NEXT_DEFAULT_STRUCT;
 
+//PID class for E19044
+//struct PID {
+//    double rfq_time = -999;
+//    double fp_time = -999;
+//    double pinCfd_time = -999;
+//    double pin_0_time = -999;
+//    double pin_1_time = -999;
+//    double pin_0_energy = -999;
+//    double pin_1_energy = -999;
+//    double tac_0 = -999;
+//    double tac_1 = -999;
+//    double tof0 = -999;
+//    double tof1 = -999;
+//};
+//new PID class for FDSi
 struct PID {
-    double rfq_time = -999;
-    double fp_time = -999;
-    double pinCfd_time = -999;
-    double pin_0_time = -999;
-    double pin_1_time = -999;
-    double pin_0_energy = -999;
-    double pin_1_energy = -999;
-    double tac_0 = -999;
-    double tac_1 = -999;
-    double tof0 = -999;
-    double tof1 = -999;
+    double cross_scint_b1_energy = -999;
+    double cross_scint_b1_time = -999;
+    double cross_scint_t1_energy = -999;
+    double cross_scint_t1_time = -999;
+    double cross_pin_0_energy = -999;
+    double cross_pin_0_time = -999;
+    double cross_pin_1_energy = -999;
+    double cross_pin_1_time = -999;
+    double tac_0 = -999; //image scintL - Cross MSX40
+    double tac_1 = -999; //image scintL - Cross scint
+    double tac_2 = -999; //dispersive L - R
+    double disp_L_logic_time = -999;
+    double disp_R_logic_time = -999;
+    double cross_pin_0_logic_time = -999;
+    double image_scint_L_logic_time = -999;
+    double tof0 = -999; //tof between image scint L and msx40
+    //double tof1 = -999; //tof between image scint L and cross scint
+    double disp_LR = -999; //time difference between dispersive left and right
 };
 static const PID PID_DEFAULT_STRUCT;
 
