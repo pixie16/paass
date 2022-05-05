@@ -349,7 +349,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       cross_scint_b1_energy = (*cross_scint)->GetCalibratedEnergy();
       if (root_output) {
          pid_struct.cross_scint_b1_energy = cross_scint_b1_energy;
-         pid_struct.cross_scint_t1_time = get_time_in_ns(*cross_scint);
+         pid_struct.cross_scint_b1_time = get_time_in_ns(*cross_scint);
       }
    }
    if (!cross_scint_t1_vec.empty()) {
