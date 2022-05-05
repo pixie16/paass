@@ -62,12 +62,12 @@ namespace dammIds {
       const int DD_TAC0_PIN1_GATED_FIT = 24;  //! GATED TAC0 vs Pin1 dE
       const int DD_TAC1_PIN1_GATED_FIT = 25;  //! GATED TAC1 vs Pin1 dE
 
-      const int DD_TOF0_PIN0_GATED_RIT = 40;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF0_PIN1_GATED_RIT = 41;  //! GATED ToF vs Pin1 dE
-      const int DD_TAC0_PIN0_GATED_RIT = 42;  //! GATED TAC0 vs Pin0 dE
-      const int DD_TAC1_PIN0_GATED_RIT = 43;  //! GATED TAC1 vs Pin0 dE
-      const int DD_TAC0_PIN1_GATED_RIT = 44;  //! GATED TAC0 vs Pin1 dE
-      const int DD_TAC1_PIN1_GATED_RIT = 45;  //! GATED TAC1 vs Pin1 dE
+      const int DD_TOF0_PIN0_GATED_RIT = 30;  //! GATED ToF vs Pin0 dE
+      const int DD_TOF0_PIN1_GATED_RIT = 31;  //! GATED ToF vs Pin1 dE
+      const int DD_TAC0_PIN0_GATED_RIT = 32;  //! GATED TAC0 vs Pin0 dE
+      const int DD_TAC1_PIN0_GATED_RIT = 33;  //! GATED TAC1 vs Pin0 dE
+      const int DD_TAC0_PIN1_GATED_RIT = 34;  //! GATED TAC0 vs Pin1 dE
+      const int DD_TAC1_PIN1_GATED_RIT = 35;  //! GATED TAC1 vs Pin1 dE
 
       //const int D_TOF1 = 26;                  //! TDiff between image plastic L and cross plastic
       //const int DD_TOF1_PIN0 = 27;            //! ToF vs Pin0 dE
@@ -75,10 +75,12 @@ namespace dammIds {
       //const int DD_TOF1_PIN1 = 29;            //! ToF vs Pin1 dE
       //const int DD_TOF1_PIN1_GATED_YSO = 30;  //! GATED ToF vs Pin1 dE
 
-      const int DD_TOF0_PIN0_FLIP = 31;            //! ToF vs Pin1 dE flipped
-      const int DD_TOF0_PIN0_GATED_YSO_FLIP = 32;  //! GATED ToF vs Pin1 dE flipped
+      const int DD_TOF0_PIN0_FLIP = 40;            //! ToF vs Pin1 dE flipped
+      const int DD_TOF0_PIN0_GATED_YSO_FLIP = 41;  //! GATED ToF vs Pin1 dE flipped
+      const int DD_TOF0_PIN0_GATED_FIT_FLIP = 42;  //! GATED ToF vs Pin1 dE flipped
+      const int DD_TOF0_PIN0_GATED_RIT_FLIP = 43;  //! GATED ToF vs Pin1 dE flipped
 
-      const int D_DISPLR = 33;                //! Time difference between dispersive left and right
+      const int D_DISPLR = 45;                //! Time difference between dispersive left and right
 
    }  // namespace pid
 }  // namespace dammIds
@@ -134,8 +136,10 @@ void PidProcessor::DeclarePlots(void) {
    // DeclareHistogram2D(DD_TAC1_PIN1_GATED_FIT, SB, SD, "FIT: TAC1 vs Pin1 dE ");
    // DeclareHistogram2D(DD_TAC1_PIN1_GATED_RIT, SB, SD, "RIT: TAC1 vs Pin1 dE ");
 
-   DeclareHistogram2D(DD_TOF0_PIN0_FLIP, SA, SD, "Flipped Tof0 vs Pin0 dE ");
-   DeclareHistogram2D(DD_TOF0_PIN0_GATED_YSO_FLIP, SA, SD, "YSO: Flipped Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_FLIP, SB, SD, "Flipped Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_GATED_YSO_FLIP, SB, SD, "YSO: Flipped Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_GATED_FIT_FLIP, SB, SD, "YSO: Flipped Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_GATED_RIT_FLIP, SB, SD, "YSO: Flipped Tof0 vs Pin0 dE ");
 
 }  // Declare plots
 
@@ -156,6 +160,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    const bool root_output = DetectorDriver::get()->GetSysRootOutput();
 
    //! Generate YSO implant Bool with standard tree correlator places
+   //std::cout<<"yso_thresh = "<<yso_threshold_<<", fit_thresh = "<<fit_threshold_<<", rit_thresh = "<<rit_threshold_<<std::endl;
    bool YSO_Implant = false, FIT_Implant = false, RIT_Implant = false;
    if (TreeCorrelator::get()->checkPlace("pspmt_FIT_0")) {
       if (TreeCorrelator::get()->place("pspmt_FIT_0")->last().energy > fit_threshold_) {
@@ -232,7 +237,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       if ((*imageL) && (*pinLogic)) {
          // Calculate tof
          tof0 = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc) - ((*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc);
-         tof0_flip = (((*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc) - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc)) + 350;
+         tof0_flip = ((*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc) - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc);
          // plot(D_TOF0, tof0);
 
          // ROOT outputs
@@ -369,6 +374,24 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    // Plot 2d histograms
    plot(DD_PIN0_1, pin0_energy, pin1_energy);
 
+   ////make the variables proper for DAMM plot (not ROOT file)
+   if(tof0!=0){
+      tof0 = tof0*10+1000;
+      tof0_flip = tof0_flip*10+500;
+   }else{
+      tof0 = -999;
+   }
+   if(disp_LR!=0){
+      disp_LR = disp_LR*100+500;
+   }else{
+      disp_LR = -999;
+   }
+
+   //will add more here
+   //////////////////////////////////////
+
+   //std::cout<<"disp_LR = "<<disp_LR<<std::endl;
+   plot(D_DISPLR, disp_LR);
    plot(DD_TOF0_PIN0, tof0, pin0_energy);
    plot(DD_TOF0_PIN1, tof0, pin1_energy);
 
@@ -389,16 +412,17 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       plot(DD_TOF0_PIN1_GATED_YSO, tof0, pin1_energy);
       plot(DD_TAC0_PIN0_GATED_YSO, tac0_energy, pin0_energy);
       plot(DD_TAC0_PIN1_GATED_YSO, tac0_energy, pin1_energy);
+      plot(DD_TOF0_PIN0_GATED_YSO_FLIP, tof0_flip, pin0_energy);
       // plot(DD_TAC1_PIN0_GATED_YSO, tac1_energy, pin0_energy);
       // plot(DD_TAC1_PIN1_GATED_YSO, tac1_energy, pin1_energy);
       //plot(DD_TOF1_PIN0_GATED_YSO, tof1, pin0_energy);
-      //plot(DD_TOF1_PIN0_GATED_YSO_FLIP, tof1_flip, pin0_energy);
    }
    if (FIT_Implant) {
       plot(DD_TOF0_PIN0_GATED_FIT, tof0, pin0_energy);
       plot(DD_TOF0_PIN1_GATED_FIT, tof0, pin1_energy);
       plot(DD_TAC0_PIN0_GATED_FIT, tac0_energy, pin0_energy);
       plot(DD_TAC0_PIN1_GATED_FIT, tac0_energy, pin1_energy);
+      plot(DD_TOF0_PIN0_GATED_FIT_FLIP, tof0_flip, pin0_energy);
       // plot(DD_TAC1_PIN0_GATED_FIT, tac1_energy, pin0_energy);
       // plot(DD_TAC1_PIN1_GATED_FIT, tac1_energy, pin1_energy);
    }
@@ -407,6 +431,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       plot(DD_TOF0_PIN1_GATED_RIT, tof0, pin1_energy);
       plot(DD_TAC0_PIN0_GATED_RIT, tac0_energy, pin0_energy);
       plot(DD_TAC0_PIN1_GATED_RIT, tac0_energy, pin1_energy);
+      plot(DD_TOF0_PIN0_GATED_RIT_FLIP, tof0_flip, pin0_energy);
       // plot(DD_TAC1_PIN0_GATED_RIT, tac1_energy, pin0_energy);
       // plot(DD_TAC1_PIN1_GATED_RIT, tac1_energy, pin1_energy);
    }
