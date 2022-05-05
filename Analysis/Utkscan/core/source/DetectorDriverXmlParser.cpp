@@ -220,7 +220,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "PidProcessor") {
             vecProcess.push_back(new PidProcessor(
                 processor.attribute("yso_thresh").as_double(10.0),
-                processor.attribute("fit_thresh").as_double(10.0)));
+                processor.attribute("fit_thresh").as_double(10.0),
+                processor.attribute("rit_thresh").as_double(10.0)));
         } else if (name == "PspmtProcessor") {
             vecProcess.push_back(new PspmtProcessor(
                 processor.attribute("vd").as_string("SIB062_0926"),
