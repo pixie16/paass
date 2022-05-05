@@ -26,7 +26,7 @@ public:
 	 * @param pin0 : channel location id of pin0
 	 * @param pin1 : channel location id of pin1
 	*/
-	PidProcessor(const double &YSO_Implant_thresh,const double &FIT_thresh);
+	PidProcessor(const double &YSO_Implant_thresh,const double &FIT_thresh, const double &RIT_thresh);
 
 	///Default Destructor
 	~PidProcessor() = default;
@@ -55,6 +55,7 @@ private:
 
 	double yso_threshold_; //threshold for yso implant gating
 	double fit_threshold_; //threshold for fit implant gating
+	double rit_threshold_; //threshold for rit implant gating
 	processor_struct::PID pid_struct;
 
 
