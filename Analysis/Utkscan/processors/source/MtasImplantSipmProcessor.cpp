@@ -49,12 +49,12 @@ MtasImplantSipmProcessor::MtasImplantSipmProcessor() : EventProcessor(OFFSET, RA
 }
 
 void MtasImplantSipmProcessor::DeclarePlots(void) {
-    DeclareHistogram2D(DD_ANODES_H_ENERGY, SD, S6, "Anode HG Pix Energy/10 vs DetLoc");
-    DeclareHistogram2D(DD_ANODES_H_OQDC, SD, S6, "Anode HG OnBoard QDC/10 vs DetLoc");
-    DeclareHistogram2D(DD_ANODES_H_TQDC, SD, S6, "Anode HG TQDC/10 vs DetLoc");
-    DeclareHistogram2D(DD_ANODES_L_ENERGY, SD, S6, "Anode LG Pix Energy/10 vs DetLoc");
-    DeclareHistogram2D(DD_ANODES_L_OQDC, SD, S6, "Anode LG OnBoard QDC/10 vs DetLoc");
-    DeclareHistogram2D(DD_ANODES_L_TQDC, SD, S6, "Anode LG TQDC/10 vs DetLoc");
+    DeclareHistogram2D(DD_ANODES_H_ENERGY, SD, S7, "Anode HG Pix Energy/10 vs DetLoc");
+    DeclareHistogram2D(DD_ANODES_H_OQDC, SD, S7, "Anode HG OnBoard QDC/10 vs DetLoc");
+    DeclareHistogram2D(DD_ANODES_H_TQDC, SD, S7, "Anode HG TQDC/10 vs DetLoc");
+    DeclareHistogram2D(DD_ANODES_L_ENERGY, SD, S7, "Anode LG Pix Energy/10 vs DetLoc");
+    DeclareHistogram2D(DD_ANODES_L_OQDC, SD, S7, "Anode LG OnBoard QDC/10 vs DetLoc");
+    DeclareHistogram2D(DD_ANODES_L_TQDC, SD, S7, "Anode LG TQDC/10 vs DetLoc");
     DeclareHistogram2D(DD_DY_L_ENERGY, SD, S2, "DY LG Pix Energy/10 vs DetLoc");
     DeclareHistogram2D(DD_DY_L_OQDC, SD, S2, "DY LG OnBoard QDC/10 vs DetLoc");
     DeclareHistogram2D(DD_DY_L_TQDC, SD, S2, "DY LG TQDC/10 vs DetLoc");
@@ -107,7 +107,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
 
-        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+3 and 12-y should center the image in a S4 by S4 histo
+        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
     //!#########################################
@@ -142,7 +142,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
 
-        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+3 and 12-y should center the image in a S4 by S4 histo
+        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
     //!#########################################
@@ -227,9 +227,8 @@ double MtasImplantSipmProcessor::CalOnboardQDC(int bkg, int waveform, const std:
 }
 
 pair<int, int> MtasImplantSipmProcessor::ComputeSiPmPixelLoc(int xmlLocation_) {
-    int shifted_XML_loc_ = xmlLocation_ + 1;    //! shifting to 1 counting because of the modulus. a 0 return for the modulus means its evenly divisable, but 0 % 8 also gives 0, so for clarity im shifting
-    int y = floor(shifted_XML_loc_ / 8.0) + 1;  // 1 counting the rows and columns
-    int x = shifted_XML_loc_ % 8;               //! Modulus returns the integer remainder i.e. 10 % 8 gives 2
+    int y = floor(xmlLocation_ / 8.0);  //! 0 counting the rows and columns
+    int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2
 
     return (make_pair(x, y));  //! returning "raw" positions so the plot offets are clearly in the plot command.
 }
