@@ -18,6 +18,7 @@ set(PROCESSOR_SOURCES
         LiquidScintProcessor.cpp
         LitePositionProcessor.cpp
         LogicProcessor.cpp
+        MtasImplantSipmProcessor.cpp
         McpProcessor.cpp
         MtasProcessor.cpp
         NeutronScintProcessor.cpp
