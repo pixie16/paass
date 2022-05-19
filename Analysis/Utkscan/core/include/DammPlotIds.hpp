@@ -211,6 +211,10 @@ namespace dammIds {
         const int OFFSET = 7100;//!< Offset for Dssd4SheProcessor
         const int RANGE = 100;//!< Range for Dssd4SheProcessor
     }
+    namespace mtasimplant {
+        const int OFFSET = 7000; //! Offset for MTAS Implant processors (both dssd and sipm based)
+        const int RANGE = 200; //! Range for MTAS Implant processors (both dssd and sipm based)
+    }
 
     namespace mtas { 
         const int OFFSET = 7200; //!< Offset for MTASProcessor
