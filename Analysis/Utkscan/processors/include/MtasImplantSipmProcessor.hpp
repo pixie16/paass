@@ -41,8 +41,11 @@ class MtasImplantSipmProcessor : public EventProcessor {
 
     std::pair<int, int> ComputeSiPmPixelLoc(int xmlLocation_);
 
+    void FillRootStruct(ChanEvent* evt, double& onboardqdc, const std::pair<int,int> &positions = {0,0});
+
    private:
     std::string PixieRevision;  //! pixie revision
+    processor_struct::MTASIMPLANT mtasImplStruct;
     double EandQDC_down_scaling_;
     std::pair<int, int> dammSiPm_pixelShifts;
 };
