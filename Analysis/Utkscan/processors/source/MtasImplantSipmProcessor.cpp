@@ -22,7 +22,8 @@
 #include "RawEvent.hpp"
 #include "StringManipulationFunctions.hpp"
 
-namespace dammIds::mtasimplant {
+namespace dammIds {
+namespace mtasimplant {
 const unsigned int DD_ANODES_H_ENERGY = 0;
 const unsigned int DD_ANODES_H_OQDC = 1;
 const unsigned int DD_ANODES_H_TQDC = 2;
@@ -37,7 +38,8 @@ const unsigned int DD_DY_H_OQDC = 10;
 const unsigned int DD_DY_H_TQDC = 11;
 const unsigned int DD_SIPM_PIXEL_IMAGE_HG = 12;
 const unsigned int DD_SIPM_PIXEL_IMAGE_LG = 13;
-}  // namespace dammIds::mtasimplant
+}  // namespace mtasimplant
+}  // namespace dammIds
 
 using namespace std;
 using namespace dammIds::mtasimplant;
