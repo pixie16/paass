@@ -86,6 +86,22 @@ struct MTAS {
 };
 static const MTAS MTAS_DEFAULT_STRUCT;
 
+
+struct MTASIMPLANT {
+    std::vector<unsigned> trace = {};
+    bool hastraceInfile = false;
+    bool hasValidWaveform = false;
+    double energy = -999;
+    double oqdc = -999;
+    double tqdc = -999;
+    double timesans = -999;
+    int sipmloc = -999;
+    int xpos = -999;
+    int ypos = -999;
+    TString subtype = "";
+    TString group ="";
+};
+static const MTASIMPLANT MTASIMPLANT_DEFAULT_STRUCT;
 struct NEXT {
     /* Data container for NEXT */
    double tof = -9999;
@@ -253,6 +269,7 @@ class PixTreeEvent : public TObject {
         gammascint_vec_ = obj.gammascint_vec_;
         logic_vec_ = obj.logic_vec_;
         mtas_vec_ = obj.mtas_vec_;
+        mtasimpl_vec_ = obj.mtasimpl_vec_;
         next_vec_ = obj.next_vec_;
         pid_vec_ = obj.pid_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
@@ -277,6 +294,7 @@ class PixTreeEvent : public TObject {
         gammascint_vec_.clear();
         logic_vec_.clear();
         mtas_vec_.clear();
+        mtasimpl_vec_.clear();
         next_vec_.clear();
         pid_vec_.clear();
         pspmt_vec_.clear();
@@ -298,6 +316,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::GAMMASCINT> gammascint_vec_;
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::MTAS> mtas_vec_;
+    std::vector<processor_struct::MTASIMPLANT> mtasimpl_vec_;
     std::vector<processor_struct::NEXT> next_vec_;
     std::vector<processor_struct::PID> pid_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;

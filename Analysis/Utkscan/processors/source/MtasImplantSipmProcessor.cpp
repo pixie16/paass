@@ -96,6 +96,12 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itAl->GetQdc());
+        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
+
+        //! Fill the root struct
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            FillRootStruct(itAl, oqdc, sipmPixels);
+        }
 
         plot(DD_ANODES_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
@@ -104,8 +110,6 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
         if (oqdc != -999) {
             plot(DD_ANODES_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
-
-        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
 
         plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
@@ -131,6 +135,12 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itAh->GetQdc());
+        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
+
+        // ! Fill the root struct
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            FillRootStruct(itAh, oqdc, sipmPixels);
+        }
 
         plot(DD_ANODES_H_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
@@ -139,8 +149,6 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
         if (oqdc != -999) {
             plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
-
-        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
 
         plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
@@ -166,6 +174,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itDyL->GetQdc());
+
+        //! Fill the root struct
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            FillRootStruct(itDyL, oqdc);
+        }
 
         plot(DD_DY_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
@@ -197,6 +210,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itDyH->GetQdc());
+
+        //! Fill the root struct
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            FillRootStruct(itDyH, oqdc);
+        }
 
         plot(DD_DY_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
@@ -231,4 +249,25 @@ pair<int, int> MtasImplantSipmProcessor::ComputeSiPmPixelLoc(int xmlLocation_) {
     int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2
 
     return (make_pair(x, y));  //! returning "raw" positions so the plot offets are clearly in the plot command.
+}
+
+void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc, const std::pair<int, int> &positions) {
+    mtasImplStruct = processor_struct::MTASIMPLANT_DEFAULT_STRUCT;
+    mtasImplStruct.energy = evt->GetCalibratedEnergy();
+    mtasImplStruct.oqdc = onboardqdc;
+    if (!evt->GetTrace().empty()){
+        mtasImplStruct.hastraceInfile = true;
+        mtasImplStruct.trace = evt->GetTrace();
+        if (evt->GetTrace().HasValidWaveformAnalysis()) {
+            mtasImplStruct.tqdc = evt->GetTrace().GetQdc();
+            mtasImplStruct.hasValidWaveform = true;
+        }
+    }
+    mtasImplStruct.timesans = evt->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(evt->GetChanID().GetModFreq());
+    mtasImplStruct.sipmloc = evt->GetChanID().GetLocation();
+    mtasImplStruct.xpos = positions.first;
+    mtasImplStruct.ypos = positions.second;
+    mtasImplStruct.subtype = evt->GetChanID().GetSubtype();
+    mtasImplStruct.group = evt->GetChanID().GetGroup();
+    pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
 }
