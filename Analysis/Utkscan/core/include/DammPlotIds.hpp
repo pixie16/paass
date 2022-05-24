@@ -49,6 +49,7 @@ namespace dammIds {
         const int DD_TRACE_MAX = 1814;//!< Plot for Max Value in Trace
         const int D_HAS_TRACE_2 = 1815;//!< Plot for Channels w/ valid waveform analysis 
         const int D_HAS_TRACE_3 = 1816;//!< Plot for Channels w/ valid fit analysis 
+        //const int DD_TRACE_MAX_PINGATE = 1817;//!< Plot for Max Value in Trace gated by PIN0 energy
     }
 
     /// in PspmtProcessor.cpp
@@ -154,7 +155,7 @@ namespace dammIds {
     //in PidProcessor.cpp
     namespace pid {
         const int OFFSET = 3500; //!< Offset for the PidProcessor Hists
-        const int RANGE = 50;//!< Range for the PidProcessor Hists
+        const int RANGE = 100;//!< Range for the PidProcessor Hists
     }
 
     //in BatoProcessor.cpp

@@ -56,6 +56,11 @@ private:
 	double yso_threshold_; //threshold for yso implant gating
 	double fit_threshold_; //threshold for fit implant gating
 	double rit_threshold_; //threshold for rit implant gating
+
+    //some tests
+    double yso_energy_prev;
+    double fit_energy_prev;
+    double rit_energy_prev;
 	processor_struct::PID pid_struct;
 
 
