@@ -132,7 +132,7 @@ DetectorDriver::DetectorDriver() : histo(OFFSET, RANGE, "DetectorDriver") {
             }
         }
 
-        PTree->SetAutoFlush(3000);
+        //PTree->SetAutoFlush(3000);
         //ending root stuff
     }
 }
