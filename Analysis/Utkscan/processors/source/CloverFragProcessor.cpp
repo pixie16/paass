@@ -31,16 +31,16 @@ using namespace dammIds::cloverFrag;
 namespace dammIds {
 //! Namespace containing histogram definitions for the Clover. We are overriding the CloverProcessor space so the processors are exclusive
 namespace cloverFrag {
-const unsigned int MAX_FRAGCLOVERS = 4;  //!< for *_DETX spectra
+const unsigned int MAX_FRAGCLOVERS = 13;  //!< for *_DETX spectra
 
 const int CLOVER_LOW_OFFSET = 20;  ///!< offset for clover low versions
 
 const int D_CLOVERFRAG_ENERGY = 0;            //!< Energy
-const int D_CLOVERFRAG_ENERGY_CLOVERX = 2;    //!< Energy Full Clover
-const int D_CLOVERFRAG_MULTI = 9;             //!<Multiplicity
-const int D_CLOVERFRAG_ENERGY_DECAY = 10;     //!<Rough Decay Gated Energy
-const int D_CLOVERFRAG_ENERGY_IMPLANT = 11;   //!<Rough IMPLANT Gated Energy
-const int D_CLOVERFRAG_ENERGY_ANTIVETO = 12;  //!<Anti veto Gated Energy
+const int D_CLOVERFRAG_ENERGY_CLOVERX = 1;    //!< Energy Full Clover
+const int D_CLOVERFRAG_MULTI = 39;             //!<Multiplicity
+const int D_CLOVERFRAG_ENERGY_DECAY = 40;     //!<Rough Decay Gated Energy
+const int D_CLOVERFRAG_ENERGY_IMPLANT = 41;   //!<Rough IMPLANT Gated Energy
+const int D_CLOVERFRAG_ENERGY_ANTIVETO = 42;  //!<Anti veto Gated Energy
 
 }  // namespace cloverFrag
 }  // namespace dammIds
@@ -173,7 +173,7 @@ bool CloverFragProcessor::Process(RawEvent &event) {
         }
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
-            //Fill root struct and push back on to vector
+            //Fill root struct and push back on to vector3
             Cstruct.cloverHigh = cloverHighGain;
             Cstruct.rawEnergy = (*itClover)->GetEnergy();
             Cstruct.energy = gEnergy;

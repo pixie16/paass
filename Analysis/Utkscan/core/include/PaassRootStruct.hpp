@@ -115,19 +115,34 @@ struct PID {
     double cross_scint_t1_energy = -999;
     double cross_scint_t1_time = -999;
     double cross_pin_0_energy = -999;
+    double cross_pin_0_tracemax = -999;
+    double cross_pin_0_traceqdc = -999;
     double cross_pin_0_time = -999;
     double cross_pin_1_energy = -999;
+    double cross_pin_1_tracemax = -999;
+    double cross_pin_1_traceqdc = -999;
     double cross_pin_1_time = -999;
     double tac_0 = -999; //image scintL - Cross MSX40
     double tac_1 = -999; //image scintL - Cross scint
     double tac_2 = -999; //dispersive L - R
+    double tac_3 = -999; //dispersive U - D
     double disp_L_logic_time = -999;
     double disp_R_logic_time = -999;
+    double disp_U_logic_time = -999;
+    double disp_D_logic_time = -999;
     double cross_pin_0_logic_time = -999;
+    double cross_scint_b2_logic_time = -999;
     double image_scint_L_logic_time = -999;
-    double tof0 = -999; //tof between image scint L and msx40
-    //double tof1 = -999; //tof between image scint L and cross scint
+    double tof0 = -999; //tof between image scint L and cross pin0 onboard cfd
+    double tof1 = -999; //tof between image scint L and cross pin0 highrestime
+    double tof2 = -999; //tof between image scint L and cross scint onboard cfd
+    double tof3 = -999; //tof between image scint L and cross scint highrestime
     double disp_LR = -999; //time difference between dispersive left and right
+    double disp_UD = -999; //time difference between dispersive up and down
+    double fit_energy = -999;
+    double yso_energy = -999;
+    double rit_energy = -999;
+    TString stop_in = "";
 };
 static const PID PID_DEFAULT_STRUCT;
 
