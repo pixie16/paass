@@ -802,7 +802,7 @@ void ScanInterface::RunControl() {
                             std::cout << " (module number " << std::dec << modn << ")" << std::endl;
                         }
                         if (modn < 0) {
-                            std::cout << "invalid slot number, likely corrupted data" << std::endl;
+                            std::cout << "invalid slot number (got" << modn << "), likely corrupted data" << std::endl;
                             continue;
                         }
                     } else {
