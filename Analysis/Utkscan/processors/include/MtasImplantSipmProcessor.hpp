@@ -19,6 +19,9 @@ class MtasImplantSipmProcessor : public EventProcessor {
     /**Constructor */
     MtasImplantSipmProcessor();
 
+       /**Constructor */
+    MtasImplantSipmProcessor(double yso_scale, double yso_offset, double yso_thresh);
+
     /** Deconstructor */
     ~MtasImplantSipmProcessor() = default;
 
@@ -43,11 +46,14 @@ class MtasImplantSipmProcessor : public EventProcessor {
 
     void FillRootStruct(ChanEvent* evt, double& onboardqdc, const std::pair<int,int> &positions = {0,0});
 
+    std::pair<double,double> CalculatePosition(std::vector<std::vector<double>>& data);
+
    private:
     std::string PixieRevision;  //! pixie revision
     processor_struct::MTASIMPLANT mtasImplStruct;
     double EandQDC_down_scaling_;
     std::pair<int, int> dammSiPm_pixelShifts;
+    double yso_thresh,yso_scale,yso_offset;
 };
 
 #endif
