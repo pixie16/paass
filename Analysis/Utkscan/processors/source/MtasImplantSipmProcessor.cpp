@@ -38,16 +38,22 @@ const unsigned int DD_DY_H_OQDC = 10;
 const unsigned int DD_DY_H_TQDC = 11;
 const unsigned int DD_SIPM_PIXEL_IMAGE_HG = 12;
 const unsigned int DD_SIPM_PIXEL_IMAGE_LG = 13;
+const unsigned int DD_SIPM_HIRES_IMAGE_LG = 14;
+const unsigned int DD_SIPM_HIRES_IMAGE_HG = 15;
 }  // namespace mtasimplant
 }  // namespace dammIds
 
 using namespace std;
 using namespace dammIds::mtasimplant;
 
-MtasImplantSipmProcessor::MtasImplantSipmProcessor() : EventProcessor(OFFSET, RANGE, "MtasImplantSipmProcessor") {
+MtasImplantSipmProcessor::MtasImplantSipmProcessor(double yso_scale_, double yso_offset_, double yso_thresh_) : EventProcessor(OFFSET, RANGE, "MtasImplantSipmProcessor") {
     associatedTypes.insert("mtasimplantsipm");
     EandQDC_down_scaling_ = 10.0;
     dammSiPm_pixelShifts = {3, 12};  // shift is first + xpos and second - ypos
+
+    yso_scale = yso_scale_;
+    yso_offset = yso_offset_;
+    yso_thresh = yso_thresh_;
 }
 
 void MtasImplantSipmProcessor::DeclarePlots(void) {
@@ -65,23 +71,30 @@ void MtasImplantSipmProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DY_H_TQDC, SD, S2, "DY HG TQDC/10 vs DetLoc");
     DeclareHistogram2D(DD_SIPM_PIXEL_IMAGE_HG, S4, S4, "SiPM HG Hit Pattern");
     DeclareHistogram2D(DD_SIPM_PIXEL_IMAGE_LG, S4, S4, "SiPM LG Hit Pattern");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG, SB, SB, " High Res LG Image");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG, SB, SB, " High Res HG Image");
 }
 
 bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
-
+    // cout<<"start Preprocess"<<endl;
     static const vector<ChanEvent *> &Anode_L = event.GetSummary("mtasimplantsipm:anode_l", true)->GetList();
     static const vector<ChanEvent *> &Anode_H = event.GetSummary("mtasimplantsipm:anode_h", true)->GetList();
 
     static const vector<ChanEvent *> &Dynode_H = event.GetSummary("mtasimplantsipm:dyn_h", true)->GetList();
     static const vector<ChanEvent *> &Dynode_L = event.GetSummary("mtasimplantsipm:dyn_l", true)->GetList();
 
+    vector<double> anodeL_energyList_for_calculations(64, 0.0);
+    vector<double> anodeH_energyList_for_calculations(64, 0.0);
+    vector<vector<double>> anode_L_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
+    vector<vector<double>> anode_H_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
+
     //!#########################################
     //!       ANODE LOW GAIN
     //!#########################################
 
-    for (auto itAl : Anode_L) {
+    for (auto &itAl : Anode_L) {
         if (itAl->IsSaturated() || itAl->IsPileup()) {
             continue;
         }
@@ -105,6 +118,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             FillRootStruct(itAl, oqdc, sipmPixels);
         }
 
+        if (energy > yso_thresh) {
+            anodeL_energyList_for_calculations.at(detLoc) += energy;
+            (anode_L_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
+        }
+
         plot(DD_ANODES_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
             plot(DD_ANODES_L_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
@@ -116,11 +134,14 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
         plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
+    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
+
+    plot(DD_SIPM_HIRES_IMAGE_LG, LG_positions.first * yso_scale + yso_offset, LG_positions.second * yso_scale + yso_offset);
     //!#########################################
     //!       ANODE HIGH GAIN
     //!#########################################
 
-    for (auto itAh : Anode_H) {
+    for (auto &itAh : Anode_H) {
         if (itAh->IsSaturated() || itAh->IsPileup()) {
             continue;
         }
@@ -144,6 +165,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             FillRootStruct(itAh, oqdc, sipmPixels);
         }
 
+        if (energy > yso_thresh) {
+            anodeH_energyList_for_calculations.at(detLoc) += energy;
+            (anode_H_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
+        }
+
         plot(DD_ANODES_H_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
             plot(DD_ANODES_H_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
@@ -152,14 +178,17 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
-        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+        plot(DD_SIPM_PIXEL_IMAGE_HG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
+
+    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
+    plot(DD_SIPM_HIRES_IMAGE_HG, HG_positions.first * yso_scale + yso_offset, HG_positions.second * yso_scale + yso_offset);
 
     //!#########################################
     //!       DYNODE LOW GAIN
     //!#########################################
 
-    for (auto itDyL : Dynode_L) {
+    for (auto &itDyL : Dynode_L) {
         if (itDyL->IsSaturated() || itDyL->IsPileup()) {
             continue;
         }
@@ -195,7 +224,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     //!       DYNODE HIGH GAIN
     //!#########################################
 
-    for (auto itDyH : Dynode_H) {
+    for (auto &itDyH : Dynode_H) {
         if (itDyH->IsSaturated() || itDyH->IsPileup()) {
             continue;
         }
@@ -218,12 +247,12 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             FillRootStruct(itDyH, oqdc);
         }
 
-        plot(DD_DY_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
+        plot(DD_DY_H_ENERGY, energy / EandQDC_down_scaling_, detLoc );
         if (tqdc != -999) {
-            plot(DD_DY_L_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
+            plot(DD_DY_H_OQDC, oqdc / EandQDC_down_scaling_, detLoc );
         }
         if (oqdc != -999) {
-            plot(DD_DY_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
+            plot(DD_DY_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc );
         }
     }
 
@@ -257,7 +286,7 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     mtasImplStruct = processor_struct::MTASIMPLANT_DEFAULT_STRUCT;
     mtasImplStruct.energy = evt->GetCalibratedEnergy();
     mtasImplStruct.oqdc = onboardqdc;
-    if (!evt->GetTrace().empty()){
+    if (!evt->GetTrace().empty()) {
         mtasImplStruct.hastraceInfile = true;
         mtasImplStruct.trace = evt->GetTrace();
         if (evt->GetTrace().HasValidWaveformAnalysis()) {
@@ -272,4 +301,20 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     mtasImplStruct.subtype = evt->GetChanID().GetSubtype();
     mtasImplStruct.group = evt->GetChanID().GetGroup();
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
+}
+pair<double, double> MtasImplantSipmProcessor::CalculatePosition(std::vector<std::vector<double>> &data) {
+    // x = energy(1,1)*1 + energy(1,2) * 2 ... + energy (2,1)*1 + energy (2,2) *2 ../sumE
+    // y = energy (1,1)*1 + energy(2,1)*2 .. + energy (1,2) * 1 + energy (2,2) *2 ../sumE
+    double x_tmp_ = 0;
+    double y_tmp_ = 0;
+    double energy_sum = 0;
+
+    for (int iter = 0; iter < data.size(); ++iter) {
+        for (int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
+            energy_sum += (data.at(iter)).at(iter2);
+            x_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1);
+            y_tmp_ += (data.at(iter)).at(iter2) * (iter + 1);
+        }
+    }
+    return make_pair(x_tmp_ / energy_sum, y_tmp_ / energy_sum);
 }
