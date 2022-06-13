@@ -40,6 +40,8 @@ const unsigned int DD_SIPM_PIXEL_IMAGE_HG = 12;
 const unsigned int DD_SIPM_PIXEL_IMAGE_LG = 13;
 const unsigned int DD_SIPM_HIRES_IMAGE_LG = 14;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG = 15;
+const unsigned int DD_SIPM_HIRES_IMAGE_LG_QDC = 16;
+const unsigned int DD_SIPM_HIRES_IMAGE_HG_QDC = 17;
 }  // namespace mtasimplant
 }  // namespace dammIds
 
@@ -71,8 +73,10 @@ void MtasImplantSipmProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_DY_H_TQDC, SD, S2, "DY HG TQDC/10 vs DetLoc");
     DeclareHistogram2D(DD_SIPM_PIXEL_IMAGE_HG, S4, S4, "SiPM HG Hit Pattern");
     DeclareHistogram2D(DD_SIPM_PIXEL_IMAGE_LG, S4, S4, "SiPM LG Hit Pattern");
-    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG, SB, SB, " High Res LG Image");
-    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG, SB, SB, " High Res HG Image");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG, SB, SB, " High Res LG Image Filter Energy");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG, SB, SB, " High Res HG Image Filter Energy");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG_QDC, SB, SB, " High Res LG QDC");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_QDC, SB, SB, " High Res HG QDC");
 }
 
 bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
@@ -89,6 +93,8 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     vector<double> anodeH_energyList_for_calculations(64, 0.0);
     vector<vector<double>> anode_L_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_H_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
+    vector<vector<double>> anode_L_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
+    vector<vector<double>> anode_H_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
 
     //!#########################################
     //!       ANODE LOW GAIN
@@ -122,6 +128,9 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             anodeL_energyList_for_calculations.at(detLoc) += energy;
             (anode_L_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
         }
+	if (oqdc > yso_thresh) {
+            (anode_L_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
+        }
 
         plot(DD_ANODES_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
         if (tqdc != -999) {
@@ -135,8 +144,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     }
 
     pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
+    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC);
 
-    plot(DD_SIPM_HIRES_IMAGE_LG, LG_positions.first * yso_scale + yso_offset, LG_positions.second * yso_scale + yso_offset);
+    plot(DD_SIPM_HIRES_IMAGE_LG, LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
+    plot(DD_SIPM_HIRES_IMAGE_LG_QDC, LG_QDCpositions.first * yso_scale + yso_offset/2, LG_QDCpositions.second * yso_scale + yso_offset);
+
     //!#########################################
     //!       ANODE HIGH GAIN
     //!#########################################
@@ -182,7 +194,9 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     }
 
     pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
-    plot(DD_SIPM_HIRES_IMAGE_HG, HG_positions.first * yso_scale + yso_offset, HG_positions.second * yso_scale + yso_offset);
+    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC);
+    plot(DD_SIPM_HIRES_IMAGE_HG, HG_positions.first * yso_scale + yso_offset/2, HG_positions.second * yso_scale + yso_offset);
+    plot(DD_SIPM_HIRES_IMAGE_HG_QDC, HG_QDCpositions.first * yso_scale + yso_offset/2, HG_QDCpositions.second * yso_scale + yso_offset);
 
     //!#########################################
     //!       DYNODE LOW GAIN
@@ -276,9 +290,11 @@ double MtasImplantSipmProcessor::CalOnboardQDC(int bkg, int waveform, const std:
 }
 
 pair<int, int> MtasImplantSipmProcessor::ComputeSiPmPixelLoc(int xmlLocation_) {
-    int y = floor(xmlLocation_ / 8.0);  //! 0 counting the rows and columns
-    int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2
+    /* int y = floor(xmlLocation_ / 8.0);  //! 0 counting the rows and columns */
+    /* int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2 */
 
+    int y =  floor(xmlLocation_ / 8.0);  //! 0 counting the rows and columns
+    int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2
     return (make_pair(x, y));  //! returning "raw" positions so the plot offets are clearly in the plot command.
 }
 
@@ -286,18 +302,18 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     mtasImplStruct = processor_struct::MTASIMPLANT_DEFAULT_STRUCT;
     mtasImplStruct.energy = evt->GetCalibratedEnergy();
     mtasImplStruct.oqdc = onboardqdc;
-    if (!evt->GetTrace().empty()) {
-        mtasImplStruct.hastraceInfile = true;
-        mtasImplStruct.trace = evt->GetTrace();
-        if (evt->GetTrace().HasValidWaveformAnalysis()) {
-            mtasImplStruct.tqdc = evt->GetTrace().GetQdc();
-            mtasImplStruct.hasValidWaveform = true;
-        }
-    }
+    /* if (!evt->GetTrace().empty()) { */
+    /*     mtasImplStruct.hastraceInfile = true; */
+    /*     mtasImplStruct.trace = evt->GetTrace(); */
+    /*     if (evt->GetTrace().HasValidWaveformAnalysis()) { */
+    /*         mtasImplStruct.tqdc = evt->GetTrace().GetQdc(); */
+    /*         mtasImplStruct.hasValidWaveform = true; */
+    /*     } */
+    /* } */
     mtasImplStruct.timesans = evt->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(evt->GetChanID().GetModFreq());
     mtasImplStruct.sipmloc = evt->GetChanID().GetLocation();
-    mtasImplStruct.xpos = positions.first;
-    mtasImplStruct.ypos = positions.second;
+    mtasImplStruct.xpixel= positions.first;
+    mtasImplStruct.ypixel = positions.second;
     mtasImplStruct.subtype = evt->GetChanID().GetSubtype();
     mtasImplStruct.group = evt->GetChanID().GetGroup();
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
@@ -309,12 +325,14 @@ pair<double, double> MtasImplantSipmProcessor::CalculatePosition(std::vector<std
     double y_tmp_ = 0;
     double energy_sum = 0;
 
-    for (int iter = 0; iter < data.size(); ++iter) {
-        for (int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
+    for (unsigned int iter = 0; iter < data.size(); ++iter) {
+        for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
             energy_sum += (data.at(iter)).at(iter2);
-            x_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1);
-            y_tmp_ += (data.at(iter)).at(iter2) * (iter + 1);
+            x_tmp_ += (data.at(iter)).at(iter2) * (iter + 1);
+            y_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1);
+            /* x_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1); */
+            /* y_tmp_ += (data.at(iter)).at(iter2) * (iter + 1); */
         }
     }
-    return make_pair(x_tmp_ / energy_sum, y_tmp_ / energy_sum);
+    return make_pair(x_tmp_ / energy_sum, (8 - y_tmp_)  / energy_sum );
 }
