@@ -129,20 +129,20 @@ void MtasProcessor::DeclarePlots(void){
 		DeclareHistogram1D(D_CONICIDENCE + 36+ (2*i + 1), SE, title4.c_str());
 	}
 
-	DeclareHistogram2D(DD_MTAS_CR_T,SD,SD,"Mtas Center Ring vs Total");
-	DeclareHistogram2D(DD_MTAS_CS_CR,SD,SD,"Mtas Center Segment vs Center Ring");
-	DeclareHistogram2D(DD_MTAS_CS_T,SD,SD,"Mtas Center Segment vs Total");
-	DeclareHistogram2D(DD_MTAS_IMO_T,SD,SD,"Mtas I,M,O Segment vs Total");
-	DeclareHistogram2D(DD_MTAS_C1_POSITION,SD,SD,"Mtas C1 vs Position");
-	DeclareHistogram2D(DD_MTAS_C1_C2,SD,SD,"Mtas C1 vs C2");
-	DeclareHistogram2D(DD_MTAS_C1_C6,SD,SD,"Mtas C1 vs C6");
-	DeclareHistogram2D(DD_MTAS_C3_C2,SD,SD,"Mtas C3 vs C2");
-	DeclareHistogram2D(DD_MTAS_C3_C4,SD,SD,"Mtas C3 vs C4");
-	DeclareHistogram2D(DD_MTAS_C5_C4,SD,SD,"Mtas C5 vs C4");
-	DeclareHistogram2D(DD_MTAS_C5_C6,SD,SD,"Mtas C5 vs C6");
-	DeclareHistogram2D(DD_MTAS_C1_C3,SD,SD,"Mtas C1 vs C3");
-	DeclareHistogram2D(DD_MTAS_C1_C4,SD,SD,"Mtas C1 vs C4");
-	DeclareHistogram2D(DD_MTAS_C1_C5,SD,SD,"Mtas C1 vs C5");
+	DeclareHistogram2D(DD_MTAS_CR_T,SA,SA,"Mtas Center Ring vs Total");
+	DeclareHistogram2D(DD_MTAS_CS_CR,SA,SA,"Mtas Center Segment vs Center Ring");
+	DeclareHistogram2D(DD_MTAS_CS_T,SA,SA,"Mtas Center Segment vs Total");
+	DeclareHistogram2D(DD_MTAS_IMO_T,SA,SA,"Mtas I,M,O Segment vs Total");
+	DeclareHistogram2D(DD_MTAS_C1_POSITION,SD,SA,"Mtas C1 vs Position");
+	DeclareHistogram2D(DD_MTAS_C1_C2,SA,SA,"Mtas C1 vs C2");
+	DeclareHistogram2D(DD_MTAS_C1_C6,SA,SA,"Mtas C1 vs C6");
+	DeclareHistogram2D(DD_MTAS_C3_C2,SA,SA,"Mtas C3 vs C2");
+	DeclareHistogram2D(DD_MTAS_C3_C4,SA,SA,"Mtas C3 vs C4");
+	DeclareHistogram2D(DD_MTAS_C5_C4,SA,SA,"Mtas C5 vs C4");
+	DeclareHistogram2D(DD_MTAS_C5_C6,SA,SA,"Mtas C5 vs C6");
+	DeclareHistogram2D(DD_MTAS_C1_C3,SA,SA,"Mtas C1 vs C3");
+	DeclareHistogram2D(DD_MTAS_C1_C4,SA,SA,"Mtas C1 vs C4");
+	DeclareHistogram2D(DD_MTAS_C1_C5,SA,SA,"Mtas C1 vs C5");
 
 	DeclareHistogram2D(D_ONE_OFFS + 0, S6, S6, "Mtas Multiplicity x=ID y=multi");
 }
@@ -293,11 +293,11 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + CENTER_OFFSET + segmentID, segmentAvg);
 			plot(D_MTAS_CENTER_INDI, segmentAvg);
-			plot(DD_MTAS_CS_T, totalSum, segmentAvg);
-			plot(DD_MTAS_CS_CR,centerSum,segmentAvg);
+			plot(DD_MTAS_CS_T, totalSum/10.0, segmentAvg/10.0);
+			plot(DD_MTAS_CS_CR,centerSum/10.0,segmentAvg/10.0);
 			
 			if( segmentID == 0 ){
-				plot(DD_MTAS_C1_POSITION,position,segmentAvg);
+				plot(DD_MTAS_C1_POSITION,position,segmentAvg/10.0);
 			}
 		} else if (segmentID >= 6 && segmentID <= 11 && segIter->IsValidSegment() ){
 
@@ -311,7 +311,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + INNER_OFFSET + (segmentID - 6), segmentAvg);  //! subtract 12 to put it back in segments 1 - 6
-			plot(DD_MTAS_IMO_T, totalSum, segmentAvg);
+			plot(DD_MTAS_IMO_T, totalSum/10.0, segmentAvg/10.0);
 		} else if (segmentID >= 12 && segmentID <= 17 && segIter->IsValidSegment() ){
 
 			double segmentAvg = segIter->GetSegAvgEnergy();
@@ -324,7 +324,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + MIDDLE_OFFSET + (segmentID-12), segmentAvg); //! subtract 12 to put it back in segments 1 - 6 
-			plot(DD_MTAS_IMO_T,totalSum,segmentAvg);
+			plot(DD_MTAS_IMO_T,totalSum/10.0,segmentAvg/10.0);
 		}else if (segmentID >= 18 && segmentID <= 23 && segIter->IsValidSegment() ){
 
 			double segmentAvg = segIter->GetSegAvgEnergy();
@@ -337,7 +337,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 
 			//! per segment plots
 			plot(D_MTAS_SUM_FB + OUTER_OFFSET + (segmentID-18), segmentAvg); //! subtract 12 to put it back in segments 1 - 6 
-			plot(DD_MTAS_IMO_T,totalSum,segmentAvg);
+			plot(DD_MTAS_IMO_T,totalSum/10.0,segmentAvg/10.0);
 		}
 	}
 
@@ -380,17 +380,17 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 	plot(D_MTAS_MIDDLE, middleSum);
 	plot(D_MTAS_OUTER, outerSum);
 
-	plot(DD_MTAS_CR_T, totalSum, centerSum);
+	plot(DD_MTAS_CR_T, totalSum/10.0, centerSum/10.0);
 
-	plot(DD_MTAS_C1_C2,MtasSegVec.at(1).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
-	plot(DD_MTAS_C1_C6,MtasSegVec.at(5).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
-	plot(DD_MTAS_C3_C2,MtasSegVec.at(1).GetSegAvgEnergy(),MtasSegVec.at(2).GetSegAvgEnergy());
-	plot(DD_MTAS_C3_C4,MtasSegVec.at(3).GetSegAvgEnergy(),MtasSegVec.at(2).GetSegAvgEnergy());
-	plot(DD_MTAS_C5_C4,MtasSegVec.at(3).GetSegAvgEnergy(),MtasSegVec.at(4).GetSegAvgEnergy());
-	plot(DD_MTAS_C5_C6,MtasSegVec.at(5).GetSegAvgEnergy(),MtasSegVec.at(4).GetSegAvgEnergy());
-	plot(DD_MTAS_C1_C3,MtasSegVec.at(2).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
-	plot(DD_MTAS_C1_C4,MtasSegVec.at(3).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
-	plot(DD_MTAS_C1_C5,MtasSegVec.at(4).GetSegAvgEnergy(),MtasSegVec.at(0).GetSegAvgEnergy());
+	plot(DD_MTAS_C1_C2,MtasSegVec.at(1).GetSegAvgEnergy()/10.0,MtasSegVec.at(0).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C1_C6,MtasSegVec.at(5).GetSegAvgEnergy()/10.0,MtasSegVec.at(0).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C3_C2,MtasSegVec.at(1).GetSegAvgEnergy()/10.0,MtasSegVec.at(2).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C3_C4,MtasSegVec.at(3).GetSegAvgEnergy()/10.0,MtasSegVec.at(2).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C5_C4,MtasSegVec.at(3).GetSegAvgEnergy()/10.0,MtasSegVec.at(4).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C5_C6,MtasSegVec.at(5).GetSegAvgEnergy()/10.0,MtasSegVec.at(4).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C1_C3,MtasSegVec.at(2).GetSegAvgEnergy()/10.0,MtasSegVec.at(0).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C1_C4,MtasSegVec.at(3).GetSegAvgEnergy()/10.0,MtasSegVec.at(0).GetSegAvgEnergy()/10.0);
+	plot(DD_MTAS_C1_C5,MtasSegVec.at(4).GetSegAvgEnergy()/10.0,MtasSegVec.at(0).GetSegAvgEnergy()/10.0);
 
 	//! Plot Multis 
 	for (unsigned it = 0; it < MtasSegMulti.size(); ++it){
