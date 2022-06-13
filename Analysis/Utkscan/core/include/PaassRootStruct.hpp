@@ -88,16 +88,16 @@ static const MTAS MTAS_DEFAULT_STRUCT;
 
 
 struct MTASIMPLANT {
-    std::vector<unsigned> trace = {};
-    bool hastraceInfile = false;
-    bool hasValidWaveform = false;
+    /* std::vector<unsigned> trace = {}; */
+    /* bool hastraceInfile = false; */
+    /* bool hasValidWaveform = false; */
     double energy = -999;
     double oqdc = -999;
     double tqdc = -999;
     double timesans = -999;
     int sipmloc = -999;
-    int xpos = -999;
-    int ypos = -999;
+    int xpixel = -999;
+    int ypixel = -999;
     TString subtype = "";
     TString group ="";
 };
