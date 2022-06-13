@@ -8,11 +8,13 @@ option(PAASS_UTKSCAN_GAMMA_GATES "Gamma-Gamma gates in the Gamma-Ray Processors"
 option(PAASS_UTKSCAN_ONLINE "Options for online scans" OFF)
 option(PAASS_UTKSCAN_TREE_DEBUG "Debugging info for TreeCorrelator" OFF)
 option(PAASS_UTKSCAN_VERBOSE "Make Scan More Verbose" OFF)
+option(PAASS_OVERRIDE_EXE_PREFIX "Override the scan exe prefix" OFF)
 
 mark_as_advanced(PAASS_UTKSCAN_GAMMA_GATES)
 mark_as_advanced(PAASS_UTKSCAN_ONLINE)
 mark_as_advanced(PAASS_UTKSCAN_TREE_DEBUG)
 mark_as_advanced(PAASS_UTKSCAN_VERBOSE)
+mark_as_advanced(PAASS_OVERRIDE_EXE_PREFIX)
 
 # newreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08. Is is REQUIRED!!
@@ -38,6 +40,16 @@ if (PAASS_UTKSCAN_VERBOSE)
     add_definitions(-D VERBOSE)
 endif (PAASS_UTKSCAN_VERBOSE)
 
+if (PAASS_OVERRIDE_EXE_PREFIX)
+    ##  Overrid exe name
+    set(PAASS_SCANNAME_PREFIX utk CACHE STRING "Set Prefix name for scan")
+    set(SCANOR_NAME "${PAASS_SCANNAME_PREFIX}scanor")
+    set(SCAN_NAME "${PAASS_SCANNAME_PREFIX}scan")
+else (PAASS_OVERRIDE_EXE_PREFIX)
+    set(SCANOR_NAME "utkscanor")
+    set(SCAN_NAME "utkscan")
+endif (PAASS_OVERRIDE_EXE_PREFIX)
+
 #------------------------------------------------------------------------------
 
 include_directories(analyzers/include core/include experiment/include processors/include)
@@ -61,7 +73,7 @@ add_library(PaassRootStruct SHARED PaassRootStruct.cxx PaassRootStruct)
 #------------------------------------------------------------------------------
 
 if (NOT PAASS_USE_HRIBF)
-    set(SCAN_NAME utkscan)
+    set(SCAN_NAME ${SCAN_NAME})
     add_executable(${SCAN_NAME}
             $<TARGET_OBJECTS:UtkscanMainObjects>
             $<TARGET_OBJECTS:UtkscanCoreObjects>
@@ -70,7 +82,7 @@ if (NOT PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
             PaassRootStruct.cxx)
 else (PAASS_USE_HRIBF)
-    set(SCAN_NAME utkscanor)
+    set(SCAN_NAME ${SCANOR_NAME})
     add_executable(${SCAN_NAME}
             $<TARGET_OBJECTS:UtkscanMainObjects>
             $<TARGET_OBJECTS:UtkscanCoreObjects>
@@ -79,7 +91,7 @@ else (PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
             $<TARGET_OBJECTS:ScanorObjects>
             PaassRootStruct.cxx)
-    target_link_libraries(utkscanor ${HRIBF_LIBRARIES})
+    target_link_libraries(${SCANOR_NAME} ${HRIBF_LIBRARIES})
 endif (NOT PAASS_USE_HRIBF)
 
 target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic )
