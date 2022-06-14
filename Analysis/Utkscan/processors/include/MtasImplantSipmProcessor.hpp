@@ -20,7 +20,7 @@ class MtasImplantSipmProcessor : public EventProcessor {
     MtasImplantSipmProcessor();
 
        /**Constructor */
-    MtasImplantSipmProcessor(double yso_scale, double yso_offset, double yso_thresh);
+    MtasImplantSipmProcessor(double yso_scale, double yso_offset, double yso_thresh,double oqdc_yso_thresh);
 
     /** Deconstructor */
     ~MtasImplantSipmProcessor() = default;
@@ -53,7 +53,7 @@ class MtasImplantSipmProcessor : public EventProcessor {
     processor_struct::MTASIMPLANT mtasImplStruct;
     double EandQDC_down_scaling_;
     std::pair<int, int> dammSiPm_pixelShifts;
-    double yso_thresh,yso_scale,yso_offset;
+    double yso_thresh,yso_scale,yso_offset,oqdc_yso_thresh;
 };
 
 #endif
