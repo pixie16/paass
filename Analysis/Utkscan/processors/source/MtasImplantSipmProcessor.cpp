@@ -48,7 +48,7 @@ const unsigned int DD_SIPM_HIRES_IMAGE_HG_QDC = 17;
 using namespace std;
 using namespace dammIds::mtasimplant;
 
-MtasImplantSipmProcessor::MtasImplantSipmProcessor(double yso_scale_, double yso_offset_, double yso_thresh_) : EventProcessor(OFFSET, RANGE, "MtasImplantSipmProcessor") {
+MtasImplantSipmProcessor::MtasImplantSipmProcessor(double yso_scale_, double yso_offset_, double yso_thresh_, double oqdc_yso_thresh_) : EventProcessor(OFFSET, RANGE, "MtasImplantSipmProcessor") {
     associatedTypes.insert("mtasimplantsipm");
     EandQDC_down_scaling_ = 10.0;
     dammSiPm_pixelShifts = {3, 12};  // shift is first + xpos and second - ypos
@@ -56,6 +56,7 @@ MtasImplantSipmProcessor::MtasImplantSipmProcessor(double yso_scale_, double yso
     yso_scale = yso_scale_;
     yso_offset = yso_offset_;
     yso_thresh = yso_thresh_;
+    oqdc_yso_thresh = oqdc_yso_thresh_;
 }
 
 void MtasImplantSipmProcessor::DeclarePlots(void) {
@@ -128,15 +129,15 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             anodeL_energyList_for_calculations.at(detLoc) += energy;
             (anode_L_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
         }
-	if (oqdc > yso_thresh) {
+	    if (oqdc > oqdc_yso_thresh) {
             (anode_L_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
         }
 
         plot(DD_ANODES_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
-        if (tqdc != -999) {
+        if (oqdc != -999) {
             plot(DD_ANODES_L_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
         }
-        if (oqdc != -999) {
+        if (tqdc != -999) {
             plot(DD_ANODES_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
@@ -181,12 +182,15 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             anodeH_energyList_for_calculations.at(detLoc) += energy;
             (anode_H_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
         }
+	    if (oqdc > oqdc_yso_thresh) {
+            (anode_H_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
+        }
 
         plot(DD_ANODES_H_ENERGY, energy / EandQDC_down_scaling_, detLoc);
-        if (tqdc != -999) {
+        if (oqdc != -999) {
             plot(DD_ANODES_H_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
         }
-        if (oqdc != -999) {
+        if (tqdc != -999) {
             plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
@@ -226,10 +230,10 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
         }
 
         plot(DD_DY_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
-        if (tqdc != -999) {
+        if (oqdc != -999) {
             plot(DD_DY_L_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
         }
-        if (oqdc != -999) {
+        if (tqdc != -999) {
             plot(DD_DY_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
     }
@@ -262,10 +266,10 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
         }
 
         plot(DD_DY_H_ENERGY, energy / EandQDC_down_scaling_, detLoc );
-        if (tqdc != -999) {
+        if (oqdc != -999) {
             plot(DD_DY_H_OQDC, oqdc / EandQDC_down_scaling_, detLoc );
         }
-        if (oqdc != -999) {
+        if (tqdc != -999) {
             plot(DD_DY_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc );
         }
     }

@@ -221,7 +221,8 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new MtasImplantSipmProcessor(
                 processor.attribute("yso_scale").as_double(100.0),
                 processor.attribute("yso_offset").as_uint(1400.0),
-                processor.attribute("yso_threshold").as_double(50.0)));
+                processor.attribute("yso_threshold").as_double(50.0),
+                processor.attribute("oqdc_yso_threshold").as_double(1400.0)));
         } else if (name == "NeutronScintProcessor") {
             vecProcess.push_back(new NeutronScintProcessor());
         } else if (name == "PositionProcessor") {
