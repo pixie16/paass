@@ -37,6 +37,8 @@ namespace dammIds
       const int DD_DY_SUM_LG = 5;
       const int DD_DY_SUM_HG = 6;
 
+      const int DD_RIT_PSD = 8;
+
       const int D_TRANS_EFF_YSO = 10;
       const int DD_SEPAR_GATED_LOW = 11;
       const int DD_DESI_GATED_LOW = 12;
@@ -85,6 +87,8 @@ void PspmtProcessor::DeclarePlots(void)
    DeclareHistogram2D(DD_LOWDYN_FITE, SE, SE, "implant dynode qdc vs FIT energy");
    DeclareHistogram2D(DD_POS_LOW_QDC, SB, SB, "QDC::Low-gain Positions");
    DeclareHistogram2D(DD_POS_HIGH_QDC, SB, SB, "QDC::High-gain Positions");
+
+   DeclareHistogram2D(DD_RIT_PSD, SD, SA, "PSD for Stilbene RIT");
 
    //     DeclareHistogram2D(DD_DE_ANODEL + 0, SC, SD, "Pin0 /2 vs LowAnode(0) Tmax /10");
    //     DeclareHistogram2D(DD_DE_ANODEL + 1, SC, SD, "Pin0 /2 vs LowAnode(1) Tmax /10");
@@ -208,8 +212,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       double xa_h_qdc = 0, ya_h_qdc = 0, xb_h_qdc = 0, yb_h_qdc = 0;
 
       // double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
-      bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,
-           hasDeSi = false, hasVeto = false;
+      // bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,hasDeSi = false, hasVeto = false;
 
       plot(DD_MULTI, lowDynode.size(), 0);
       plot(DD_MULTI, hiDynode.size(), 1);
@@ -284,8 +287,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          plot(DD_ANODE_QDC, energy_oqdc * energy_oqdc_scaler, (*it)->GetChanID().GetLocation() + 4);
 
          // check signals energy vs threshold
-         //energy = (*it)->GetTrace().GetMaxInfo().second;
-         energy = (*it)->GetCalibratedEnergy();
+         energy = (*it)->GetTrace().GetMaxInfo().second;
          // if (!(*it)->GetTrace().empty()) {
          //     if (energy < threshold_ || energy > 63000)
          //         continue;
@@ -365,11 +367,16 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       {
          int loc = (*it)->GetChanID().GetLocation();
          plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
-         if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000)
-         {
+         if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
             hasVeto = true;
          }
+         if ((*it)->GetTrace().size()>0 && (*it)->GetChanID().HasTag("stilbene") && (*it)->GetTrace().HasValidWaveformAnalysis()){
 
+         	double qdcRit = (*it)->GetTrace().GetQdc();
+        	   double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
+        	// std::cout<<"Here: "<<psd<<std::endl;
+        	   plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
+         }
          if (DetectorDriver::get()->GetSysRootOutput())
          {
             FillPSPMTStruc(*(*it));
@@ -701,6 +708,24 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
               qdc_based_POS.second * positionScale_ + positionOffset_);
       }
 
+      ////---------------VETO LOOP------------------------------------------------
+      //int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
+
+      //for (auto it = veto.begin(); it != veto.end(); it++)
+      //{
+      //   int loc = (*it)->GetChanID().GetLocation();
+      //   plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
+      //   if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000)
+      //   {
+      //      hasVeto = true;
+      //   }
+
+      //   if (DetectorDriver::get()->GetSysRootOutput())
+      //   {
+      //      FillPSPMTStruc(*(*it));
+      //   }
+      //}
+
       //---------------VETO LOOP------------------------------------------------
       int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
 
@@ -712,12 +737,17 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          {
             hasVeto = true;
          }
-
+	      if ((*it)->GetTrace().size()>0 && (*it)->GetChanID().HasTag("stilbene") && (*it)->GetTrace().HasValidWaveformAnalysis()){
+		      double qdcRit = (*it)->GetTrace().GetQdc();
+		      double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
+      		plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
+	 }
          if (DetectorDriver::get()->GetSysRootOutput())
          {
             FillPSPMTStruc(*(*it));
          }
       }
+
 
       //------------Positions from ion scintillator---------------------------------
       // using top - bottom and left - right computation scheme
