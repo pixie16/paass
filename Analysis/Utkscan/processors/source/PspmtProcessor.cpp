@@ -212,7 +212,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       double xa_h_qdc = 0, ya_h_qdc = 0, xb_h_qdc = 0, yb_h_qdc = 0;
 
       // double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
-      // bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,hasDeSi = false, hasVeto = false;
+      bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,hasDeSi = false, hasVeto = false;
 
       plot(DD_MULTI, lowDynode.size(), 0);
       plot(DD_MULTI, hiDynode.size(), 1);
