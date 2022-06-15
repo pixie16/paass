@@ -42,6 +42,7 @@ const unsigned int DD_SIPM_HIRES_IMAGE_LG = 14;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG = 15;
 const unsigned int DD_SIPM_HIRES_IMAGE_LG_QDC = 16;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG_QDC = 17;
+const unsigned int DD_MULTIS = 20;
 }  // namespace mtasimplant
 }  // namespace dammIds
 
@@ -78,6 +79,8 @@ void MtasImplantSipmProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG, SB, SB, " High Res HG Image Filter Energy");
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG_QDC, SB, SB, " High Res LG QDC");
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_QDC, SB, SB, " High Res HG QDC");
+
+    DeclareHistogram2D(DD_MULTIS,S7,S3, "SiPm Multis: DYH,DYL,ANH,ANL");
 }
 
 bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
@@ -89,6 +92,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
     static const vector<ChanEvent *> &Dynode_H = event.GetSummary("mtasimplantsipm:dyn_h", true)->GetList();
     static const vector<ChanEvent *> &Dynode_L = event.GetSummary("mtasimplantsipm:dyn_l", true)->GetList();
+
+    plot(DD_MULTIS,Dynode_H.size(),0);
+    plot(DD_MULTIS,Dynode_L.size(),1);
+    plot(DD_MULTIS,Anode_H.size(),2);
+    plot(DD_MULTIS,Anode_L.size(),3);
 
     vector<double> anodeL_energyList_for_calculations(64, 0.0);
     vector<double> anodeH_energyList_for_calculations(64, 0.0);
