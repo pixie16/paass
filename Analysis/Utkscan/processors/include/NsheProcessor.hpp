@@ -62,6 +62,10 @@ namespace dammIds {
         const int DD_DENERGY__DPOS_Y_CORRELATED = 43; //!< ??
         const int DD_DENERGY_SIDE_NUM = 44; //!< ??
         const int DD_DENERGY_SIDE_NUM_RAW = 45; //!< ??
+        const int DD_MULTI = 46;
+        const int DD_MULTI_X = 47;
+        const int DD_MULTI_Y = 48;
+        const int DD_MULTI_XY = 49;
 
 	    const int DD_TOF_ENERGY = 50 ; // TOF ENERGY SPECTRUM	
 	    const int DD_VETO_ENERGY = 51 ; // VETO ENERGY SPECTRUM	
@@ -80,9 +84,10 @@ namespace dammIds {
         const int DD_QDC2_TOF = 63;
         const int DD_TOF1_DSSD = 64;
         const int DD_TOF2_DSSD = 65;
-        const int DD_MULTI = 66;
         const int D_TOF_RAW = 67;
         const int DD_SIDE_N = 68;
+        const int DD_TOF1_TOF2 = 69;
+        const int D_ALPHA_X_RAW  = 72;
 
         /**Elastic Histogram **/
         const int D_ELA_TOT = 70;
@@ -98,10 +103,12 @@ public:
 
     ~NsheProcessor() {};
 
-    NsheProcessor(int calib,
+    NsheProcessor(bool calib,
+                bool do_rotation,
                 double timeWindow,
 		        double tofWindow,
                 double vetoWindow,
+                double traceLength,
                 double deltaEnergy,
                 double highEnergyCut,
                 double lowEnergyCut,
@@ -199,8 +206,12 @@ protected:
     /** Side detectors **/
     std::vector<std::pair<StripEvent, bool>> sideEventsTMatch;
 
+    /** Side detectors **/
+    std::vector<std::pair<StripEvent, bool>> sideLGEventsTMatch;
+
     /** F/B correlation (0) or just calib (1) = raw data in the root file**/
-    int calib_;
+    bool calib_;
+    bool do_rotation_;
     /**Limit in seconds for the time difference between front and
      * back to be correlated. Also to find Si Side detectors correlated
      * events (escapes)*/
@@ -211,6 +222,8 @@ protected:
 
     /** Limit in the veto correlation with the DSSD **/
     double vetoWindow_;
+    
+    double traceLength_;
 
     /**Limit in keV of difference between front and back events to
      * be considered a good event */

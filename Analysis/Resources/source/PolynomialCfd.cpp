@@ -18,6 +18,8 @@ PolynomialCfd::PolynomialCfd(const int &method){
     
     switch ( method ) {
         case 1:
+	    polyMethod_ = method;
+            break;
         case 2:
             polyMethod_ = method;
             break;

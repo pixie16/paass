@@ -214,10 +214,12 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new NeutronScintProcessor());
         }else if (name == "NsheProcessor") {
             vecProcess.push_back(new NsheProcessor(
-                    processor.attribute("calib").as_int(0),
+                    processor.attribute("calib").as_bool(0),
+                    processor.attribute("do_rotation").as_bool(1),
                     processor.attribute("timeWindow").as_double(1e-6),
                     processor.attribute("tofWindow").as_double(1e-7),
                     processor.attribute("vetoWindow").as_double(1e-7),
+                    processor.attribute("traceLength").as_double(1e-7),
                     processor.attribute("deltaEnergy").as_double(3000),
                     processor.attribute("highEnergyCut").as_double(15000),
                     processor.attribute("lowEnergyCut").as_double(8000),

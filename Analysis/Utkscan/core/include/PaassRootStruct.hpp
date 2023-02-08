@@ -46,16 +46,18 @@ struct DSSD {
     double TMCP1 = -999;
     double TMCP2 = - 999;
     double Veto = -999;
+    double NVeto = -999;
     double Time = -999;
     double Time_t = -999;
-    double Side = -999;
-    int NSide = -999;
+    double Time_side[4] = {};
+    double Side[4] = {};
+    double Side_LG[4] = {};
+    int NSide[4] = {};
     std::vector<unsigned int> Trace_Front;
     std::vector<unsigned int> Trace_Back;
     std::vector<unsigned int> Trace_TOF1;
     std::vector<unsigned int> Trace_TOF2;
     std::vector<unsigned int> Trace_Veto;
-
     bool pile_up = false;
 };
 static const DSSD DSSD_DEFAULT_STRUCT;
