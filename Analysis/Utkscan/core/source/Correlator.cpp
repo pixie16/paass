@@ -42,10 +42,10 @@ namespace dammIds {
 // const double Correlator::corrTime = 60; // used to be 3300
 // const double Correlator::fastTime = 40e-6;
 
-Correlator::Correlator() : histo(OFFSET, RANGE, "correlator"), lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
-}
+// Correlator::Correlator() : histo(OFFSET, RANGE, "correlator"), lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
+// }
 
-Correlator::Correlator(double minImpTime_ = 5e-3, double corrTime_ = 60, double fastTime_ = 40e-6) 
+Correlator::Correlator(double minImpTime_, double corrTime_, double fastTime_) 
 : histo(OFFSET, RANGE, "correlator"), lastImplant(NULL), lastDecay(NULL), condition(UNKNOWN_CONDITION) {
     minImpTime = minImpTime_;
     corrTime = corrTime_;

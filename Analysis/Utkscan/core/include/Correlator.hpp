@@ -122,12 +122,12 @@ public:
         UNKNOWN_CONDITION = 100
     };
 
-    /** Default Constructor */
-    Correlator();
+    //** Default Constructor */
+    // Correlator();
 
-    /** Extended Constructor */
-    Correlator(double minImpTime_, double corrTime_, double fastTime_);
-
+    // /** Extended Constructor */
+    Correlator(double minImpTime_ = 5e-3, double corrTime_ = 60, double fastTime_ = 40e-6);
+// double minImpTime_ = 5e-3, double corrTime_ = 60, double fastTime_ = 40e-6
     /** Default Destructor */
     virtual ~Correlator();
 
