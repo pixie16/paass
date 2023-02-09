@@ -36,7 +36,9 @@ install/
 *.layout
 *.save
 .idea/
-.vscode
+.vscode*
+.cache*
+*.DS_Store*
 
 #DAMM files
 *.drr
