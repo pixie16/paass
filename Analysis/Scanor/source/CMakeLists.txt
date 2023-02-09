@@ -17,7 +17,3 @@ set(SCANOR_SOURCES
 
 add_library(ScanorObjects OBJECT ${SCANOR_SOURCES})
 
-if (PAASS_BUILD_SHARED_LIBS)
-    add_library(ScanHHIRF SHARED $<TARGET_OBJECTS:ScanorObjects>)
-    install(TARGETS ScanHHIRF DESTINATION lib)
-endif (PAASS_BUILD_SHARED_LIBS)
