@@ -81,9 +81,13 @@ int main(int argc, char *argv[]) {
            -1) {
         switch (retval) {
             case 'a':
-                if (optarg != 0) {
-                    alarmArgument = optarg;
+               if (optarg == NULL && optind < argc && argv[optind][0] != '-') {
+                    optarg = argv[optind++];
                 }
+                if (optarg != NULL) {
+                   //printf("opt arg is present\n");
+                   alarmArgument = optarg;
+                } 
                 poll.SetSendAlarm();
                 break;
             case 'f':

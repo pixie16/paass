@@ -2,9 +2,23 @@
 #@authors T. T. King (2019), D. Miller
 
 if [ -z $1 ]; then
-    EMAIL="tking36@vols.utk.edu"
+    EMAIL="tking.91@gmail.com"
 else
     EMAIL=$1
 fi
 
-echo "poll2 on ${HOSTNAME} has entered into an ERROR state. This requires human attention. " | mail -s "${HOSTNAME}:poll2 alert" ${EMAIL}
+if [ ! -z ${EMAIL_FQDN_CHEAT} ]; then 
+    COMP_HOST_NAME=${EMAIL_FQDN_CHEAT} 
+else 
+    COMP_HOST_NAME=${HOSTNAME}
+fi
+
+if [ ! -z ${EMAIL_FROM_USER} ] && [ ! -z ${EMAIL_FQDN_CHEAT} ];then
+    FROM_ADDRESS_CMD="-S from=\"${EMAIL_FROM_USER}\""
+else
+    FROM_ADDRESS_CMD=""
+fi
+
+EMAIL_BODY="poll2 on ${COMP_HOST_NAME} has entered into an ERROR state. This requires human attention." 
+
+echo "${EMAIL_BODY}" | mailx ${FROM_ADDRESS_CMD} -s "${HOSTNAME}:poll2 alert" ${EMAIL}
