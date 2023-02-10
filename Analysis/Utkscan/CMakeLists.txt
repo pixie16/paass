@@ -47,7 +47,7 @@ add_subdirectory(experiment)
 add_subdirectory(processors)
 
 #added by T.T. King for Vector Root Libs
-cmake_policy(SET CMP0068 OLD)
+cmake_policy(SET CMP0068 NEW)
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_SKIP_INSTALL_RPATH FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
