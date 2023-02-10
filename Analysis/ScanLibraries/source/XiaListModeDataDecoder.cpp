@@ -171,7 +171,7 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         //   printf("\n");
 
           data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
-          if(headerLength);
+        //   if(headerLength);
           // printf("headerLength %u, ", headerLength);
           // printf("ExternalTimeHigh %u,", data->GetExternalTimeHigh());
           // printf("ExternalTimeLow %u,", data->GetExternalTimeLow());
@@ -207,7 +207,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
                     "length (" << eventLength << ") does not correspond to "
                          "header length (" << headerLength
                  << ") and trace length ("
-                 << traceLength / 2 << "). Skipped a total of "
+                 << traceLength / 2 << "). Error encountered in {Module,Channel}= { " 
+                 << data->GetModuleNumber() << " , " << data->GetChannelNumber()
+                 << " }. Skipped a total of "
                  << numSkippedBuffers << " buffers in this file." << endl;
             return vector<XiaData *>();
         } else //Advance the buffer past the header and to the trace
