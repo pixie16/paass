@@ -16,4 +16,12 @@ set(MONITOR_SOURCES monitor.cpp)
 add_executable(monitor ${MONITOR_SOURCES})
 target_link_libraries(monitor PaassCoreStatic)
 
-install(TARGETS listener monitor DESTINATION bin)
+set(SUBMONITORS_SOURCES submonitors.cpp)
+add_executable(submonitors ${SUBMONITORS_SOURCES})
+target_link_libraries(submonitors PaassCoreStatic)
+
+set(MAIN_MONITOR_SOURCES mainmonitor.cpp)
+add_executable(mainmonitor ${MAIN_MONITOR_SOURCES})
+target_link_libraries(mainmonitor PaassCoreStatic)
+
+install(TARGETS listener monitor submonitors mainmonitor DESTINATION bin)
