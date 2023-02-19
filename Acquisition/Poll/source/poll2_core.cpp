@@ -1836,6 +1836,9 @@ void Poll::RunControl(){
                     }
                 }
 
+                // If we get into an ERROR state during the stop and we request send_alarm then CallAlarm
+                if(had_error && GetSendAlarm()){ CallAlarm();}
+
                 if (record_data) std::cout << "Run " << output_file.GetRunNumber();
                 else std::cout << "Acq";
                 std::cout << " stopped on " << ctime(&currentTime);
