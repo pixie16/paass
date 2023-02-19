@@ -59,7 +59,7 @@ NsheProcessor::NsheProcessor(bool calib, bool do_rotation, double timeWindow, do
 void NsheProcessor::DeclarePlots(void) {
     using namespace dammIds::dssd4she;
 
-    const int energyBins = SB;
+    const int energyBins = SC;
     const int xBins = S6;
     const int yBins = S6;
 
@@ -159,7 +159,6 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
     int multi_Y[64] = {0};
     for (vector<ChanEvent *>::iterator itx = xEvents.begin();
         itx != xEvents.end(); ++itx) {	
-
         StripEvent ev((*itx)->GetCalibratedEnergy(), (*itx)->GetTime() * Globals::get()->GetAdcClockInSeconds()*1e+9, (*itx)->GetChanID().GetLocation(),
         (*itx)->IsSaturated(), (*itx)->GetTrace(), (*itx)->IsPileup());
         pair<StripEvent, bool> match(ev, false);
@@ -176,7 +175,6 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
     mutli = 0 ;
     for (vector<ChanEvent *>::iterator ity = yEvents.begin();
         ity != yEvents.end(); ++ity) {
-
         StripEvent ev((*ity)->GetCalibratedEnergy(), (*ity)->GetTime() * Globals::get()->GetAdcClockInSeconds()*1e+9, (*ity)->GetChanID().GetLocation(), 
         (*ity)->IsSaturated(),(*ity)->GetTrace(), (*ity)->IsPileup());
         pair<StripEvent, bool> match(ev, false);
@@ -218,7 +216,6 @@ bool NsheProcessor::PreProcess(RawEvent &event) {
         plot(DD_MULTI, 10, mcp2EventsTMatch.size());
     for (vector<ChanEvent *>::iterator itx = vetoEvents.begin();
         itx != vetoEvents.end(); ++itx) {	
-
         StripEvent ev((*itx)->GetCalibratedEnergy(), (*itx)->GetTime() * Globals::get()->GetAdcClockInSeconds()*1e+9, (*itx)->GetChanID().GetLocation(),
         (*itx)->IsSaturated(), (*itx)->GetTrace(), (*itx)->IsPileup());
         pair<StripEvent, bool> match(ev, false);
@@ -355,28 +352,30 @@ bool NsheProcessor::Process(RawEvent &event) {
                 time_t = time - beforelast_reset;
 
             /** Searching for MCP1, MPC2, Veto and Side detector event in correlation with DSSD events within th define timming gates**/
-            for (vector<pair<StripEvent, bool>>::iterator itm = mcp1EventsTMatch.begin(); //*looking for the best MCP1 based on timming only
-                itm != mcp1EventsTMatch.end(); ++itm){
-                if((*itm).second)
-                    continue;
-                double dTime = abs(time - (*itm).first.t);
-                if (dTime < abs(time - bestDtime_mcp1)){
-                    bestDtime_mcp1 =(*itm).first.t; 
-                    bestMatch_mcp1 = itm; 
-                    bestQDC_mcp1 = (*itm).first.Qdc;
+            if(xEnergy > 500){
+                for (vector<pair<StripEvent, bool>>::iterator itm = mcp1EventsTMatch.begin(); //*looking for the best MCP1 based on timming only
+                    itm != mcp1EventsTMatch.end(); ++itm){
+                    if((*itm).second)
+                        continue;
+                    double dTime = abs(time - (*itm).first.t);
+                    if (dTime < abs(time - bestDtime_mcp1)){
+                        bestDtime_mcp1 =(*itm).first.t; 
+                        bestMatch_mcp1 = itm; 
+                        bestQDC_mcp1 = (*itm).first.Qdc;
+                    }
                 }
-            }
-            for (vector<pair<StripEvent, bool>>::iterator itm = mcp2EventsTMatch.begin(); //*looking for the best MCP2 based on timming only
-                itm != mcp2EventsTMatch.end(); ++itm){
-                if((*itm).second)
-                    continue;
-                double dTime = abs(time - (*itm).first.t);
-                if (dTime < abs(time - bestDtime_mcp2)){
-                    bestDtime_mcp2 = (*itm).first.t;
-                    bestMatch_mcp2 = itm;                   
-                    bestQDC_mcp2 = (*itm).first.Qdc;
-                }
-            }            
+                for (vector<pair<StripEvent, bool>>::iterator itm = mcp2EventsTMatch.begin(); //*looking for the best MCP2 based on timming only
+                    itm != mcp2EventsTMatch.end(); ++itm){
+                    if((*itm).second)
+                        continue;
+                    double dTime = abs(time - (*itm).first.t);
+                    if (dTime < abs(time - bestDtime_mcp2)){
+                        bestDtime_mcp2 = (*itm).first.t;
+                        bestMatch_mcp2 = itm;                   
+                        bestQDC_mcp2 = (*itm).first.Qdc;
+                    }
+                }   
+            }         
             for (vector<pair<StripEvent, bool>>::iterator itv = vetoEventsTMatch.begin(); //*looking for the best veto based on timming only
                 itv != vetoEventsTMatch.end(); ++itv){
                 if((*itv).second)
