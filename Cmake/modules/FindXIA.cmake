@@ -14,7 +14,7 @@ unset(XIA_LIBRARY_DIR CACHE)
 #Find the library path by looking for the library.
 find_path(XIA_LIBRARY_DIR
         NAMES libPixie16App.a libPixie16Sys.a
-        HINTS ${XIA_FIRMWARE_DIR}
+        HINTS ${XIA_FIRMWARE_DIR} $ENV{XIA_FIRMWARE_DIR}
         PATHS /opt/xia/current /opt/xia/software /xia_api
         PATH_SUFFIXES software
         DOC "Path to pixie library.")
