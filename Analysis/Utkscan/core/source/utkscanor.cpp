@@ -41,7 +41,7 @@ extern "C" void startup_() {
 ///@brief Defines the main interface with the SCANOR library, the program
 /// essentially starts here.
 ///@param [in] iexist : unused paramter from SCANOR call
-extern "C" void drrsub_(uint32_t &iexist) {
+extern "C" void drrsub_(unsigned int &iexist) {
     try {
         drrmake_();
         DetectorDriver::get()->DeclarePlots();
