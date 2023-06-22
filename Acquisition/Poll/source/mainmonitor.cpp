@@ -1,317 +1,328 @@
-/** \file monitor.cpp
-  * 
-  * \brief Receives and decodes rate packets from StatsHandler
-  * 
-  * \author Cory R. Thornsberry, K. Smith, and S. Burcher
-  * 
-  * \date June 4th, 2015
-  * 
-*/
+/** \file mainmonitor.cpp
+ *
+ * \brief Receives and decodes rate packets from StatsHandler, and rebroadcasts packets to the submonitors
+ *
+ * \author T.T. King, Cory R. Thornsberry, K. Smith, and S. Burcher
+ *
+ * \date Feb 19, 2023
+ *
+ */
 
-#include <stdlib.h>
-#include <iostream>
-#include <string.h>
-#include <sstream>
-#include <iomanip>
-#include <cmath>
-#include <vector>
-#include <signal.h>
-#include <string>
+#include "mainmonitor.hpp"
+using namespace std;
 
-#include "poll2_socket.h"
-
-#define KILOBYTE 1024 // bytes
-#define MEGABYTE 1048576 // bytes
-#define GIGABYTE 1073741824 // bytes
-
-// Return the order of magnitude of a number
-double GetOrder(unsigned int input_, unsigned int &power) {
-    double test = 1;
-    for (unsigned int i = 0; i < 100; i++) {
-        if (input_ / test <= 1) {
-            power = i;
-            return test;
-        }
-        test *= 10.0;
-    }
-    return 1;
-}
-
-// Expects input rate in Hz
-std::string GetChanRateString(double input_) {
-    if (input_ < 0.0) { input_ *= -1; }
-    int power = std::log10(input_);
-
-    std::stringstream stream;
-    stream << std::setprecision(2) << std::fixed;
-    if (power >= 6) { stream << input_ / 1E6 << "M"; } // MHz
-    else if (power >= 3) { stream << input_ / 1E3 << "k"; } // kHz
-    else if (input_ == 0) {
-        stream << "   0 ";
-    } else {
-        stream << input_ << " ";
-    } // Hz
-
-    std::string output = stream.str();
-    output = output.substr(0, output.find_last_not_of(".", 3) + 1) +
-             output.substr(output.length() - 1, 1);
-
-    return output;
-}
-
-std::string GetChanTotalString(unsigned int input_) {
-    std::stringstream stream;
-    unsigned int power = 0;
-    double order = GetOrder(input_, power);
-
-    if (power >= 4) { stream << 10 * input_ / order; }
-    else { stream << input_; }
-
-    // Limit to 2 decimal place due to space constraints
-    std::string output = stream.str();
-    size_t find_index = output.find('.');
-    if (find_index != std::string::npos) {
-        std::string temp;
-        temp = output.substr(0, find_index);
-        temp += output.substr(find_index, 3);
-        output = temp;
-    }
-
-    if (power >= 4) {
-        std::stringstream stream2;
-        stream2 << output << "E" << power - 1;
-        output = stream2.str();
-    }
-
-    return output;
-}
-
-// Expects input rate in B/s
-std::string GetRateString(double input_) {
-    if (input_ < 0.0) { input_ *= -1; }
-
-    std::stringstream stream;
-    if (input_ / GIGABYTE > 1) {
-        stream << input_ / GIGABYTE << " GB/s\n";
-    } // GB/s
-    else if (input_ / MEGABYTE > 1) {
-        stream << input_ / MEGABYTE << " MB/s\n";
-    } // MB/s
-    else if (input_ / KILOBYTE > 1) {
-        stream << input_ / KILOBYTE << " kB/s\n";
-    } // kB/s
-    else { stream << input_ << " B/s\n"; } // B/s
-
-    return stream.str();
-}
-
-// Expects input time in seconds
-std::string GetTimeString(double input_) {
-    if (input_ < 0.0) { input_ *= -1; }
-
-    long long time = (long long) input_;
-    int hr = time / 3600;
-    int min = (time % 3600) / 60;
-    int sec = (time % 3600) % 60;
-    int rem = (int) (100 * (input_ - time));
-
-    std::stringstream stream;
-    if (hr < 10) { stream << "0" << hr; }
-    else { stream << hr; }
-    stream << ":";
-    if (min < 10) { stream << "0" << min; }
-    else { stream << min; }
-    stream << ":";
-    if (sec < 10) { stream << "0" << sec; }
-    else { stream << sec; }
-    stream << ".";
-    if (rem < 10) { stream << "0" << rem; }
-    else { stream << rem; }
-
-    return stream.str();
-}
-std::vector<Client> *Submonitor_Client_List;
+//TODO test what happens when subs are ctrlC'd first then try to quit main
 // Define the function to be called when ctrl-c (SIGINT) is sent to process
 void signal_callback_handler(int signum) {
-   std::cout << "\n    SIGINT:: Sending KILL_SOCKET to the submonitors\n\n" << std::endl;
-   for (int i=1;i<=5; ++i){
-     Submonitor_Client_List->at(i-1).SendMessage((char *) "$KILL_SOCKET", 13);// Terminate program
-   }
-   exit(signum);
-}
-int main() {
-    static const int MAX_NUM_SUBMONITORS = 5;
-    static const int PREDEFINED_POLL2_PORT = 5556;
-    const size_t msg_size = 5844;  // 5.8 kB of stats data max
-    const int modColumnWidth = 25;
-    char buffer[msg_size];
-    Server poll_server;
-
-   
-    std::vector<Client> Submonitor_Clients;
-    Submonitor_Client_List = &Submonitor_Clients;
-    
-    for (int i=1;i<=MAX_NUM_SUBMONITORS;++i){
-        Submonitor_Clients.emplace_back(Client());
+    cout << "\n    SIGINT:: Sending KILL_SOCKET to the submonitors\n\n"
+         << endl;
+    if (!DumMode) {
+        for (int i = 1; i <= 5; ++i) {
+            Submonitor_Client_List->at(i - 1).SendMessage((char *)"$KILL_SOCKET", 13);  // Terminate program
+        }
     }
+    exit(signum);
+}
+
+mainmonitor::mainmonitor() : monitor("mainmonitor") {
+    poll_server = new Server;
+    Submonitor_Client_List = &Submonitor_Clients;
+}
+mainmonitor::~mainmonitor() {
+    if (!this->GetDummyMode() && poll_server) {
+        delete[] poll_server;
+    }
+    //     delete Submonitor_Client_List;
+}
+void mainmonitor::CloseSubmonitors() {
+    if (!GetDummyMode()) {
+        for (int i = 1; i <= GetMaxNumSubMonitors(); ++i) {
+            GetSubClientVec()->at(i - 1).Close();
+        }
+    }
+}
+void mainmonitor::RelayPoll2msg(char *buffer, size_t msg_size) {
+    for (int i = 1; i <= MAX_NUM_SUBMONITORS; ++i) {
+        Submonitor_Clients.at(i - 1).SendMessage(buffer, msg_size);
+    }
+}
+
+void mainmonitor::OpenSubmonitorSockets() {
+    std::cout << " Opening relay ports for submonitors" << std::endl;
+    std::string submonitorPortMessage = " Opened Client on ports ";
+    for (int i = 1; i <= MAX_NUM_SUBMONITORS; ++i) {
+        Submonitor_Clients.emplace_back(Client());
+        if (Submonitor_Clients.at(i - 1).Init("127.0.0.1", PREDEFINED_POLL2_PORT + i)) {
+            submonitorPortMessage = submonitorPortMessage + std::to_string(PREDEFINED_POLL2_PORT + i);
+            if (i == MAX_NUM_SUBMONITORS) {
+                submonitorPortMessage += ".";
+            } else {
+                submonitorPortMessage += ", ";
+            }
+        } else {
+            std::cout << "FAILED to open Client on port " << PREDEFINED_POLL2_PORT + i << std::endl;
+        }
+    }
+    std::cout << submonitorPortMessage.c_str() << std::endl;
+}
+
+int main(int argc, char *argv[]) {
+    mainmonitor mmon;
+
+    int parRetVal = mmon.ParseCliFlags(argc, argv, &mmon);
+    if (parRetVal != 0) {
+        return parRetVal;
+    }
+
+    //needed for sig handler
+    DumMode = mmon.GetDummyMode();
+
+    Server *pserv = mmon.GetPollServer();
+
+    char buffer[mmon.GetPoll2MsgSize()];
+    size_t msg_size = mmon.GetPoll2MsgSize();
+
+    monitor::colorThresholds colThreshStruct;
+    mmon.SetColorThresholdStruct(colThreshStruct, mmon.GetColorThreshGroup());
+
     signal(SIGINT, signal_callback_handler);
 
     int num_modules;
-    double time_in_sec;
-    double data_rate;
-    double **rates = NULL;
-    double **inputCountRate = NULL;
-    double **outputCountRate = NULL;
-    unsigned int **totals = NULL;
-
     bool first_packet = true;
-    if (poll_server.Init(5556)) {
-        std::cout << " Opening relay ports for submonitors" << std::endl;
-        std::string submonitorPortMessage = " Opened Client on ports ";
-        for (int i =1; i<=MAX_NUM_SUBMONITORS; ++i){
-            if (Submonitor_Clients.at(i-1).Init("127.0.0.1",PREDEFINED_POLL2_PORT+i)){
-                submonitorPortMessage= submonitorPortMessage + std::to_string(PREDEFINED_POLL2_PORT + i);
-                if (i ==MAX_NUM_SUBMONITORS){
-                    submonitorPortMessage += ".";
-                } else {
-                    submonitorPortMessage += ", ";
-                }
-            } else {
-                std::cout<<"FAILED to open Client on port " << PREDEFINED_POLL2_PORT+i <<std::endl;
+
+    int counter = 0;
+    time_t curtime = time(NULL);
+    srand((unsigned)curtime);
+
+    // double time_in_sec;
+    // double data_rate;
+    // double **rates = NULL;
+    // double **inputCountRate = NULL;
+    // double **outputCountRate = NULL;
+    // unsigned int **totals = NULL;
+
+    monitor::poll2_UDP_msg pUdpMsg;
+
+    if (pserv->Init(mmon.GetPredefinedPoll2Port()) || mmon.GetDummyMode()) {
+        if (!mmon.GetDummyMode()) {
+            mmon.OpenSubmonitorSockets();
+        };
+        cout << "\n Waiting for first stats packet...\n";
+
+        if(mmon.GetDummyMode()){
+            num_modules = 11;
+            for (int it = 0; it < 10; ++it) {  // 10 dead chans in dummy mode
+                mmon.GetDeadChanList()->emplace_back(make_pair((rand() % num_modules), (rand() % 16)));
             }
+
+        } else {
+            mmon.GetDeadChanList()->emplace_back(make_pair(-1, -1));
         }
-        std::cout << submonitorPortMessage.c_str() << std::endl;
-        std::cout << "\n Waiting for first stats packet...\n";
-        
+
         while (true) {
-            std::cout << std::setprecision(2);
-
-            poll_server.RecvMessage(buffer, msg_size);
-            char *ptr = buffer;
-
-            for (int i =1; i<=MAX_NUM_SUBMONITORS; ++i){
-                Submonitor_Clients.at(i-1).SendMessage(buffer,msg_size);
-            }
-
-            if (strcmp(buffer, "$KILL_SOCKET") == 0) {
-                std::cout << "  Received KILL_SOCKET flag...\n\n";
+            if (counter == 50 && mmon.GetDummyMode()) {
                 break;
             }
+            cout << setprecision(2);
+            if (!mmon.GetDummyMode()) {
+                pserv->RecvMessage(buffer, msg_size);
+                char *ptr = buffer;
 
-            system("clear");
+                mmon.RelayPoll2msg(buffer, msg_size);
 
-            //std::cout << " Received:\t" << recv_bytes << " bytes\n";
-
-            // Below is the stats packet structure (for N modules)
-            // ---------------------------------------------------
-            // 4 byte total number of pixie modules (N)
-            // 8 byte total time of run (in seconds)
-            // 8 byte total data rate (in B/s)
-            // channel 0, 0 rate
-            // channel 0, 0 total
-            // channel 0, 1 rate
-            // channel 0, 1 total
-            // ...
-            // channel 0, 15 rate
-            // channel 0, 15 total
-            // channel 1, 0 rate
-            // channel 1, 0 total
-            // ...
-            // channel N-1, 15 rate
-            // channel N-1, 15 total
-            memcpy(&num_modules, ptr, 4);
-            ptr += 4;
-
-            if (first_packet) {
-                rates = new double *[num_modules];
-                inputCountRate = new double *[num_modules];
-                outputCountRate = new double *[num_modules];
-                totals = new unsigned int *[num_modules];
-                for (int i = 0; i < num_modules; i++) {
-                    rates[i] = new double[16];
-                    inputCountRate[i] = new double[16];
-                    outputCountRate[i] = new double[16];
-                    totals[i] = new unsigned int[16];
+                if (strcmp(ptr, "$KILL_SOCKET") == 0) {
+                    cout << "  Received KILL_SOCKET flag...\n\n";
+                    break;
                 }
-                first_packet = false;
-            }
 
-            memcpy(&time_in_sec, ptr, 8);
-            ptr += 8;
-            memcpy(&data_rate, ptr, 8);
-            ptr += 8;
-            for (int i = 0; i < num_modules; i++) {
-                for (int j = 0; j < 16; j++) {
-                    memcpy(&inputCountRate[i][j], ptr, 8);
-                    ptr += 8;
-                    memcpy(&outputCountRate[i][j], ptr, 8);
-                    ptr += 8;
-                    memcpy(&rates[i][j], ptr, 8);
-                    ptr += 8;
-                    memcpy(&totals[i][j], ptr, 4);
-                    ptr += 4;
-                }
+                system("clear");
+
+                /*
+                cout << " Received:\t" << recv_bytes << " bytes\n";
+
+                Below is the stats packet structure (for N modules)
+                ---------------------------------------------------
+                4 byte total number of pixie modules (N)
+                8 byte total time of run (in seconds)
+                8 byte total data rate (in B/s)
+                channel 0, 0 rate
+                channel 0, 0 total
+                channel 0, 1 rate
+                channel 0, 1 total
+                ...
+                channel 0, 15 rate
+                channel 0, 15 total
+                channel 1, 0 rate
+                channel 1, 0 total
+                ...
+                channel N-1, 15 rate
+                channel N-1, 15 total
+                */
+                memcpy(&num_modules, ptr, 4);
+                ptr += 4;
+
+                mmon.DecodeUdpMsg(ptr, pUdpMsg, num_modules, first_packet);
+
+                // if (first_packet) {
+                //     rates = new double *[num_modules];
+                //     inputCountRate = new double *[num_modules];
+                //     outputCountRate = new double *[num_modules];
+                //     totals = new unsigned int *[num_modules];
+                //     for (int i = 0; i < num_modules; i++) {
+                //         rates[i] = new double[16];
+                //         inputCountRate[i] = new double[16];
+                //         outputCountRate[i] = new double[16];
+                //         totals[i] = new unsigned int[16];
+                //     }
+                //     first_packet = false;
+                // }
+
+                // memcpy(&time_in_sec, ptr, 8);
+                // ptr += 8;
+                // memcpy(&data_rate, ptr, 8);
+                // ptr += 8;
+                // for (int i = 0; i < num_modules; i++) {
+                //     for (int j = 0; j < 16; j++) {
+                //         memcpy(&inputCountRate[i][j], ptr, 8);
+                //         ptr += 8;
+                //         memcpy(&outputCountRate[i][j], ptr, 8);
+                //         ptr += 8;
+                //         memcpy(&rates[i][j], ptr, 8);
+                //         ptr += 8;
+                //         memcpy(&totals[i][j], ptr, 4);
+                //         ptr += 4;
+                //     }
+                // }
+            } else {
+                system("clear");
+
+                mmon.DecodeUdpMsg(pUdpMsg, num_modules, first_packet,(*mmon.GetDeadChanList()));
             }
+            // cout<<"noDumm"<<endl;
 
             // Display the rate information
-            std::cout << "Run Time: " << GetTimeString(time_in_sec);
-            if (num_modules > 1) std::cout << "\t";
-            else std::cout << "\n";
-            std::cout << "Data Rate: " << GetRateString(data_rate) << std::endl;
-            std::cout << "   ";
-            for (unsigned int i = 0; i < (unsigned int) num_modules; i++) {
-                std::cout << "|"
-                          << std::setw((int) ((modColumnWidth - 1. + 0.5) / 2))
-                          << std::setfill('-') << "M" << std::setw(2)
-                          << std::setfill('0') << i
-                          << std::setw((int) ((modColumnWidth - 2. + 0.5) / 2))
-                          << std::setfill('-') << "";
+            cout << "Run Time: " << mmon.GetTimeString(pUdpMsg.time_in_sec);
+            if (num_modules > 1)
+                cout << "\t";
+            else
+                cout << "\n";
+            if (mmon.GetDummyMode()) {
+                cout << "Data Rate: " << mmon.GetRateString(pUdpMsg.data_rate, mmon.GetColorOut()) << mmon.GetEscSequence(monitor::FG_RED, mmon.GetColorOut())
+                     << " DummyMode= " << mmon.GetDummyMode() << mmon.GetEscSequence(monitor::FG_DEFAULT, mmon.GetColorOut()) << endl;
+            } else {
+                cout << "Data Rate: " << mmon.GetRateString(pUdpMsg.data_rate, mmon.GetColorOut()) << endl;
             }
-            std::cout << "|\n";
-
-            std::cout << "   | ";
-            for (unsigned int j = 0; j < (unsigned int) num_modules; j++) {
-
-                std::cout << "ICR  ";
-                std::cout << " OCR ";
-                std::cout << " Data ";
-                std::cout << "  Total | ";
-            }
-            std::cout << "\n";
-
-            for (unsigned int i = 0; i < 16; i++) {
-                std::cout << "C" << std::setw(2) << std::setfill('0') << i
-                          << "|";
-                for (unsigned int j = 0; j < (unsigned int) num_modules; j++) {
-                    std::cout << std::setw(5) << std::setfill(' ')
-                              << GetChanRateString(inputCountRate[j][i]) << " ";
-                    std::cout << std::setw(5) << std::setfill(' ')
-                              << GetChanRateString(outputCountRate[j][i])
-                              << " ";
-                    std::cout << std::setw(5) << std::setfill(' ')
-                              << GetChanRateString(rates[j][i]) << " ";
-                    std::cout << std::setw(6)
-                              << GetChanTotalString(totals[j][i]) << " ";
-                    std::cout << "|";
+            int numberOfModsPerRow = (int)ceil((float)num_modules/(float)mmon.GetNumOfModRows());
+            int firstModInRow = 0;
+            for ( int rowNum = 1; rowNum <= mmon.GetNumOfModRows(); ++rowNum) {
+                
+                if (rowNum >1){
+                cout << setw(mmon.GetModColumWidth()*numberOfModsPerRow+9) << setfill('-') << "\n";
                 }
-                std::cout << "\n";
+                cout << "   ";
+                for (int i = firstModInRow; i < (rowNum*numberOfModsPerRow); i++) {
+                    if (i == num_modules){
+                        break;
+                    }
+                    cout << "|"
+                         << setw((int)((mmon.GetModColumWidth() - 1. + 0.5) / 2))
+                         << setfill('-') << "M" << setw(2)
+                         << setfill('0') << i
+                         << setw((int)((mmon.GetModColumWidth() - 2. + 0.5) / 2))
+                         << setfill('-') << "";
+                }
+                cout << "|\n";
+
+                cout << "   | ";
+                for ( int j = firstModInRow; j < (rowNum*numberOfModsPerRow); j++) {
+                    if (j == num_modules){
+                        break;
+                    }
+                    cout << "ICR  ";
+                    cout << " OCR ";
+                    cout << " Data ";
+                    cout << "  Total | ";
+                }
+                cout << "\n";
+                pair<string, monitor::ColorCode> ICR;
+                pair<string, monitor::ColorCode> OCR;
+                pair<string, monitor::ColorCode> DATA;
+                pair<string, monitor::ColorCode> TOTALS;
+                for (unsigned int i = 0; i < 16; i++) {
+                    cout << mmon.GetEscSequence(monitor::FG_DEFAULT, mmon.GetColorOut()) << "C" << setw(2) << setfill('0') << i << "|";
+                    for ( int j = firstModInRow; j < (rowNum*numberOfModsPerRow); j++) {
+                        if (j == num_modules){
+                            break;
+                        }
+                        ICR = mmon.GetChanRateString(pUdpMsg.ICR[j][i], colThreshStruct);
+                        OCR = mmon.GetChanRateString(pUdpMsg.OCR[j][i], colThreshStruct);
+                        DATA = mmon.GetChanRateString(pUdpMsg.Data[j][i], colThreshStruct);
+                        TOTALS = mmon.GetChanTotalString(pUdpMsg.Totals[j][i]);
+                        // printf("T=|%s|",DATA.first.c_str());
+                        if (strcmp(TOTALS.first.c_str(), "0") == 0 && strcmp(DATA.first.c_str(), "   0 ") == 0) {
+                            ICR.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
+                            OCR.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
+                            DATA.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
+                            TOTALS.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
+                            // printf("cols=|%i|,|%i|,|%i|,|%i|",ICR.second,OCR.second,DATA.second,TOTALS.second);
+                        }
+
+                        cout << mmon.GetEscSequence(ICR.second, mmon.GetColorOut()) << setw(5) << setfill(' ')
+                             << ICR.first << " " << mmon.GetEscSequence(monitor::FG_DEFAULT, mmon.GetColorOut());
+                        cout << mmon.GetEscSequence(OCR.second, mmon.GetColorOut()) << setw(5) << setfill(' ')
+                             << OCR.first << " " << mmon.GetEscSequence(monitor::FG_DEFAULT, mmon.GetColorOut());
+                        cout << mmon.GetEscSequence(DATA.second, mmon.GetColorOut()) << setw(5) << setfill(' ')
+                             << DATA.first << " " << mmon.GetEscSequence(monitor::FG_DEFAULT, mmon.GetColorOut());
+                        cout << setw(6) << TOTALS.first << " ";
+                        cout << "|";
+                    }
+                    cout << "\n";
+                }
+               firstModInRow = firstModInRow + numberOfModsPerRow;
+                
             }
+            sleep(2);
+            counter++;
         }
     } else {
-        std::cout << " Error: Failed to open poll socket 5556! mainmonitor is probably running. Use the submonitor program.\n";
+        cout << " Error: Failed to open poll socket 5556! mainmonitor is probably running. Use the submonitor program.\n";
         return 1;
     }
-    poll_server.Close();
-    for (int i = 1; i <= MAX_NUM_SUBMONITORS; ++i) {
-        Submonitor_Clients.at(i - 1).Close();
+    if (!mmon.GetDummyMode()) {
+        pserv->Close();
     }
 
-    if (rates) { delete[] rates; }
-    if (inputCountRate) { delete[] inputCountRate; }
-    if (outputCountRate) { delete[] outputCountRate; }
-    if (totals) { delete[] totals; }
+    // // cout<<"test0"<<endl;
+    // if (rates) {
+    //     delete[] rates;
+    // }
+    // // cout<<"test1"<<endl;
+    // if (inputCountRate) {
+    //     delete[] inputCountRate;
+    // }
+    // // cout<<"test2"<<endl;
+    // if (outputCountRate) {
+    //     delete[] outputCountRate;
+    // }
+    // // cout<<"test3"<<endl;
+    // if (totals) {
+    //     delete[] totals;
+    // }
 
-    if (Submonitor_Client_List) {
+    if (pUdpMsg.ICR) {
+        delete[] pUdpMsg.ICR;
+    }
+    if (pUdpMsg.OCR) {
+        delete[] pUdpMsg.OCR;
+    }
+    if (pUdpMsg.Data) {
+        delete[] pUdpMsg.Data;
+    }
+    if (pUdpMsg.Totals) {
+        delete[] pUdpMsg.Totals;
+    }
+
+    if (Submonitor_Client_List && !mmon.GetDummyMode()) {
         delete[] Submonitor_Client_List;
     }
 
