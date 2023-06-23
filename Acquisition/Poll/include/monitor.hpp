@@ -8,14 +8,14 @@
 
 #include <getopt.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+#include <unistd.h> 
 
 #include <cmath>
-#include <cstdarg>
-#include <cstdio>
+// #include <cstdarg>
 #include <cstring>
-#include <fstream>
+// #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -44,11 +44,11 @@ class monitor {
     bool useColor = false; // do we colozize the output
     bool useLogging = false; // do we log to text file
     bool dummyMode = false;  // are we in dummymode for debugging
-    string cThreshGroup = "defaultRateGRoup"; // colorize rate group
+    string cThreshGroup = "defaultRateGroup"; // colorize rate group
 
     vector<pair<int,int>> deadChan; // list of "dead" chans for dummy mode
     
-    int numRowsOfMods; // number of rows to put the modules on
+    int numRowsOfMods = 1; // number of rows to put the modules on
 
    public:
     // ANSI color codes
@@ -154,7 +154,7 @@ class monitor {
     int GetPredefinedPoll2Port() { return PREDEFINED_POLL2_PORT; };
 
     // Get the UDP packet size 
-    static const size_t GetPoll2MsgSize() { return poll2_msg_size; };
+    static constexpr size_t GetPoll2MsgSize() { return poll2_msg_size; };
     
     // Get Width of a module section in characters
     const int GetModColumWidth() { return modColumnWidth; };

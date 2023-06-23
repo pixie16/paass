@@ -292,7 +292,7 @@ void monitor::DecodeUdpMsg(poll2_UDP_msg &ret, int &num_modules, bool &first_pac
     for (int modIT = 0; modIT < num_modules; ++modIT) {
         for (int chanIT = 0; chanIT < 16; ++chanIT) {
             bool breakout_cuz_dead = false;
-            for (int deads = 0; deads < deadChan.size(); ++deads) {
+            for (unsigned deads = 0; deads < deadChan.size(); ++deads) {
                 if (chanIT == deadChan.at(deads).second && modIT == deadChan.at(deads).first) {
                     breakout_cuz_dead = true;
                     continue;
@@ -330,19 +330,19 @@ void monitor::SetColorThresholdStruct(monitor::colorThresholds &cThresh, const s
         cThresh.warn_low = 1;
         cThresh.crit_low = 0.5;
         cThresh.disabled = 0.0;
-    } else if (strcmp(rateGroup.c_str(), "mtas")) {
+    } else if (strcmp(rateGroup.c_str(), "mtas") == 0) {
         cThresh.crit_high = 50000;
         cThresh.warn_high = 2000;
         cThresh.warn_low = 10;
         cThresh.crit_low = 5;
         cThresh.disabled = 0.0;
-    } else if (strcmp(rateGroup.c_str(), "vandle")) {
+    } else if (strcmp(rateGroup.c_str(), "vandle") == 0) {
         cThresh.crit_high = 50000;
         cThresh.warn_high = 2000;
         cThresh.warn_low = 10;
         cThresh.crit_low = 5;
         cThresh.disabled = 0.0;
-    } else if (strcmp(rateGroup.c_str(), "nshe")) {
+    } else if (strcmp(rateGroup.c_str(), "nshe")== 0) {
         cThresh.crit_high = 500;
         cThresh.warn_high = 200;
         cThresh.warn_low = 0.5;
