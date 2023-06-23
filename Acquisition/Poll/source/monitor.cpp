@@ -216,10 +216,10 @@ int monitor::ParseCliFlags(int &argc, char *argv[], monitor *obj) {
                 }
                 break;
             case 'h':
-                obj->help(argv[0]);
+                obj->help(obj->GetName());
                 return 2;
             case '?':
-                obj->help(argv[0]);
+                obj->help(obj->GetName());
                 return 2;
             default:
                 break;

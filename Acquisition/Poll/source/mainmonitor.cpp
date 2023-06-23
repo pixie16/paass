@@ -29,7 +29,7 @@ mainmonitor::mainmonitor() : monitor("mainmonitor") {
     Submonitor_Client_List = &Submonitor_Clients;
 }
 mainmonitor::~mainmonitor() {
-    if (!this->GetDummyMode() && poll_server) {
+    if (this->GetDummyMode() && poll_server) {
         delete[] poll_server;
     }
     //     delete Submonitor_Client_List;

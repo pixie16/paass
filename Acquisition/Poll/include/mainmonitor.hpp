@@ -1,14 +1,5 @@
 #ifndef __MAIN_MONITOR_HPP
 #define __MAIN_MONITOR_HPP
-#include <getopt.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
 
 #include "monitor.hpp"
 #include "poll2_socket.h"
