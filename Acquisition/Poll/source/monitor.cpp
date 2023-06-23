@@ -355,7 +355,7 @@ void monitor::SetColorThresholdStruct(monitor::colorThresholds &cThresh, const s
         cThresh.crit_low = 0.5;
         cThresh.disabled = 0.0;
     };
-};
+}
 
 monitor::ColorCode monitor::GetColorFromThresholds(const double &input, const colorThresholds &cThresh) {
 
