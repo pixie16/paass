@@ -8,14 +8,10 @@
 
 #include <getopt.h>
 #include <signal.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-#include <unistd.h> 
+#include <unistd.h>
 
 #include <cmath>
-// #include <cstdarg>
 #include <cstring>
-// #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -26,29 +22,26 @@
 
 using namespace std;
 
-
-
 class monitor {
    protected:
-
     string ObjName;
-    int socketToUse; // submonitor socket to listen on
-    static const int MAX_NUM_SUBMONITORS = 5; // max number of submonitors. Limited since each needs its own port
-    static const int PREDEFINED_POLL2_PORT = 5556; // hardcoded POLL2 master socket.
-    static const size_t poll2_msg_size = 5844;  // 5.8 kB of stats data max
-    const int modColumnWidth = 25; // width of each module section in chars
+    int socketToUse = 0;                            // submonitor socket to listen on
+    static const int MAX_NUM_SUBMONITORS = 6;       // max number of submonitors. Limited since each needs its own port
+    static const int PREDEFINED_POLL2_PORT = 5556;  // hardcoded POLL2 master socket.
+    static const size_t poll2_msg_size = 5844;      // 5.8 kB of stats data max
+    const int modColumnWidth = 25;                  // width of each module section in chars
 
-    static const int KILOBYTE = 1024;        // bytes
-    static const int MEGABYTE = 1048576;     // bytes
-    static const int GIGABYTE = 1073741824;  // bytes
-    bool useColor = false; // do we colozize the output
-    bool useLogging = false; // do we log to text file
-    bool dummyMode = false;  // are we in dummymode for debugging
-    string cThreshGroup = "defaultRateGroup"; // colorize rate group
+    static const int KILOBYTE = 1024;          // bytes
+    static const int MEGABYTE = 1048576;       // bytes
+    static const int GIGABYTE = 1073741824;    // bytes
+    bool useColor = false;                     // do we colozize the output
+    bool useLogging = false;                   // do we log to text file
+    bool dummyMode = false;                    // are we in dummymode for debugging
+    string cThreshGroup = "defaultRateGroup";  // colorize rate group
 
-    vector<pair<int,int>> deadChan; // list of "dead" chans for dummy mode
-    
-    int numRowsOfMods = 1; // number of rows to put the modules on
+    vector<pair<int, int>> deadChan;  // list of "dead" chans for dummy mode
+
+    int numRowsOfMods = 1;  // number of rows to put the modules on:
 
    public:
     // ANSI color codes
@@ -93,7 +86,7 @@ class monitor {
         SP_UNDERLINE_OFF = 24,
         SP_BOLD_OFF = 21
     };  //
-    
+
     // structure containing the parsed arrays of things out of the packet
     struct poll2_UDP_msg {
         double time_in_sec = 0;
@@ -113,7 +106,6 @@ class monitor {
         double disabled = 0.0;
     };
 
-
     // Default Constructor
     monitor() : ObjName("defaultmonitor"){};
 
@@ -127,10 +119,10 @@ class monitor {
     double GetOrder(unsigned int input_, unsigned int &power);
 
     // Receive and parse udp packet
-    void DecodeUdpMsg(char *prt, poll2_UDP_msg &ret,int &num_modules, bool &first_packet);
+    void DecodeUdpMsg(char *prt, poll2_UDP_msg &ret, int &num_modules, bool &first_packet);
 
     // Overload for dummy mode. we remove the char buff from the arg list
-    void DecodeUdpMsg( poll2_UDP_msg &ret,int &num_modules, bool &first_packet, vector<pair<int,int>> &deadChan);
+    void DecodeUdpMsg(poll2_UDP_msg &ret, int &num_modules, bool &first_packet, vector<pair<int, int>> &deadChan);
 
     // Expects input rate in Hz. Add suffix, and truncate to fit.
     pair<string, ColorCode> GetChanRateString(double chanRateInput, const colorThresholds &cThresh);
@@ -153,14 +145,14 @@ class monitor {
     // Get the poll2->Monitor main port, which is defined in the poll2 source
     int GetPredefinedPoll2Port() { return PREDEFINED_POLL2_PORT; };
 
-    // Get the UDP packet size 
+    // Get the UDP packet size
     static constexpr size_t GetPoll2MsgSize() { return poll2_msg_size; };
-    
+
     // Get Width of a module section in characters
     const int GetModColumWidth() { return modColumnWidth; };
 
-    //Get the Number of rows to put the modules one
-    const int GetNumOfModRows() { return numRowsOfMods;};
+    // Get the Number of rows to put the modules one
+    const int GetNumOfModRows() { return numRowsOfMods; };
 
     // Parse the flags set on cli
     int ParseCliFlags(int &argc, char *argv[], monitor *obj);
@@ -169,9 +161,9 @@ class monitor {
     void SetColorOut(const bool &a) { useColor = a; };
 
     // set Color Thresh group
-    virtual void SetColorThreshGroup(const string &threshGroup) {cThreshGroup = threshGroup;};
+    virtual void SetColorThreshGroup(const string &threshGroup) { cThreshGroup = threshGroup; };
 
-    string GetColorThreshGroup() {return cThreshGroup;};
+    string GetColorThreshGroup() { return cThreshGroup; };
 
     // Set if to write the txt log out. location of log is currently undecided. Im thinking /tmp but i dont have a good handle on what it will grow to (effectivly infinity but thats bad so we need to do something smart here)
     void SetLoggerOut(const bool &a) { useLogging = a; };
@@ -182,49 +174,44 @@ class monitor {
     // Get status of logger out bool
     bool GetLoggerOut() { return useLogging; };
 
-    //Set ColorThresholds struct based on passed cli flag.
+    // Set ColorThresholds struct based on passed cli flag.
     void SetColorThresholdStruct(colorThresholds &cThresh, const string &rateGroup);
 
-    //Get to use based on current table of thresholds.
+    // Get to use based on current table of thresholds.
     ColorCode GetColorFromThresholds(const double &input, const colorThresholds &cThresh);
 
     // For Submonitor, set socket to listen on.
     virtual void SetSocketToUse(const int &a) { socketToUse = a; };
 
-    // For Submonitor Get socket to listen on. 
+    // For Submonitor Get socket to listen on.
     virtual const int &GetSocketToUse() { return socketToUse; };
 
     // Get Name of monitor derivative. I.E. mainmonitor/submonitor
     virtual const char *GetName() { return ObjName.c_str(); };
 
-    // For debugging on non daq computers, we have a dummy mode which fills with random numbers 
+    // For debugging on non daq computers, we have a dummy mode which fills with random numbers
     void SetDummyMode(const bool &a) { dummyMode = a; };
 
     // Set Number of rows to print the modules on. We will automatically determine how many modules per row based on this number
-    void SetNumberOfRowsForModuleList(const int &a) {numRowsOfMods = a;};
-    
+    void SetNumberOfRowsForModuleList(const int &a) { numRowsOfMods = a; };
+
     // Get DummyMode status
     bool GetDummyMode() { return dummyMode; };
 
-    //Get the color code escape sequence. Colors are set by ColorCode enum
-    static string GetEscSequence(ColorCode pcode, bool showcolor) {;
+    /// Get the color code escape sequence. Colors are set by ColorCode enum.
+    ///@param [in] pcode : ENUM color code from ColorCode group. Which is Defined in monitor.hpp
+    ///@param [in] showcolor : Are we in colorful mode or not
+    ///@return Returns either the ANSI escape string or an empty zero length string.
+    static string GetEscSequence(ColorCode pcode, bool showcolor) {
+        ;
         if (showcolor) {
             return "\033[" + std::to_string(pcode) + "m";
         } else {
-            return " ";
+            return "";  // This must be a zero length string to not mess with the column spacing
         }
     }
 
-    vector<pair<int,int>>* GetDeadChanList(){return &deadChan;};
-
-    //  const string fg_black = string("\033[0;30m]");
-    //  const string fg_green = string("\033[0;32m]");
-    //  const string fg_yellow = string("\033[0;33m]");
-    //  const string fg_blue = string("\033[0;34m]");
-    //  const string fg_magenta = string("\033[0;35m]");
-    //  const string fg_cyan = string("\033[0;36m]");
-    //  const string fg_white = string("\033[0;37m]");
-    //  const string fg_red = string("\033[0;31m]");
+    vector<pair<int, int>> *GetDeadChanList() { return &deadChan; };
 };
 
 #endif

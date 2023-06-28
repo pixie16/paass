@@ -5,7 +5,7 @@
 #include "poll2_socket.h"
 
 std::vector<Client>* Submonitor_Client_List;  // must be global for signal_handlers
-bool DumMode=false;
+bool DumMode = false;                         // must be global for signal_handlers
 
 using namespace std;
 class mainmonitor : public monitor {
@@ -20,16 +20,10 @@ class mainmonitor : public monitor {
 
     void CloseSubmonitors();
 
-
-
    private:
     Server* poll_server;
     string name;
     vector<Client> Submonitor_Clients;
-
-    
-
-
 };
 
 #endif

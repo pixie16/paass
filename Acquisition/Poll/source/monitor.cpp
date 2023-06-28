@@ -24,7 +24,7 @@ double monitor::GetOrder(unsigned int base, unsigned int &power) {
 }
 
 // Expects input rate in Hz
-pair<string, monitor::ColorCode> monitor::GetChanRateString(double chanRateInput,const colorThresholds &cThresh) {
+pair<string, monitor::ColorCode> monitor::GetChanRateString(double chanRateInput, const colorThresholds &cThresh) {
     if (chanRateInput < 0.0) {
         chanRateInput *= -1;
     }
@@ -174,14 +174,14 @@ int monitor::ParseCliFlags(int &argc, char *argv[], monitor *obj) {
                 }
                 break;
             case 'c':
-                std::cout << " Colorized output not fully supported yet" << std::endl;
+                // std::cout << " Colorized output not fully supported yet" << std::endl;
                 if (optarg == NULL && optind < argc && argv[optind][0] != '-') {
                     optarg = argv[optind++];
                 }
                 if (optarg != NULL) {
-                   //printf("opt arg is present\n");
-                   obj->SetColorThreshGroup(optarg);
-                } 
+                    // printf("opt arg is present\n");
+                    obj->SetColorThreshGroup(optarg);
+                }
                 obj->SetColorOut(1);
                 break;
             case 'l':
@@ -201,12 +201,12 @@ int monitor::ParseCliFlags(int &argc, char *argv[], monitor *obj) {
                         obj->SetSocketToUse(atoi(optarg));
                         break;
                     } else {
-                        std::cout << " un available socket pick the correct one" << std::endl;
+                        std::cout << " Unavailable socket:: Pick another" << std::endl;
                         return 1;
                     };
                 }
             case 'r':
-                std::cout << " Row Splitting partial support" << std::endl;
+                // std::cout << " Row Splitting partial support" << std::endl;
                 if (optarg == NULL && optind < argc && argv[optind][0] != '-') {
                     optarg = argv[optind++];
                 }
@@ -233,7 +233,9 @@ void monitor::help(const char *progName) {
     std::cout << "\n SYNTAX: " << progName << " [options]\n";
     std::cout << "  --color (-c)          | Use colored output (not implemented yet)\n";
     if (strcmp(progName, "submonitor") == 0) {
-        std::cout << "  --socket (-s)         | Submonitor socket to use (Default range is 5557-5561)\n";
+        int minport = PREDEFINED_POLL2_PORT + 1;
+        int maxPort = PREDEFINED_POLL2_PORT + MAX_NUM_SUBMONITORS;
+        std::cout << "  --socket (-s)         | Submonitor socket to use (Current range is " << to_string(minport) << "-" << to_string(maxPort) << ")\n";
     } else if (strcmp(progName, "mainmonitor") == 0) {
         std::cout << "  --log (-l)            | Write monitor log files (not implemented yet)\n";
     }
@@ -274,7 +276,7 @@ void monitor::DecodeUdpMsg(char *ptr, poll2_UDP_msg &ret, int &num_modules, bool
     }
 }
 
-void monitor::DecodeUdpMsg(poll2_UDP_msg &ret, int &num_modules, bool &first_packet, vector<pair<int,int>> &deadChan) {
+void monitor::DecodeUdpMsg(poll2_UDP_msg &ret, int &num_modules, bool &first_packet, vector<pair<int, int>> &deadChan) {
     if (first_packet) {
         ret.Data = new double *[num_modules];
         ret.ICR = new double *[num_modules];
@@ -288,7 +290,7 @@ void monitor::DecodeUdpMsg(poll2_UDP_msg &ret, int &num_modules, bool &first_pac
         }
         first_packet = false;
     };
-    
+
     for (int modIT = 0; modIT < num_modules; ++modIT) {
         for (int chanIT = 0; chanIT < 16; ++chanIT) {
             bool breakout_cuz_dead = false;
@@ -315,8 +317,9 @@ void monitor::DecodeUdpMsg(poll2_UDP_msg &ret, int &num_modules, bool &first_pac
             } else if (randoms.second > 4 && randoms.second <= 6) {
                 div = 4;
             }
-            
-            ret.Totals[modIT][chanIT] +=  (unsigned)((randoms.first * std::pow(10, randoms.second)) / div);;
+
+            ret.Totals[modIT][chanIT] += (unsigned)((randoms.first * std::pow(10, randoms.second)) / div);
+            ;
         }
     }
     ret.time_in_sec = 1;
@@ -342,7 +345,7 @@ void monitor::SetColorThresholdStruct(monitor::colorThresholds &cThresh, const s
         cThresh.warn_low = 10;
         cThresh.crit_low = 5;
         cThresh.disabled = 0.0;
-    } else if (strcmp(rateGroup.c_str(), "nshe")== 0) {
+    } else if (strcmp(rateGroup.c_str(), "nshe") == 0) {
         cThresh.crit_high = 500;
         cThresh.warn_high = 200;
         cThresh.warn_low = 0.5;
@@ -358,8 +361,7 @@ void monitor::SetColorThresholdStruct(monitor::colorThresholds &cThresh, const s
 }
 
 monitor::ColorCode monitor::GetColorFromThresholds(const double &input, const colorThresholds &cThresh) {
-
-    if (input == -999){
+    if (input == -999) {
         return monitor::FG_BLACK;
     } else if (input <= cThresh.crit_low) {
         return monitor::FG_BLUE;

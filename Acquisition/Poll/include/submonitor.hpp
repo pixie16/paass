@@ -13,9 +13,8 @@
 #include "monitor.hpp"
 #include "poll2_socket.h"
 
-
 std::vector<Client>* Submonitor_Client_List;  // must be global for signal_handlers
-bool DumMode=false;
+bool DumMode = false;
 
 using namespace std;
 class submonitor : public monitor {
@@ -24,6 +23,7 @@ class submonitor : public monitor {
     ~submonitor();
 
     Server* GetPollServer() { return poll_server; };  // return the poll server
+    bool isInit = false;
 
    private:
     Server* poll_server;
@@ -31,10 +31,6 @@ class submonitor : public monitor {
     vector<Client> Submonitor_Clients;
 
     int numRowsOfMods = 1;
-
-    
-
-
 };
 
 #endif

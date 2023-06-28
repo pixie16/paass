@@ -11,14 +11,15 @@
 #include "mainmonitor.hpp"
 using namespace std;
 
-//TODO test what happens when subs are ctrlC'd first then try to quit main
-// Define the function to be called when ctrl-c (SIGINT) is sent to process
+// TODO test what happens when subs are ctrlC'd first then try to quit main
+// TODO also figureout best way to handle reading in the Max_Num_submontor var
+//  Define the function to be called when ctrl-c (SIGINT) is sent to process
 void signal_callback_handler(int signum) {
     cout << "\n    SIGINT:: Sending KILL_SOCKET to the submonitors\n\n"
          << endl;
     if (!DumMode) {
-        for (int i = 1; i <= 5; ++i) {
-            Submonitor_Client_List->at(i - 1).SendMessage((char *)"$KILL_SOCKET", 13);  // Terminate program
+        for (int i = 0; i < 5; ++i) {
+            Submonitor_Client_List->at(i).SendMessage((char *)"$KILL_SOCKET", 13);  // Terminate program
         }
     }
     exit(signum);
@@ -32,35 +33,35 @@ mainmonitor::~mainmonitor() {
     if (this->GetDummyMode() && poll_server) {
         delete[] poll_server;
     }
-    //     delete Submonitor_Client_List;
 }
 void mainmonitor::CloseSubmonitors() {
     if (!GetDummyMode()) {
-        for (int i = 1; i <= GetMaxNumSubMonitors(); ++i) {
-            GetSubClientVec()->at(i - 1).Close();
+        for (int i = 0; i < GetMaxNumSubMonitors(); ++i) {
+            GetSubClientVec()->at(i).Close();
         }
     }
 }
 void mainmonitor::RelayPoll2msg(char *buffer, size_t msg_size) {
-    for (int i = 1; i <= MAX_NUM_SUBMONITORS; ++i) {
-        Submonitor_Clients.at(i - 1).SendMessage(buffer, msg_size);
+    for (int i = 0; i < MAX_NUM_SUBMONITORS; ++i) {
+        Submonitor_Clients.at(i).SendMessage(buffer, msg_size);
     }
 }
 
 void mainmonitor::OpenSubmonitorSockets() {
     std::cout << " Opening relay ports for submonitors" << std::endl;
     std::string submonitorPortMessage = " Opened Client on ports ";
-    for (int i = 1; i <= MAX_NUM_SUBMONITORS; ++i) {
+    for (int i = 0; i < MAX_NUM_SUBMONITORS; ++i) {
         Submonitor_Clients.emplace_back(Client());
-        if (Submonitor_Clients.at(i - 1).Init("127.0.0.1", PREDEFINED_POLL2_PORT + i)) {
-            submonitorPortMessage = submonitorPortMessage + std::to_string(PREDEFINED_POLL2_PORT + i);
-            if (i == MAX_NUM_SUBMONITORS) {
+        int port2open = PREDEFINED_POLL2_PORT + i + 1;
+        if (Submonitor_Clients.at(i).Init("127.0.0.1", port2open)) {
+            submonitorPortMessage = submonitorPortMessage + std::to_string(port2open);
+            if (i == MAX_NUM_SUBMONITORS - 1) {
                 submonitorPortMessage += ".";
             } else {
                 submonitorPortMessage += ", ";
             }
         } else {
-            std::cout << "FAILED to open Client on port " << PREDEFINED_POLL2_PORT + i << std::endl;
+            std::cout << "FAILED to open Client on port " << port2open << std::endl;
         }
     }
     std::cout << submonitorPortMessage.c_str() << std::endl;
@@ -74,7 +75,7 @@ int main(int argc, char *argv[]) {
         return parRetVal;
     }
 
-    //needed for sig handler
+    // needed for sig handler
     DumMode = mmon.GetDummyMode();
 
     Server *pserv = mmon.GetPollServer();
@@ -90,16 +91,10 @@ int main(int argc, char *argv[]) {
     int num_modules;
     bool first_packet = true;
 
+    // These are for the dummy mode. I doesnt seem to affect the normal mode startup at all
     int counter = 0;
     time_t curtime = time(NULL);
     srand((unsigned)curtime);
-
-    // double time_in_sec;
-    // double data_rate;
-    // double **rates = NULL;
-    // double **inputCountRate = NULL;
-    // double **outputCountRate = NULL;
-    // unsigned int **totals = NULL;
 
     monitor::poll2_UDP_msg pUdpMsg;
 
@@ -109,12 +104,11 @@ int main(int argc, char *argv[]) {
         };
         cout << "\n Waiting for first stats packet...\n";
 
-        if(mmon.GetDummyMode()){
+        if (mmon.GetDummyMode()) {
             num_modules = 11;
             for (int it = 0; it < 10; ++it) {  // 10 dead chans in dummy mode
                 mmon.GetDeadChanList()->emplace_back(make_pair((rand() % num_modules), (rand() % 16)));
             }
-
         } else {
             mmon.GetDeadChanList()->emplace_back(make_pair(-1, -1));
         }
@@ -162,43 +156,10 @@ int main(int argc, char *argv[]) {
                 ptr += 4;
 
                 mmon.DecodeUdpMsg(ptr, pUdpMsg, num_modules, first_packet);
-
-                // if (first_packet) {
-                //     rates = new double *[num_modules];
-                //     inputCountRate = new double *[num_modules];
-                //     outputCountRate = new double *[num_modules];
-                //     totals = new unsigned int *[num_modules];
-                //     for (int i = 0; i < num_modules; i++) {
-                //         rates[i] = new double[16];
-                //         inputCountRate[i] = new double[16];
-                //         outputCountRate[i] = new double[16];
-                //         totals[i] = new unsigned int[16];
-                //     }
-                //     first_packet = false;
-                // }
-
-                // memcpy(&time_in_sec, ptr, 8);
-                // ptr += 8;
-                // memcpy(&data_rate, ptr, 8);
-                // ptr += 8;
-                // for (int i = 0; i < num_modules; i++) {
-                //     for (int j = 0; j < 16; j++) {
-                //         memcpy(&inputCountRate[i][j], ptr, 8);
-                //         ptr += 8;
-                //         memcpy(&outputCountRate[i][j], ptr, 8);
-                //         ptr += 8;
-                //         memcpy(&rates[i][j], ptr, 8);
-                //         ptr += 8;
-                //         memcpy(&totals[i][j], ptr, 4);
-                //         ptr += 4;
-                //     }
-                // }
             } else {
                 system("clear");
-
-                mmon.DecodeUdpMsg(pUdpMsg, num_modules, first_packet,(*mmon.GetDeadChanList()));
+                mmon.DecodeUdpMsg(pUdpMsg, num_modules, first_packet, (*mmon.GetDeadChanList()));
             }
-            // cout<<"noDumm"<<endl;
 
             // Display the rate information
             cout << "Run Time: " << mmon.GetTimeString(pUdpMsg.time_in_sec);
@@ -212,16 +173,15 @@ int main(int argc, char *argv[]) {
             } else {
                 cout << "Data Rate: " << mmon.GetRateString(pUdpMsg.data_rate, mmon.GetColorOut()) << endl;
             }
-            int numberOfModsPerRow = (int)ceil((float)num_modules/(float)mmon.GetNumOfModRows());
+            int numberOfModsPerRow = (int)ceil((float)num_modules / (float)mmon.GetNumOfModRows());
             int firstModInRow = 0;
-            for ( int rowNum = 1; rowNum <= mmon.GetNumOfModRows(); ++rowNum) {
-                
-                if (rowNum >1){
-                cout << setw(mmon.GetModColumWidth()*numberOfModsPerRow+9) << setfill('-') << "\n";
+            for (int rowNum = 1; rowNum <= mmon.GetNumOfModRows(); ++rowNum) {
+                if (rowNum > 1) {
+                    cout << setw(mmon.GetModColumWidth() * numberOfModsPerRow + 9) << setfill('-') << "\n";
                 }
                 cout << "   ";
-                for (int i = firstModInRow; i < (rowNum*numberOfModsPerRow); i++) {
-                    if (i == num_modules){
+                for (int i = firstModInRow; i < (rowNum * numberOfModsPerRow); i++) {
+                    if (i == num_modules) {
                         break;
                     }
                     cout << "|"
@@ -234,8 +194,8 @@ int main(int argc, char *argv[]) {
                 cout << "|\n";
 
                 cout << "   | ";
-                for ( int j = firstModInRow; j < (rowNum*numberOfModsPerRow); j++) {
-                    if (j == num_modules){
+                for (int j = firstModInRow; j < (rowNum * numberOfModsPerRow); j++) {
+                    if (j == num_modules) {
                         break;
                     }
                     cout << "ICR  ";
@@ -250,21 +210,19 @@ int main(int argc, char *argv[]) {
                 pair<string, monitor::ColorCode> TOTALS;
                 for (unsigned int i = 0; i < 16; i++) {
                     cout << mmon.GetEscSequence(monitor::FG_DEFAULT, mmon.GetColorOut()) << "C" << setw(2) << setfill('0') << i << "|";
-                    for ( int j = firstModInRow; j < (rowNum*numberOfModsPerRow); j++) {
-                        if (j == num_modules){
+                    for (int j = firstModInRow; j < (rowNum * numberOfModsPerRow); j++) {
+                        if (j == num_modules) {
                             break;
                         }
                         ICR = mmon.GetChanRateString(pUdpMsg.ICR[j][i], colThreshStruct);
                         OCR = mmon.GetChanRateString(pUdpMsg.OCR[j][i], colThreshStruct);
                         DATA = mmon.GetChanRateString(pUdpMsg.Data[j][i], colThreshStruct);
                         TOTALS = mmon.GetChanTotalString(pUdpMsg.Totals[j][i]);
-                        // printf("T=|%s|",DATA.first.c_str());
                         if (strcmp(TOTALS.first.c_str(), "0") == 0 && strcmp(DATA.first.c_str(), "   0 ") == 0) {
                             ICR.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
                             OCR.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
                             DATA.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
                             TOTALS.second = mmon.GetColorFromThresholds(-999, colThreshStruct);
-                            // printf("cols=|%i|,|%i|,|%i|,|%i|",ICR.second,OCR.second,DATA.second,TOTALS.second);
                         }
 
                         cout << mmon.GetEscSequence(ICR.second, mmon.GetColorOut()) << setw(5) << setfill(' ')
@@ -278,36 +236,20 @@ int main(int argc, char *argv[]) {
                     }
                     cout << "\n";
                 }
-               firstModInRow = firstModInRow + numberOfModsPerRow;
-                
+                firstModInRow = firstModInRow + numberOfModsPerRow;
             }
-            sleep(2);
-            counter++;
+            if (mmon.GetDummyMode()) {
+                sleep(2);
+                counter++;
+            }
         }
     } else {
         cout << " Error: Failed to open poll socket 5556! mainmonitor is probably running. Use the submonitor program.\n";
         return 1;
     }
-    if (!mmon.GetDummyMode()) {
+    if (!mmon.GetDummyMode() && mmon.GetPollServer()) {
         pserv->Close();
     }
-
-    // // cout<<"test0"<<endl;
-    // if (rates) {
-    //     delete[] rates;
-    // }
-    // // cout<<"test1"<<endl;
-    // if (inputCountRate) {
-    //     delete[] inputCountRate;
-    // }
-    // // cout<<"test2"<<endl;
-    // if (outputCountRate) {
-    //     delete[] outputCountRate;
-    // }
-    // // cout<<"test3"<<endl;
-    // if (totals) {
-    //     delete[] totals;
-    // }
 
     if (pUdpMsg.ICR) {
         delete[] pUdpMsg.ICR;
@@ -321,10 +263,9 @@ int main(int argc, char *argv[]) {
     if (pUdpMsg.Totals) {
         delete[] pUdpMsg.Totals;
     }
-
     if (Submonitor_Client_List && !mmon.GetDummyMode()) {
+        mmon.CloseSubmonitors();
         delete[] Submonitor_Client_List;
     }
-
     return 0;
 }
