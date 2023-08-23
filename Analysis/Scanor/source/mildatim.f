@@ -9,11 +9,15 @@ C
       IMPLICIT NONE
 C
 C     ------------------------------------------------------------------
-      INTEGER*4    IAR(6),YR,MO,DA,HR,MN,SC
-      CHARACTER*4  MON(12)
+      INTEGER*4    MON(12),IAR(6),YR,MO,DA,HR,MN,SC
+      CHARACTER*4  cMON(12)
+      EQUIVALENCE (cMON, MON)
 C
       CHARACTER*20 JAR
-
+C
+      DATA         cMON/'Jan-','Feb-','Mar-','Apr-','May-','Jun-',
+     &                 'Jul-','Aug-','Sep-','Oct-','Nov-','Dec-'/
+C
       EQUIVALENCE (YR,IAR(1)),
      &            (MO,IAR(2)),
      &            (DA,IAR(3)),
@@ -21,17 +25,11 @@ C
      &            (MN,IAR(5)),
      &            (SC,IAR(6))
 C
-
-C
-      DATA         MON/'Jan-','Feb-','Mar-','Apr-','May-','Jun-',
-     &                 'Jul-','Aug-','Sep-','Oct-','Nov-','Dec-'/
-C
-
       SAVE
 C
 C     ------------------------------------------------------------------
 C
-c      CALL MILYMDHMS(IAR)
+      CALL MILYMDHMS(IAR)
 C
       WRITE(JAR,10)DA,MON(MO),YR,HR,MN,SC
    10 FORMAT(I2.2,'-',A4,I4,1X,I2.2,':',I2.2,':',I2.2)
