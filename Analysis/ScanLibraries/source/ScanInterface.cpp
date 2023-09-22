@@ -792,7 +792,7 @@ void ScanInterface::RunControl() {
                     int modn = 9999;
                     // peek the first pixie event
                     // a bit of sanity check + module (slot) number extraction
-                    if (nBytes >= 32) { // there's one pixie event at least
+                    if (nBytes >= 16) { // there's one pixie event at least. size of a single pixie event is at least 16 bytes = 4 words
                         unsigned int pixhead1 = modfifofrag[0];
                         // this is revision specific!! has to be changed for RevH
                         modn = (pixhead1 >> 4) & 0xf;
@@ -802,7 +802,7 @@ void ScanInterface::RunControl() {
                             std::cout << " (module number " << std::dec << modn << ")" << std::endl;
                         }
                         if (modn < 0) {
-                            std::cout << "invalid slot number (got" << modn << "), likely corrupted data" << std::endl;
+                            std::cout << "invalid slot number (got " << modn << "), likely hit the end of file or potentially corrupted data" << std::endl;
                             continue;
                         }
                     } else {

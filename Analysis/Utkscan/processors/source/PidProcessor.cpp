@@ -96,6 +96,13 @@ namespace dammIds {
 
       const int D_RANGE = 70; //implantation range gated by PID (right now hard coded)
 
+      const int DD_PIN2_3 = 71;     //! Pin2 vs Pin3 dE
+      const int DD_PIN0_2 = 72;     //! Pin0 vs Pin2 dE
+      const int DD_PIN1_3 = 73;     //! Pin1 vs Pin3 dE
+      const int DD_TOF4_PIN2 = 74;            //! ToF4 vs Pin2 dE
+      const int DD_TOF5_PIN2 = 75;            //! ToF5 vs Pin2 dE
+      const int DD_TOF4_PIN3 = 76;            //! ToF4 vs Pin3 dE
+      const int DD_TOF5_PIN3 = 77;            //! ToF5 vs Pin3 dE
 
    }  // namespace pid
 }  // namespace dammIds
@@ -168,6 +175,13 @@ void PidProcessor::DeclarePlots(void) {
 
    DeclareHistogram1D(D_RANGE, S3, "Range distribution with PID gate");
 
+   DeclareHistogram2D(DD_PIN2_3, SC, SC, "Pin2 vs Pin3 dE ");
+   DeclareHistogram2D(DD_PIN0_2, SC, SC, "Pin0 vs Pin2 dE ");
+   DeclareHistogram2D(DD_PIN1_3, SC, SC, "Pin1 vs Pin3 dE ");
+   DeclareHistogram2D(DD_TOF4_PIN2, SB, SD, "Tof4 vs Pin2 dE ");
+   DeclareHistogram2D(DD_TOF5_PIN2, SB, SD, "Tof5 vs Pin2 dE ");
+   DeclareHistogram2D(DD_TOF4_PIN3, SB, SD, "Tof4 vs Pin3 dE ");
+   DeclareHistogram2D(DD_TOF5_PIN3, SB, SD, "Tof5 vs Pin3 dE ");
 }  // Declare plots
 
 PidProcessor::PidProcessor(const double &YSO_Implant_thresh, const double &FIT_thresh, const double &RIT_thresh) : EventProcessor(OFFSET, RANGE, "PidProcessor") {
@@ -199,16 +213,24 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
    static const vector<ChanEvent *> &cross_scint_b1_vec = event.GetSummary("pid:cross_scint_b1", true)->GetList();
    static const vector<ChanEvent *> &cross_scint_t1_vec = event.GetSummary("pid:cross_scint_t1", true)->GetList();
+   static const vector<ChanEvent *> &cross_scint_v1_vec = event.GetSummary("pid:cross_scint_v1", true)->GetList(); // These correspond to the fp2 cross scint
+   static const vector<ChanEvent *> &cross_scint_v2_vec = event.GetSummary("pid:cross_scint_v2", true)->GetList();// These correspond to the fp2 cross scint
+   static const vector<ChanEvent *> &cross_scint_v3_vec = event.GetSummary("pid:cross_scint_v3", true)->GetList();// These correspond to the fp2 cross scint
+   static const vector<ChanEvent *> &cross_scint_v4_vec = event.GetSummary("pid:cross_scint_v4", true)->GetList();// These correspond to the fp2 cross scint
    static const vector<ChanEvent *> &cross_pin0_vec = event.GetSummary("pid:cross_pin0", true)->GetList();
    static const vector<ChanEvent *> &cross_pin1_vec = event.GetSummary("pid:cross_pin1", true)->GetList();
+   static const vector<ChanEvent *> &cross_pin2_vec = event.GetSummary("pid:cross_pin2", true)->GetList();
+   static const vector<ChanEvent *> &cross_pin3_vec = event.GetSummary("pid:cross_pin3", true)->GetList();
    static const vector<ChanEvent *> &tac0_vec = event.GetSummary("pid:tac0", true)->GetList();
    static const vector<ChanEvent *> &tac1_vec = event.GetSummary("pid:tac1", true)->GetList();
    static const vector<ChanEvent *> &tac2_vec = event.GetSummary("pid:tac2", true)->GetList();
    static const vector<ChanEvent *> &tac3_vec = event.GetSummary("pid:tac3", true)->GetList();
+
    static const vector<ChanEvent *> &dispL_vec = event.GetSummary("pid:disp_L_logic", true)->GetList();
    static const vector<ChanEvent *> &dispR_vec = event.GetSummary("pid:disp_R_logic", true)->GetList();
    static const vector<ChanEvent *> &dispU_vec = event.GetSummary("pid:disp_U_logic", true)->GetList();
    static const vector<ChanEvent *> &dispD_vec = event.GetSummary("pid:disp_D_logic", true)->GetList();
+   
    static const vector<ChanEvent *> &imageL_vec = event.GetSummary("pid:image_L_logic", true)->GetList();
    static const vector<ChanEvent *> &pinLogic_vec = event.GetSummary("pid:cross_pin0_logic", true)->GetList();
    static const vector<ChanEvent *> &b2Logic_vec = event.GetSummary("pid:cross_scint_b2_logic", true)->GetList();
@@ -224,32 +246,36 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
    //* Tof between rfq and beamline FocalPlane */
 
-   double tof0 = 0, tof1 = 0, tof2 = 0, tof3 = 0, pin0_energy = 0, pin1_energy = 0, tac0_energy = 0, tac1_energy = 0, tac2_energy=0, tac3_energy=0;
+   double tof0 = 0, tof1 = 0, tof2 = 0, tof3 = 0, pin0_energy = 0, pin1_energy = 0,tac0_energy = 0, tac1_energy = 0, tac2_energy=0, tac3_energy=0;
+   double tof4 = 0, tof5 = 0, pin2_energy = 0, pin3_energy = 0;
    double cross_scint_b1_energy = 0, cross_scint_t1_energy = 0;
+   double cross_scint_v1_energy = 0, cross_scint_v2_energy = 0, cross_scint_v3_energy = 0, cross_scint_v4_energy = 0;
    double tof0_flip = 0, tof1_flip = 0, tof2_flip = 0, tof3_flip = 0;
    double disp_LR = 0;
    double disp_UD = 0;
+
+   if (root_output){
    
-   if(!imageL_vec.empty() && root_output){
+   if(!imageL_vec.empty() ){
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
       double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
       if((*imageL))
          pid_struct.image_scint_L_logic_time = (*imageL)->GetTime() * internalTAC_Convert_Tick_adc;
    }
-   if(!pinLogic_vec.empty() && root_output){
+   if(!pinLogic_vec.empty() ){
       auto pinLogic = std::max_element(pinLogic_vec.begin(), pinLogic_vec.end(), compare_energy);
       double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*pinLogic)->GetChanID().GetModFreq()) * 1e9;
       if((*pinLogic))
         pid_struct.cross_pin_0_logic_time = (*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc;
    }
-   if(!b2Logic_vec.empty() && root_output){
+   if(!b2Logic_vec.empty() ){
       auto b2Logic = std::max_element(b2Logic_vec.begin(), b2Logic_vec.end(), compare_energy);
       double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*b2Logic)->GetChanID().GetModFreq()) * 1e9;
       if((*b2Logic))
         pid_struct.cross_scint_b2_logic_time = (*b2Logic)->GetTime() * internalTAC_Convert_Tick_adc;
    }
    //std::cout<<"come to line 251"<<std::endl;
-   if (!cross_pin0_vec.empty() && root_output) {
+   if (!cross_pin0_vec.empty() ) {
       // Get elements with the largest energy in this event 
       auto pin = std::max_element(cross_pin0_vec.begin(), cross_pin0_vec.end(), compare_energy);
       // Check for nullptr
@@ -259,7 +285,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       }
    }
    //std::cout<<"come to line 260"<<std::endl;
-   if (!cross_pin1_vec.empty() && root_output) {
+   if (!cross_pin1_vec.empty() ) {
       // Get elements with the largest energy in this event 
       auto pin = std::max_element(cross_pin1_vec.begin(), cross_pin1_vec.end(), compare_energy);
       // Check for nullptr
@@ -267,6 +293,25 @@ bool PidProcessor::PreProcess(RawEvent &event) {
          pid_struct.cross_pin_1_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
          pid_struct.cross_pin_1_traceqdc = (*pin)->GetTrace().GetQdc();
       }
+   }
+   if (!cross_pin2_vec.empty() ) {
+      // Get elements with the largest energy in this event 
+      auto pin = std::max_element(cross_pin2_vec.begin(), cross_pin2_vec.end(), compare_energy);
+      // Check for nullptr
+      if (!(*pin)->GetTrace().empty()) {
+         pid_struct.cross_pin_2_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
+         pid_struct.cross_pin_2_traceqdc = (*pin)->GetTrace().GetQdc();
+      }
+   }
+   if (!cross_pin3_vec.empty() ) {
+      // Get elements with the largest energy in this event 
+      auto pin = std::max_element(cross_pin3_vec.begin(), cross_pin3_vec.end(), compare_energy);
+      // Check for nullptr
+      if (!(*pin)->GetTrace().empty()) {
+         pid_struct.cross_pin_3_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
+         pid_struct.cross_pin_3_traceqdc = (*pin)->GetTrace().GetQdc();
+      }
+   }
    }
    //std::cout<<"come to line 269"<<std::endl;
 
@@ -302,6 +347,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
       // Get elements with the largest energy in this event for pinLogic
       auto pin = std::max_element(cross_pin0_vec.begin(), cross_pin0_vec.end(), compare_energy);
+
       // Check for nullptr
       if ((*imageL) && (*pin)) {
          // Calculate tof
@@ -384,6 +430,76 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       }
    }
 
+   //////////////// TOF 4,5 are for Cross 2
+
+   //! TOF 4 group (image L to cross pin2 highrestime)
+   if (!imageL_vec.empty() && !cross_pin2_vec.empty()) {
+      // Get elements with the largest energy in this event for image L
+      auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
+      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
+
+      // Get elements with the largest energy in this event for pinLogic
+      auto pin = std::max_element(cross_pin2_vec.begin(), cross_pin2_vec.end(), compare_energy);
+
+      // Check for nullptr
+      if ((*imageL) && (*pin)) {
+         // Calculate tof
+         tof4 = (*pin)->GetHighResTimeInNs() - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
+         //tof4_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - (*pin)->GetHighResTimeInNs();
+
+         // ROOT outputs
+         if (root_output) {
+            pid_struct.tof4 = tof4;
+         }
+      }
+   }
+
+   //std::cout<<"come to line 367"<<std::endl;
+   //
+   //! TOF 5 group (image L to cross scint fp2 highrestime)
+   if (!imageL_vec.empty() && !cross_scint_v1_vec.empty()) {
+      // Get elements with the largest energy in this event for image L
+      auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
+      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
+
+      // Get elements with the largest energy in this event for pinLogic
+      auto cross_scint_v1 = std::max_element(cross_scint_v1_vec.begin(), cross_scint_v1_vec.end(), compare_energy);
+      // Check for nullptr
+      if ((*imageL) && (*cross_scint_v1)) {
+         // Calculate tof
+         tof5 = (*cross_scint_v1)->GetHighResTimeInNs() - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
+         //tof5_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - (*cross_scint_v1)->GetHighResTimeInNs();
+
+         // ROOT outputs
+         if (root_output) {
+            pid_struct.tof5 = tof5;
+         }
+      }
+   }
+   //std::cout<<"come to line 389"<<std::endl;
+   //
+   //
+   //! dispersive L-R group (diespersive L -> R)
+   if (!dispL_vec.empty() && !dispR_vec.empty()) {
+      // Get elements with the largest energy in this event for dispL
+      auto dispL = std::max_element(dispL_vec.begin(), dispL_vec.end(), compare_energy);
+      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*dispL)->GetChanID().GetModFreq()) * 1e9;
+
+      // Get elements with the largest energy in this event for dispR
+      auto dispR = std::max_element(dispR_vec.begin(), dispR_vec.end(), compare_energy);
+      // Check for nullptr
+      if ((*dispL) && (*dispR)) {
+         // Calculate LR
+         disp_LR = ((*dispL)->GetTime() * internalTAC_Convert_Tick_adc) - ((*dispR)->GetTime() * internalTAC_Convert_Tick_adc);
+
+         // ROOT outputs
+         if (root_output) {
+            pid_struct.disp_L_logic_time = (*dispL)->GetTime() * internalTAC_Convert_Tick_adc;
+            pid_struct.disp_R_logic_time = (*dispR)->GetTime() * internalTAC_Convert_Tick_adc;
+            pid_struct.disp_LR = disp_LR;
+         }
+      }
+   }
    //! dispersive U-D group (diespersive U -> D)
    if (!dispU_vec.empty() && !dispD_vec.empty()) {
       // Get elements with the largest energy in this event for dispU
@@ -489,6 +605,24 @@ bool PidProcessor::PreProcess(RawEvent &event) {
          pid_struct.cross_pin_1_time = (*pin)->GetHighResTimeInNs();
       }
    }
+   if (!cross_pin2_vec.empty()) {
+      auto pin = max_element(cross_pin2_vec.begin(), cross_pin2_vec.end(), compare_energy);
+      pin2_energy = (*pin)->GetCalibratedEnergy();
+      plot(DD_PINS_DE, 2, pin2_energy);
+      if (root_output) {
+         pid_struct.cross_pin_2_energy = pin2_energy;
+         pid_struct.cross_pin_2_time = (*pin)->GetHighResTimeInNs();
+      }
+   }
+   if (!cross_pin3_vec.empty()) {
+      auto pin = max_element(cross_pin3_vec.begin(), cross_pin3_vec.end(), compare_energy);
+      pin3_energy = (*pin)->GetCalibratedEnergy();
+      plot(DD_PINS_DE, 3, pin3_energy);
+      if (root_output) {
+         pid_struct.cross_pin_3_energy = pin3_energy;
+         pid_struct.cross_pin_3_time = (*pin)->GetHighResTimeInNs();
+      }
+   }
 
    //** Cross plastic *//
    if (!cross_scint_b1_vec.empty()) {
@@ -505,6 +639,38 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       if (root_output) {
          pid_struct.cross_scint_t1_energy = cross_scint_t1_energy;
          pid_struct.cross_scint_t1_time = (*cross_scint)->GetHighResTimeInNs();
+      }
+   }
+   if (!cross_scint_v1_vec.empty()) {
+      auto cross_scint = max_element(cross_scint_v1_vec.begin(), cross_scint_v1_vec.end(), compare_energy);
+      cross_scint_v1_energy = (*cross_scint)->GetCalibratedEnergy();
+      if (root_output) {
+         pid_struct.cross_scint_v1_energy = cross_scint_v1_energy;
+         pid_struct.cross_scint_v1_time = (*cross_scint)->GetHighResTimeInNs();
+      }
+   }
+   if (!cross_scint_v2_vec.empty()) {
+      auto cross_scint = max_element(cross_scint_v2_vec.begin(), cross_scint_v2_vec.end(), compare_energy);
+      cross_scint_v2_energy = (*cross_scint)->GetCalibratedEnergy();
+      if (root_output) {
+         pid_struct.cross_scint_v2_energy = cross_scint_v2_energy;
+         pid_struct.cross_scint_v2_time = (*cross_scint)->GetHighResTimeInNs();
+      }
+   }
+   if (!cross_scint_v3_vec.empty()) {
+      auto cross_scint = max_element(cross_scint_v3_vec.begin(), cross_scint_v3_vec.end(), compare_energy);
+      cross_scint_v3_energy = (*cross_scint)->GetCalibratedEnergy();
+      if (root_output) {
+         pid_struct.cross_scint_v3_energy = cross_scint_v3_energy;
+         pid_struct.cross_scint_v3_time = (*cross_scint)->GetHighResTimeInNs();
+      }
+   }
+   if (!cross_scint_v4_vec.empty()) {
+      auto cross_scint = max_element(cross_scint_v4_vec.begin(), cross_scint_v4_vec.end(), compare_energy);
+      cross_scint_v4_energy = (*cross_scint)->GetCalibratedEnergy();
+      if (root_output) {
+         pid_struct.cross_scint_v4_energy = cross_scint_v4_energy;
+         pid_struct.cross_scint_v4_time = (*cross_scint)->GetHighResTimeInNs();
       }
    }
    //
@@ -536,6 +702,20 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }else{
       tof3 = -999;
       tof3_flip = -999;
+   }
+   if(tof4!=0){
+      tof4 = tof3*50+49500; // I think these parameters might need to be changed
+      //tof4_flip = tof3_flip*50-47000;
+   }else{
+      tof4 = -999;
+      //tof4_flip = -999;
+   }
+   if(tof5!=0){
+      tof5 = tof3*50+49500; // I think these parameters might need to be changed
+      //tof5_flip = tof3_flip*50-47000;
+   }else{
+      tof5 = -999;
+      //tof5_flip = -999;
    }
    if(disp_LR!=0){
       disp_LR = disp_LR*50+5000;
@@ -622,7 +802,12 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    plot(DD_TACS_MULT, 3, tac3_vec.size());
    plot(DD_PINS_MULT, 0, cross_pin0_vec.size());
    plot(DD_PINS_MULT, 1, cross_pin1_vec.size());
+   plot(DD_PINS_MULT, 2, cross_pin2_vec.size());
+   plot(DD_PINS_MULT, 3, cross_pin3_vec.size());
    plot(DD_PIN0_1, pin0_energy, pin1_energy);
+   plot(DD_PIN2_3, pin2_energy, pin3_energy);
+   plot(DD_PIN0_2, pin0_energy, pin2_energy);
+   plot(DD_PIN1_3, pin1_energy, pin3_energy);
    plot(D_DISPLR, disp_LR);
    plot(D_DISPUD, disp_UD);
    plot(DD_DISP_PLANE,disp_UD/8.,disp_LR/8.);
@@ -639,6 +824,12 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    plot(DD_TOF2_PIN0_FLIP, tof2_flip, pin0_energy);
    plot(DD_TOF3_PIN0, tof3, pin0_energy);
    plot(DD_TOF3_PIN0_FLIP, tof3_flip, pin0_energy);
+
+   plot(DD_TOF4_PIN2, tof4, pin2_energy);
+   plot(DD_TOF5_PIN2, tof5, pin2_energy);
+   plot(DD_TOF4_PIN3, tof4, pin3_energy);
+   plot(DD_TOF5_PIN3, tof5, pin3_energy);
+   
 
    if (FIT_Implant) {
       plot(DD_TAC0_PIN0_GATED_FIT, tac0_energy, pin0_energy);

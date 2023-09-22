@@ -42,22 +42,31 @@ const unsigned int DD_SIPM_HIRES_IMAGE_LG = 14;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG = 15;
 const unsigned int DD_SIPM_HIRES_IMAGE_LG_QDC = 16;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG_QDC = 17;
-const unsigned int DD_MULTIS = 20;
+const unsigned int DD_SIPM_HIRES_IMAGE_LG_QDC_THRESH = 18;
+const unsigned int DD_SIPM_HIRES_IMAGE_HG_QDC_THRESH = 19;
+const unsigned int DD_SIPM_HIRES_IMAGE_LG_THRESH = 20;
+const unsigned int DD_SIPM_HIRES_IMAGE_HG_THRESH = 21;
+const unsigned int DD_MULTIS = 30;
 }  // namespace mtasimplant
 }  // namespace dammIds
 
 using namespace std;
 using namespace dammIds::mtasimplant;
 
-MtasImplantSipmProcessor::MtasImplantSipmProcessor(double yso_scale_, double yso_offset_, double yso_thresh_, double oqdc_yso_thresh_) : EventProcessor(OFFSET, RANGE, "MtasImplantSipmProcessor") {
+MtasImplantSipmProcessor::MtasImplantSipmProcessor(double yso_scale_, double yso_offset_, double yso_thresh_, double oqdc_yso_thresh_, double dyh_thresh_, double dyh_qdc_thresh_, double dyl_thresh_, double dyl_qdc_thresh_, double dyh_upperThresh_) : EventProcessor(OFFSET, RANGE, "MtasImplantSipmProcessor") {
     associatedTypes.insert("mtasimplantsipm");
-    EandQDC_down_scaling_ = 10.0;
+    EandQDC_down_scaling_ = 100.0;
     dammSiPm_pixelShifts = {3, 12};  // shift is first + xpos and second - ypos
 
     yso_scale = yso_scale_;
     yso_offset = yso_offset_;
     yso_thresh = yso_thresh_;
     oqdc_yso_thresh = oqdc_yso_thresh_;
+    dyh_thresh =  dyh_thresh_;
+    dyh_qdc_thresh =  dyh_qdc_thresh_;  
+    dyl_thresh =  dyl_thresh_;
+    dyl_qdc_thresh =  dyl_qdc_thresh_;
+    dyh_upperThresh = dyh_upperThresh_;
 }
 
 void MtasImplantSipmProcessor::DeclarePlots(void) {
@@ -80,7 +89,11 @@ void MtasImplantSipmProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG_QDC, SB, SB, " High Res LG QDC");
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_QDC, SB, SB, " High Res HG QDC");
 
-    DeclareHistogram2D(DD_MULTIS,S7,S3, "SiPm Multis: DYH,DYL,ANH,ANL");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG_THRESH, SB, SB, "THRESHL:: High Res LG Image Filter Energy");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_THRESH, SB, SB, "THRESHL:: High Res HG Image Filter Energy");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG_QDC_THRESH, SB, SB, "THRESHL:: High Res LG QDC");
+    DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_QDC_THRESH, SB, SB, "THRESHL:: High Res HG QDC");
+      DeclareHistogram2D(DD_MULTIS,S9,S3, "SiPm Multis: DYH,DYL,ANH,ANL");
 }
 
 bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
@@ -104,116 +117,24 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     vector<vector<double>> anode_H_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_L_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_H_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
-
-    //!#########################################
-    //!       ANODE LOW GAIN
-    //!#########################################
-
-    for (auto &itAl : Anode_L) {
-        if (itAl->IsSaturated() || itAl->IsPileup()) {
-            continue;
-        }
-        double energy = itAl->GetCalibratedEnergy();
-        int detLoc = itAl->GetChanID().GetLocation();
-
-        //! Get the qdc from the recorded trace if it exists and has been analyized.
-        double tqdc;
-        if (itAl->GetTrace().HasValidWaveformAnalysis()) {
-            tqdc = itAl->GetTrace().GetQdc();
-        } else {
-            tqdc = -999;
-        }
-
-        //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
-        double oqdc = CalOnboardQDC(0, 2, itAl->GetQdc());
-        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
-
-        //! Fill the root struct
-        if (DetectorDriver::get()->GetSysRootOutput()) {
-            FillRootStruct(itAl, oqdc, sipmPixels);
-        }
-
-        if (energy > yso_thresh) {
-            anodeL_energyList_for_calculations.at(detLoc) += energy;
-            (anode_L_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
-        }
-	    if (oqdc > oqdc_yso_thresh) {
-            (anode_L_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
-        }
-
-        plot(DD_ANODES_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
-        if (oqdc != -999) {
-            plot(DD_ANODES_L_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
-        }
-        if (tqdc != -999) {
-            plot(DD_ANODES_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
-        }
-
-        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+    
+    double dyh_max=0;
+    double dyh_qdc_max=0;
+    double dyl_max =0;
+    double dyl_qdc_max =0;
+    
+    if (!Dynode_H.empty()){
+        dyh_max = event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetCalibratedEnergy() ;
+        dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc());
     }
-
-    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
-    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC);
-
-    plot(DD_SIPM_HIRES_IMAGE_LG, LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
-    plot(DD_SIPM_HIRES_IMAGE_LG_QDC, LG_QDCpositions.first * yso_scale + yso_offset/2, LG_QDCpositions.second * yso_scale + yso_offset);
-
-    //!#########################################
-    //!       ANODE HIGH GAIN
-    //!#########################################
-
-    for (auto &itAh : Anode_H) {
-        if (itAh->IsSaturated() || itAh->IsPileup()) {
-            continue;
-        }
-        double energy = itAh->GetCalibratedEnergy();
-        int detLoc = itAh->GetChanID().GetLocation();
-
-        //! Get the qdc from the recorded trace if it exists and has been analyized.
-        double tqdc;
-        if (itAh->GetTrace().HasValidWaveformAnalysis()) {
-            tqdc = itAh->GetTrace().GetQdc();
-        } else {
-            tqdc = -999;
-        }
-
-        //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
-        double oqdc = CalOnboardQDC(0, 2, itAh->GetQdc());
-        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
-
-        // ! Fill the root struct
-        if (DetectorDriver::get()->GetSysRootOutput()) {
-            FillRootStruct(itAh, oqdc, sipmPixels);
-        }
-
-        if (energy > yso_thresh) {
-            anodeH_energyList_for_calculations.at(detLoc) += energy;
-            (anode_H_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
-        }
-	    if (oqdc > oqdc_yso_thresh) {
-            (anode_H_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
-        }
-
-        plot(DD_ANODES_H_ENERGY, energy / EandQDC_down_scaling_, detLoc);
-        if (oqdc != -999) {
-            plot(DD_ANODES_H_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
-        }
-        if (tqdc != -999) {
-            plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
-        }
-
-        plot(DD_SIPM_PIXEL_IMAGE_HG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
-    }
-
-    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
-    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC);
-    plot(DD_SIPM_HIRES_IMAGE_HG, HG_positions.first * yso_scale + yso_offset/2, HG_positions.second * yso_scale + yso_offset);
-    plot(DD_SIPM_HIRES_IMAGE_HG_QDC, HG_QDCpositions.first * yso_scale + yso_offset/2, HG_QDCpositions.second * yso_scale + yso_offset);
-
+     if (!Dynode_L.empty()){
+        dyl_max = event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetCalibratedEnergy() ;
+        dyl_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetTrace().GetQdc());
+     }
     //!#########################################
     //!       DYNODE LOW GAIN
     //!#########################################
-
+    
     for (auto &itDyL : Dynode_L) {
         if (itDyL->IsSaturated() || itDyL->IsPileup()) {
             continue;
@@ -222,13 +143,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
         int detLoc = itDyL->GetChanID().GetLocation();
 
         //! Get the qdc from the recorded trace if it exists and has been analyized.
-        double tqdc;
+        double tqdc = -999;
         if (itDyL->GetTrace().HasValidWaveformAnalysis()) {
             tqdc = itDyL->GetTrace().GetQdc();
-        } else {
-            tqdc = -999;
         }
-
+        
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itDyL->GetQdc());
 
@@ -281,6 +200,124 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             plot(DD_DY_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc );
         }
     }
+
+    //!#########################################
+    //!       ANODE LOW GAIN
+    //!#########################################
+
+    for (auto &itAl : Anode_L) {
+        if (itAl->IsSaturated() || itAl->IsPileup()) {
+            continue;
+        }
+        double energy = itAl->GetCalibratedEnergy();
+        int detLoc = itAl->GetChanID().GetLocation();
+
+        //! Get the qdc from the recorded trace if it exists and has been analyized.
+        double tqdc;
+        if (itAl->GetTrace().HasValidWaveformAnalysis()) {
+            tqdc = itAl->GetTrace().GetQdc();
+        } else {
+            tqdc = -999;
+        }
+
+        //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
+        double oqdc = CalOnboardQDC(0, 2, itAl->GetQdc());
+        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
+
+        //! Fill the root struct
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            FillRootStruct(itAl, oqdc, sipmPixels);
+        }
+
+        if (energy > yso_thresh) {
+            anodeL_energyList_for_calculations.at(detLoc) += energy;
+            (anode_L_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
+        }
+	    if (oqdc > oqdc_yso_thresh) {
+            (anode_L_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
+        }
+
+        plot(DD_ANODES_L_ENERGY, energy / EandQDC_down_scaling_, detLoc);
+        if (oqdc != -999) {
+            plot(DD_ANODES_L_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
+        }
+        if (tqdc != -999) {
+            plot(DD_ANODES_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
+        }
+
+        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+    }
+
+    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
+    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC);
+
+    if (dyl_max >= dyl_thresh ){
+        plot(DD_SIPM_HIRES_IMAGE_LG_THRESH,LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
+        plot(DD_SIPM_HIRES_IMAGE_LG_QDC_THRESH, LG_QDCpositions.first * yso_scale + yso_offset/2, LG_QDCpositions.second * yso_scale + yso_offset);
+    }
+    plot(DD_SIPM_HIRES_IMAGE_LG, LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
+    plot(DD_SIPM_HIRES_IMAGE_LG_QDC, LG_QDCpositions.first * yso_scale + yso_offset/2, LG_QDCpositions.second * yso_scale + yso_offset);
+
+    //!#########################################
+    //!       ANODE HIGH GAIN
+    //!#########################################
+
+    for (auto &itAh : Anode_H) {
+        if (itAh->IsSaturated() || itAh->IsPileup()) {
+            continue;
+        }
+        double energy = itAh->GetCalibratedEnergy();
+        int detLoc = itAh->GetChanID().GetLocation();
+
+        //! Get the qdc from the recorded trace if it exists and has been analyized.
+        double tqdc;
+        if (itAh->GetTrace().HasValidWaveformAnalysis()) {
+            tqdc = itAh->GetTrace().GetQdc();
+        } else {
+            tqdc = -999;
+        }
+
+        //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
+        double oqdc = CalOnboardQDC(0, 2, itAh->GetQdc());
+        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
+
+        // ! Fill the root struct
+        if (DetectorDriver::get()->GetSysRootOutput()) {
+            FillRootStruct(itAh, oqdc, sipmPixels);
+        }
+
+        if (energy > yso_thresh) {
+            anodeH_energyList_for_calculations.at(detLoc) += energy;
+            (anode_H_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
+        }
+	    if (oqdc > oqdc_yso_thresh) {
+            (anode_H_positionMatrixQDC.at(sipmPixels.first)).at(sipmPixels.second) += oqdc;
+        }
+
+        plot(DD_ANODES_H_ENERGY, energy / EandQDC_down_scaling_, detLoc);
+        if (oqdc != -999) {
+            plot(DD_ANODES_H_OQDC, oqdc / EandQDC_down_scaling_, detLoc);
+        }
+        if (tqdc != -999) {
+            plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
+        }
+
+        plot(DD_SIPM_PIXEL_IMAGE_HG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+    }
+
+    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
+    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC);
+
+    if (dyh_max <= dyh_upperThresh && dyh_max >= dyh_thresh){
+        plot(DD_SIPM_HIRES_IMAGE_HG_THRESH, HG_positions.first * yso_scale + yso_offset/2, HG_positions.second * yso_scale + yso_offset);
+        plot(DD_SIPM_HIRES_IMAGE_HG_QDC_THRESH, HG_QDCpositions.first * yso_scale + yso_offset/2, HG_QDCpositions.second * yso_scale + yso_offset);
+    }
+
+
+    plot(DD_SIPM_HIRES_IMAGE_HG, HG_positions.first * yso_scale + yso_offset/2, HG_positions.second * yso_scale + yso_offset);
+    plot(DD_SIPM_HIRES_IMAGE_HG_QDC, HG_QDCpositions.first * yso_scale + yso_offset/2, HG_QDCpositions.second * yso_scale + yso_offset);
+
+   
 
     return true;
 }

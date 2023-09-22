@@ -212,7 +212,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       double xa_h_qdc = 0, ya_h_qdc = 0, xb_h_qdc = 0, yb_h_qdc = 0;
 
       // double top_l = 0, top_r = 0, bottom_l = 0, bottom_r = 0;
-      bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,hasDeSi = false, hasVeto = false;
+      bool hasPosition_low = false, hasPosition_high = false, hasPosition_ion = false, hasUpstream = false,
+           hasDeSi = false, hasVeto = false;
 
       plot(DD_MULTI, lowDynode.size(), 0);
       plot(DD_MULTI, hiDynode.size(), 1);
@@ -360,22 +361,27 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
               qdc_based_POS.second * positionScale_ + positionOffset_);
       }
 
-      //---------------VETO LOOP------------------------------------------------
+      ////---------------VETO LOOP------------------------------------------------
+      //double count please fix before using
       int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
-
+      // if( veto.size() > 0 )
+      // std::cout<<"veto "<<veto.size()<<std::endl;//numOfVetoChans<<std::endl;
       for (auto it = veto.begin(); it != veto.end(); it++)
       {
+         // std::cout<<"Here 1"<<std::endl;
          int loc = (*it)->GetChanID().GetLocation();
          plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
-         if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000){
+         if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000)
+         {
             hasVeto = true;
          }
          if ((*it)->GetTrace().size()>0 && (*it)->GetChanID().HasTag("stilbene") && (*it)->GetTrace().HasValidWaveformAnalysis()){
 
-         	double qdcRit = (*it)->GetTrace().GetQdc();
-        	   double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
+        	double qdcRit = (*it)->GetTrace().GetQdc();
+		if(qdcRit==0){ cout<<"Come here: 381"<<std::endl;continue;}
+        	double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
         	// std::cout<<"Here: "<<psd<<std::endl;
-        	   plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
+        	plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
          }
          if (DetectorDriver::get()->GetSysRootOutput())
          {
@@ -728,19 +734,23 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
 
       //---------------VETO LOOP------------------------------------------------
       int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
-
+      if( veto.size() > 0 )
+      // std::cout<<"veto "<<veto.size()<<std::endl;//numOfVetoChans<<std::endl;
       for (auto it = veto.begin(); it != veto.end(); it++)
       {
+	//  std::cout<<"Here 1"<<std::endl;
          int loc = (*it)->GetChanID().GetLocation();
          plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
          if ((*it)->GetCalibratedEnergy() > 1 && (*it)->GetCalibratedEnergy() < 10000)
          {
             hasVeto = true;
          }
-	      if ((*it)->GetTrace().size()>0 && (*it)->GetChanID().HasTag("stilbene") && (*it)->GetTrace().HasValidWaveformAnalysis()){
-		      double qdcRit = (*it)->GetTrace().GetQdc();
-		      double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
-      		plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
+	 if ((*it)->GetTrace().size()>0 && (*it)->GetChanID().HasTag("stilbene") && (*it)->GetTrace().HasValidWaveformAnalysis()){
+		double qdcRit = (*it)->GetTrace().GetQdc();
+		if(qdcRit==0){ cout<<"Come here: 750"<<std::endl;continue;}
+		double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
+		// std::cout<<"Here: "<<psd<<std::endl;
+		plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
 	 }
          if (DetectorDriver::get()->GetSysRootOutput())
          {
