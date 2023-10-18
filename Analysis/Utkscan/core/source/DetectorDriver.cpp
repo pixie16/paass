@@ -149,7 +149,7 @@ DetectorDriver::~DetectorDriver() {
 
     if (sysrootbool_) {
         PixieFile = PTree->GetCurrentFile();
-        PixieFile->Write();
+        PixieFile->Write(0,2,0);
         PixieFile->Close();
         delete (PixieFile);
     }
