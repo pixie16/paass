@@ -165,17 +165,20 @@ private:
     int range_;
     /** Name of the owner of plots, mainly for debugging */
     std::string name_;
-    /** set of int (relative dammId without offsets */
-    std::set<int> idList_;
     /** Map of mnemonic -> int */
     std::map<std::string, int> mneList;
     /** Map of dammid -> title, helps debugging duplicated dammids*/
     std::map<int, std::string> titleList;
-
+    /// If dammPlotsExist[id], then the histogram with id has been declared
+    std::vector<bool> dammPlotsExist = {};
+    
     /** A function to round the value before passing it to DAMM
     * \param [in] val : the value to round
     * \return the rounded value */
     int Round(double val) const;
+
+
+    bool AddHistogram(int dammID, const std::string &mne, const char *title);
 };
 
 #endif // __PLOTS_HPP_
