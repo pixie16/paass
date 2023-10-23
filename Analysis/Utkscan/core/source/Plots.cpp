@@ -31,7 +31,7 @@ bool Plots::CheckRange(int id) const {
 
 /** Checks if id is taken */
 bool Plots::Exists(int id) const {
-    return (idList_.count(id) != 0);
+    return dammPlotsExist.size() > id && dammPlotsExist[id];
 }
 
 bool Plots::Exists(const std::string &mne) const {
@@ -41,10 +41,8 @@ bool Plots::Exists(const std::string &mne) const {
     return (mneList.count(mne) != 0);
 }
 
-/** Constructors based on DeclareHistogram functions. */
-bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
-                               int halfWordsPerChan, int xHistLength,
-                               int xLow, int xHigh, const std::string &mne) {
+bool Plots::AddHistogram(int dammId, const std::string &mne, const char *title)
+{
     if (!CheckRange(dammId)) {
         stringstream ss;
         ss << "Plots: Histogram titled '" << title << "' requests id "
@@ -59,16 +57,32 @@ bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
            << " histogram '" << titleList[dammId] << "'.";
         throw HistogramException(ss.str());
     }
-
-    pair<set<int>::iterator, bool> result = idList_.insert(dammId);
-    if (result.second == false)
-        return false;
-    // Mnemonic is optional and added only if longer then 0
+    // needs to be greater than dammId to prevent segfaulting
+    // in the next scope
+    if(dammPlotsExist.size() < dammId + 1)
+    {
+        size_t start = dammPlotsExist.size();
+        dammPlotsExist.reserve(dammId + 1);
+        for(int i = start; i <= dammId; i++)
+        {
+            dammPlotsExist.push_back(false);
+        }
+    }
+    dammPlotsExist[dammId] = true;
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
+    titleList.insert(pair<int, string>(dammId, string(title)));
+    return true;
+}
+
+
+/** Constructors based on DeclareHistogram functions. */
+bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
+                               int halfWordsPerChan, int xHistLength,
+                               int xLow, int xHigh, const std::string &mne) {
+    if (!AddHistogram(dammId, mne, title)){return false;}
     hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength,
           xLow, xHigh, title, strlen(title));
-    titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
 
@@ -92,31 +106,9 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                                int xHistLength, int xLow, int xHigh,
                                int yHistLength, int yLow, int yHigh,
                                const std::string &mne) {
-    if (!CheckRange(dammId)) {
-        stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id "
-           << dammId << " which is outside of allowed range ("
-           << range_ << ") of group with offset (" << offset_ << ").";
-        throw HistogramException(ss.str());
-    }
-    if (Exists(dammId) || Exists(mne)) {
-        stringstream ss;
-        ss << "Plots: Histogram titled '" << title << "' requests id "
-           << dammId + offset_ << " which is already in use by"
-           << " histogram '" << titleList[dammId] << "'.";
-        throw HistogramException(ss.str());
-    }
-
-    pair<set<int>::iterator, bool> result = idList_.insert(dammId);
-    if (result.second == false)
-        return (false);
-    // Mnemonic is optional and added only if longer then 0
-    if (mne.size() > 0)
-        mneList.insert(pair<string, int>(mne, dammId));
-
+    if(!AddHistogram(dammId, mne, title)){return false;}
     hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
           ySize, yHistLength, yLow, yHigh, title, strlen(title));
-    titleList.insert(pair<int, string>(dammId, string(title)));
     return true;
 }
 
