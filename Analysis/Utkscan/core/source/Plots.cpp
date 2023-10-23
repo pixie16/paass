@@ -41,7 +41,7 @@ bool Plots::Exists(const std::string &mne) const {
     return (mneList.count(mne) != 0);
 }
 
-bool Plots::AddHistogram(int dammId, const std::string &mne, const char *title)
+void Plots::AddHistogram(int dammId, const std::string &mne, const char *title)
 {
     if (!CheckRange(dammId)) {
         stringstream ss;
@@ -72,7 +72,6 @@ bool Plots::AddHistogram(int dammId, const std::string &mne, const char *title)
     if (mne.size() > 0)
         mneList.insert(pair<string, int>(mne, dammId));
     titleList.insert(pair<int, string>(dammId, string(title)));
-    return true;
 }
 
 
@@ -80,7 +79,7 @@ bool Plots::AddHistogram(int dammId, const std::string &mne, const char *title)
 bool Plots::DeclareHistogram1D(int dammId, int xSize, const char *title,
                                int halfWordsPerChan, int xHistLength,
                                int xLow, int xHigh, const std::string &mne) {
-    if (!AddHistogram(dammId, mne, title)){return false;}
+    AddHistogram(dammId, mne, title);
     hd1d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength,
           xLow, xHigh, title, strlen(title));
     return true;
@@ -106,7 +105,7 @@ bool Plots::DeclareHistogram2D(int dammId, int xSize, int ySize,
                                int xHistLength, int xLow, int xHigh,
                                int yHistLength, int yLow, int yHigh,
                                const std::string &mne) {
-    if(!AddHistogram(dammId, mne, title)){return false;}
+    AddHistogram(dammId, mne, title);
     hd2d_(dammId + offset_, halfWordsPerChan, xSize, xHistLength, xLow, xHigh,
           ySize, yHistLength, yLow, yHigh, title, strlen(title));
     return true;

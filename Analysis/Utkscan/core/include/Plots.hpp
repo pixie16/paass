@@ -178,7 +178,7 @@ private:
     int Round(double val) const;
 
 
-    bool AddHistogram(int dammID, const std::string &mne, const char *title);
+    void AddHistogram(int dammID, const std::string &mne, const char *title);
 };
 
 #endif // __PLOTS_HPP_
