@@ -1181,6 +1181,7 @@ void OutputHisFile::Close() {
     if (log_file.good()) {
         log_file << "  HID      TOTAL      GOOD\n\n";
         for (auto &entry: drr_entry_map) {
+            if(entry == nullptr){continue;}
             log_file << std::setw(5) << entry->hisID << std::setw(10)
                      << entry->total_counts << std::setw(10)
                      << entry->good_counts << std::endl;
