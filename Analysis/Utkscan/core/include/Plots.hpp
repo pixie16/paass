@@ -170,6 +170,8 @@ private:
     /** Map of dammid -> title, helps debugging duplicated dammids*/
     std::map<int, std::string> titleList;
     /// If dammPlotsExist[id], then the histogram with id has been declared
+    /// when a new histogram is declared, it is extended to have length at least
+    /// newID + 1, and then dammPlotsExist[id] is set to true.
     std::vector<bool> dammPlotsExist = {};
     
     /** A function to round the value before passing it to DAMM
@@ -177,7 +179,10 @@ private:
     * \return the rounded value */
     int Round(double val) const;
 
-
+    /// @brief internal function that adds a histogram to this plots object
+    /// @param dammID The dammID of the plot being added
+    /// @param mne the mnemnonic referring to the histogram
+    /// @param title name of the histogram
     void AddHistogram(int dammID, const std::string &mne, const char *title);
 };
 

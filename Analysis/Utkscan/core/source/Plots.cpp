@@ -43,6 +43,8 @@ bool Plots::Exists(const std::string &mne) const {
 
 void Plots::AddHistogram(int dammId, const std::string &mne, const char *title)
 {
+    // each plots object has an allowed range, if dammId is out of range
+    // something is wrong in one of the DetectorDrivers
     if (!CheckRange(dammId)) {
         stringstream ss;
         ss << "Plots: Histogram titled '" << title << "' requests id "
