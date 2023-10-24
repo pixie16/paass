@@ -218,11 +218,14 @@ protected:
     char description[41]; /// Field for text description 
 
     std::shared_ptr<drr_entry> current_entry; /// Pointer to the current working drr entry
-    //std::vector<drr_entry *> drr_entries; /// Vector of pointers to all drr_entries in drr file
-    //std::map<unsigned int, drr_entry *> drrMap_; //!< Map associating IDs with drr entries.
-
+    
+    // Storage for all the drr_entry objects in use
+    // if a drr_entry at id does not exist, drr_entry_map[id] will be nullptr
+    // so you'll need to guard when you use an iterator over this
     // using shared_ptr allows automatic delete on calling clear()
     // unique_ptr would be preferred, but since the API guarantees
+    // access to the raw ptr through GetDrrEntry, and unique_ptr.get() is 
+    // marked delete, shared_ptr is the better option. 
     std::vector<std::shared_ptr<drr_entry>> drr_entry_map = {};
 
     /// Read an entry from the drr file

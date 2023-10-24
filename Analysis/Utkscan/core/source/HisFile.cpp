@@ -839,11 +839,6 @@ std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
     {
         return drr_entry_map[hisId];
     }
-    // std::map<unsigned
-    // int, drr_entry *>::iterator
-    //         it = drrMap_.find(hisId);
-    // if (it != drrMap_.end())
-    //     return ((*it).second);
     failed_fills.insert(hisId);
     return nullptr;
 }
@@ -952,8 +947,6 @@ size_t OutputHisFile::push_back(std::shared_ptr<drr_entry> entry) {
     entry->offset =
             (size_t) ofile.tellp() / 2; // Set the file offset (in 2 byte words)
     AddDrrEntry(entry);
-
-    // drrMap_.insert(std::make_pair(entry->hisID, entry));
 
     if (debug_mode)
         std::cout << "debug: Extending .his file by " << entry->total_size
@@ -1077,48 +1070,56 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
     return retval;
 }
 
+
 bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
                          unsigned int weight_/*=1*/) {
     if (!writable)
-        return (false);
+        return false;
 
     std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
-    if (temp_drr) {
-        unsigned int bin;
-        temp_drr->total_counts++;
-        if (!temp_drr->find_bin((unsigned int) (x_ / temp_drr->comp[0]),
-                                (unsigned int) (y_ / temp_drr->comp[1]), bin))
-            return (false);
-
-        // Push this fill into the queue
-        fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
-
-        if (++Flush_count >= Flush_wait)
-            Flush();
+    if (temp_drr == nullptr) {
+        failed_fills.insert(hisID_);
+        return false;
+    }
+    unsigned int bin;
+    temp_drr->total_counts++;
+    if (!temp_drr->find_bin((unsigned int) (x_ / temp_drr->comp[0]),
+                            (unsigned int) (y_ / temp_drr->comp[1]), bin)){
+        return false;
     }
 
-    return (false);
+    // Push this fill into the queue
+    fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
+
+    if (++Flush_count >= Flush_wait)
+    {
+        Flush();
+    }
+    return true;
 }
 
-bool
-OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y_,
+bool OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y_,
                        unsigned int weight_) {
     if (!writable) { return false; }
 
     std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
-    if (temp_drr) {
-        unsigned int bin;
-        temp_drr->total_counts++;
-        if (!temp_drr->get_bin(x_, y_, bin)) { return false; }
-
-        // Push this fill into the queue
-        fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
-
-        if (++Flush_count >= Flush_wait) { Flush(); }
-        return true;
+    if (temp_drr == nullptr) {
+        failed_fills.insert(hisID_);
+        return false;
+    }
+    unsigned int bin;
+    temp_drr->total_counts++;
+    if (!temp_drr->get_bin(x_, y_, bin)) { 
+        return false; 
     }
 
-    return false;
+    // Push this fill into the queue
+    fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
+
+    if (++Flush_count >= Flush_wait) { 
+        Flush(); 
+    }
+    return true;
 }
 
 bool OutputHisFile::Zero(unsigned int hisID_) {
