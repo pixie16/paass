@@ -1187,9 +1187,8 @@ void OutputHisFile::Close() {
                      << entry->good_counts << std::endl;
         }
         log_file << "\nFailed histogram fills:\n\n";
-        for (std::set<unsigned int>::iterator iter = failed_fills.begin();
-             iter != failed_fills.end(); iter++) {
-            log_file << std::setw(5) << *iter << std::endl;
+        for (auto &i: failed_fills) {
+            log_file << std::setw(5) << i << std::endl;
         }
     } else if (debug_mode) {
         std::cout << "debug: Failed to open the .log file for writing!\n";
