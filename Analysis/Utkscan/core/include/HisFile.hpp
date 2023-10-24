@@ -222,6 +222,7 @@ protected:
     //std::map<unsigned int, drr_entry *> drrMap_; //!< Map associating IDs with drr entries.
 
     // using shared_ptr allows automatic delete on calling clear()
+    // unique_ptr would be preferred, but since the API guarantees
     std::vector<std::shared_ptr<drr_entry>> drr_entry_map = {};
 
     /// Read an entry from the drr file
@@ -258,7 +259,7 @@ public:
     bool IsOpen() { return is_open; }
 
     /// Return a pointer to the current .drr file entry
-    std::shared_ptr<drr_entry> GetDrrEntry() { return current_entry; }
+    drr_entry *GetDrrEntry() { return current_entry.get(); }
 
     /// Return the date formatted as mmm dd, yyyy HH:MM
     std::string GetDate();
