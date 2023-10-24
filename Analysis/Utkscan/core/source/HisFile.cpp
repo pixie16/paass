@@ -30,10 +30,9 @@ hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max,
       const char *title, unsigned int length) {
     if (!output_his)
         return;
-    drr_entry *entry = new drr_entry(dammId, (short) nHalfWords, (short) rawlen,
+    output_his->push_back(std::make_shared<drr_entry>(dammId, (short) nHalfWords, (short) rawlen,
                                      (short) histlen, (short) min, (short) max,
-                                     title);
-    output_his->push_back(entry);
+                                     title));
 }
 
 /// Create a DAMM 2D histogram (implemented for backwards compatibility)
@@ -43,13 +42,13 @@ void hd2d_(int dammId, int nHalfWords, int rawXlen, int histXlen, int xMin,
            unsigned int length) {
     if (!output_his)
         return;
-    drr_entry *entry = new drr_entry(dammId, (short) nHalfWords,
+    output_his->push_back(
+        std::make_shared<drr_entry>(dammId, (short) nHalfWords,
                                      (short) rawXlen, (short) histXlen,
                                      (short) xMin,
                                      (short) xMax, (short) rawYlen,
                                      (short) histYlen,
-                                     (short) yMin, (short) yMax, title);
-    output_his->push_back(entry);
+                                     (short) yMin, (short) yMax, title));
 }
 
 /// Do banana gating using ban files (implemented for backwards compatibility)
@@ -386,8 +385,8 @@ void drr_entry::print_list(std::ofstream *file_) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Read an entry from the drr file
-drr_entry *HisFile::read_entry() {
-    drr_entry *output = new drr_entry();
+std::shared_ptr<drr_entry> HisFile::read_entry() {
+    std::shared_ptr<drr_entry> output = std::make_shared<drr_entry>();
 
     // Read 128 bytes from the drr file
     drr.read((char *) &output->hisDim, 2);
@@ -414,12 +413,7 @@ drr_entry *HisFile::read_entry() {
 
 /// Delete all drr drr_entries and clear the drr_entries vector
 void HisFile::clear_drr_entries() {
-    for (std::map<unsigned int, drr_entry *>
-         ::iterator iter = drrMap_.begin();
-         iter != drrMap_.end();
-         iter++)
-        delete ((*iter).second);
-    drrMap_.clear();
+    drr_entry_map.clear();
     current_entry = NULL;
 }
 
@@ -493,6 +487,33 @@ int HisFile::GetError(bool verbose_/*=true*/) {
         }
     }
     return err_flag;
+}
+
+size_t HisFile::CountDrrEntries()
+{
+    size_t ret = 0;
+    for(auto &i: drr_entry_map){
+        ret += i != nullptr;
+    }
+    return ret;
+}
+
+void HisFile::AddDrrEntry(std::shared_ptr<drr_entry> entry)
+{
+    if(entry == nullptr){return;}
+    while(drr_entry_map.size() < entry->hisID + 1)
+    {
+        drr_entry_map.push_back(nullptr);
+    }
+    if(drr_entry_map[entry->hisID] != nullptr)
+    {
+        if(debug_mode)
+        {
+            std::cout << "tried to add a drr_entry that already exists!" << std::endl;
+        }
+        return;
+    }
+    drr_entry_map[entry->hisID] = entry;
 }
 
 /// Return the date formatted as mmm dd, yyyy HH:MM
@@ -626,10 +647,14 @@ short HisFile::GetDimension() {
 
 /// Get a drr entry from the vector
 void HisFile::GetEntry(const size_t &id) {
-    if (drrMap_.find(id) != drrMap_.end())
-        current_entry = drrMap_[id];
+    if(id > drr_entry_map.size() + 1)
+    {
+        current_entry = nullptr;
+    }
     else
-        current_entry = NULL;
+    {
+        current_entry = drr_entry_map[id];
+    }
 }
 
 /// Load the specified histogram
@@ -669,11 +694,11 @@ HisFile::GetHistogramByID(unsigned int hist_id, bool no_copy_/*=false*/) {
     }
 
     int his_count = 0;
-    for (std::map<unsigned int, drr_entry *>
-         ::iterator iter = drrMap_.begin();
-         iter != drrMap_.end();
-         iter++) {
-        if ((*iter).first == hist_id)
+    for (auto& iter: drr_entry_map) {
+        if(iter == nullptr) {
+            continue;
+        }
+        if (iter->hisID == hist_id)
             return (GetHistogram(his_count, no_copy_));
         his_count++;
     }
@@ -748,10 +773,7 @@ bool HisFile::LoadDrr(const char *prefix_, bool open_his_/*=true*/) {
 
     // Read in all drr drr_entries
     for (int i = 0; i < nHis; i++) {
-        drr_entry *entry = read_entry();
-        unsigned int id = entry->hisID;
-        drrMap_.insert(std::make_pair(id, entry));
-        //drr_entries.push_back(read_entry());
+        AddDrrEntry(read_entry());
     }
 
     return true;
@@ -812,14 +834,18 @@ void HisFile::PrintEntry() {
 // class OutputHisFile
 ///////////////////////////////////////////////////////////////////////////////
 
-drr_entry *OutputHisFile::find_drr_in_list(unsigned int hisId) {
-    std::map<unsigned
-    int, drr_entry *>::iterator
-            it = drrMap_.find(hisId);
-    if (it != drrMap_.end())
-        return ((*it).second);
+std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
+    if(hisId < drr_entry_map.size() + 1)
+    {
+        return drr_entry_map[hisId];
+    }
+    // std::map<unsigned
+    // int, drr_entry *>::iterator
+    //         it = drrMap_.find(hisId);
+    // if (it != drrMap_.end())
+    //     return ((*it).second);
     failed_fills.insert(hisId);
-    return (NULL);
+    return nullptr;
 }
 
 void OutputHisFile::Flush() {
@@ -827,17 +853,16 @@ void OutputHisFile::Flush() {
         std::cout << "debug: Flushing histogram entries to file.\n";
 
     if (writable) { // Do the filling
-        for (std::vector<fill_queue *>::iterator iter = fills_waiting.begin();
-             iter != fills_waiting.end(); iter++) {
+        for (auto &iter: fills_waiting) {
 
-            if (!(*iter)->good)
+            if (!iter->good)
                 continue;
 
-            current_entry = (*iter)->entry;
+            current_entry = iter->entry;
             current_entry->good_counts++;
 
             // Seek to the specified bin
-            ofile.seekg(current_entry->offset * 2 + (*iter)->byte,
+            ofile.seekg(current_entry->offset * 2 + iter->bin_offset_bytes,
                         std::ios::beg); // input offset
 
             unsigned short sval = 0;
@@ -847,31 +872,25 @@ void OutputHisFile::Flush() {
             if (current_entry->use_int) {
                 // Get the original value of the bin
                 ofile.read((char *) &ival, 4);
-                ival += (*iter)->weight;
+                ival += iter->weight;
 
                 // Set the new value of the bin
-                ofile.seekp(current_entry->offset * 2 + (*iter)->byte,
+                ofile.seekp(current_entry->offset * 2 + iter->bin_offset_bytes,
                             std::ios::beg); // output offset
                 ofile.write((char *) &ival, 4);
             } else {
                 // Get the original value of the bin
                 ofile.read((char *) &sval, 2);
-                sval += (short) (*iter)->weight;
+                sval += (short) iter->weight;
 
                 // Set the new value of the bin
-                ofile.seekp(current_entry->offset * 2 + (*iter)->byte,
+                ofile.seekp(current_entry->offset * 2 + iter->bin_offset_bytes,
                             std::ios::beg); // output offset
                 ofile.write((char *) &sval, 2);
             }
         }
     } else if (debug_mode) {
         std::cout << "debug: Output file is not writable!\n";
-    }
-
-    // Delete the drr_entries in the fill_queue vector
-    for (std::vector<fill_queue *>::iterator iter = fills_waiting.begin();
-         iter != fills_waiting.end(); iter++) {
-        delete (*iter);
     }
     fills_waiting.clear();
 
@@ -907,7 +926,7 @@ OutputHisFile::~OutputHisFile() {
     Close();
 }
 
-size_t OutputHisFile::push_back(drr_entry *entry) {
+size_t OutputHisFile::push_back(std::shared_ptr<drr_entry> entry) {
     if (!entry) {
         if (debug_mode)
             std::cout
@@ -932,7 +951,9 @@ size_t OutputHisFile::push_back(drr_entry *entry) {
     ofile.seekp(0, std::ios::end);
     entry->offset =
             (size_t) ofile.tellp() / 2; // Set the file offset (in 2 byte words)
-    drrMap_.insert(std::make_pair(entry->hisID, entry));
+    AddDrrEntry(entry);
+
+    // drrMap_.insert(std::make_pair(entry->hisID, entry));
 
     if (debug_mode)
         std::cout << "debug: Extending .his file by " << entry->total_size
@@ -950,6 +971,8 @@ size_t OutputHisFile::push_back(drr_entry *entry) {
     return entry->total_size;
 }
 
+
+
 bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
                              const std::string &descrip_/*="RootPixieScan .drr file"*/) {
     if (!writable || finalized) {
@@ -964,10 +987,11 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
     set_char_array(initial, "HHIRFDIR0001", 12);
     set_char_array(description, descrip_, 40);
 
+    nHis = CountDrrEntries();
     if (debug_mode)
-        std::cout << "debug: NHIS = " << drrMap_.size() << std::endl;
-    nHis = drrMap_.size();
-    nHWords = (128 * (1 + drrMap_.size()) + drrMap_.size() * 4) / 2;
+        std::cout << "debug: NHIS = " << nHis << std::endl;
+    
+    nHWords = (128 * (1 + nHis) + nHis * 4) / 2;
 
     time_t rawtime;
     struct tm *timeinfo;
@@ -999,22 +1023,18 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
         drr_file.write(description, 40);
 
         // Write the drr entries
-        for (std::map<unsigned int, drr_entry *>
-             ::iterator iter = drrMap_.begin();
-             iter != drrMap_.end();
-             iter++) {
+        for (auto &entry: drr_entry_map) {
+            if(entry == nullptr){continue;}
             if (debug_mode)
                 std::cout << "debug: Writing .drr entry for his id = "
-                          << (*iter).first << std::endl;
-            (*iter).second->print_drr(&drr_file);
+                          << entry->hisID << std::endl;
+            entry->print_drr(&drr_file);
         }
 
         // Write the histogram IDs
-        for (std::map<unsigned int, drr_entry *>
-             ::iterator iter = drrMap_.begin();
-             iter != drrMap_.end();
-             iter++) {
-            his_id = (*iter).first;
+        for (auto &entry: drr_entry_map) {
+            if(entry == nullptr){continue;}
+            his_id = entry->hisID;
             drr_file.write((char *) &his_id, 4);
         }
     } else {
@@ -1028,25 +1048,22 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
     std::ofstream list_file((fname + ".list").c_str());
     if (list_file.good()) {
         int temp_count = 0;
-        list_file << std::setw(7) << drrMap_.size() << " HISTOGRAMS,"
+        list_file << std::setw(7) << CountDrrEntries() << " HISTOGRAMS,"
                   << std::setw(13) << total_his_size / 2
                   << " HALF-WORDS\n ID-LIST:\n";
-        for (std::map<unsigned int, drr_entry *>
-             ::iterator iter = drrMap_.begin();
-             iter != drrMap_.end();
-             iter++) {
+        for (auto &entry: drr_entry_map) {
+            if(entry == nullptr){continue;}
             if (temp_count % 8 == 0 && temp_count != 0)
                 list_file << std::endl;
-            list_file << std::setw(8) << (*iter).first;
+            
+            list_file << std::setw(8) << entry->hisID;
             temp_count++;
         }
         list_file
                 << "\n  HID  DIM HWPC  LEN(CH)   COMPR  MIN   MAX   OFFSET    TITLE\n";
-        for (std::map<unsigned int, drr_entry *>
-             ::iterator iter = drrMap_.begin();
-             iter != drrMap_.end();
-             iter++) {
-            (*iter).second->print_list(&list_file);
+        for (auto &entry: drr_entry_map) {
+            if(entry == nullptr){continue;}
+            entry->print_list(&list_file);
         }
     } else {
         if (debug_mode)
@@ -1065,7 +1082,7 @@ bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
     if (!writable)
         return (false);
 
-    drr_entry *temp_drr = find_drr_in_list(hisID_);
+    std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr) {
         unsigned int bin;
         temp_drr->total_counts++;
@@ -1074,8 +1091,7 @@ bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
             return (false);
 
         // Push this fill into the queue
-        fill_queue *fill = new fill_queue(temp_drr, bin, weight_);
-        fills_waiting.push_back(fill);
+        fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
 
         if (++Flush_count >= Flush_wait)
             Flush();
@@ -1089,15 +1105,14 @@ OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y_,
                        unsigned int weight_) {
     if (!writable) { return false; }
 
-    drr_entry *temp_drr = find_drr_in_list(hisID_);
+    std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr) {
         unsigned int bin;
         temp_drr->total_counts++;
         if (!temp_drr->get_bin(x_, y_, bin)) { return false; }
 
         // Push this fill into the queue
-        fill_queue *fill = new fill_queue(temp_drr, bin, weight_);
-        fills_waiting.push_back(fill);
+        fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
 
         if (++Flush_count >= Flush_wait) { Flush(); }
         return true;
@@ -1109,7 +1124,7 @@ OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y_,
 bool OutputHisFile::Zero(unsigned int hisID_) {
     if (!writable) { return false; }
 
-    drr_entry *temp_drr = find_drr_in_list(hisID_);
+    std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr) {
         ofile.seekp(temp_drr->offset * 2, std::ios::beg);
 
@@ -1128,14 +1143,11 @@ bool OutputHisFile::Zero() {
     if (!writable)
         return false;
 
-    for (std::map<unsigned int, drr_entry *>
-         ::iterator iter = drrMap_.begin();
-         iter != drrMap_.end();
-         iter++) {
-        ofile.seekp((*iter).second->offset * 2, std::ios::beg);
-        char *block = new char[(*iter).second->total_size];
-        memset(block, 0x0, (*iter).second->total_size);
-        ofile.write(block, (*iter).second->total_size);
+    for (auto &entry: drr_entry_map) {
+        ofile.seekp(entry->offset * 2, std::ios::beg);
+        char *block = new char[entry->total_size];
+        memset(block, 0x0, entry->total_size);
+        ofile.write(block, entry->total_size);
         delete[] block;
     }
     return true;
@@ -1168,13 +1180,10 @@ void OutputHisFile::Close() {
     std::ofstream log_file((fname + ".log").c_str());
     if (log_file.good()) {
         log_file << "  HID      TOTAL      GOOD\n\n";
-        for (std::map<unsigned int, drr_entry *>
-             ::iterator iter = drrMap_.begin();
-             iter != drrMap_.end();
-             iter++) {
-            log_file << std::setw(5) << (*iter).first << std::setw(10)
-                     << (*iter).second->total_counts << std::setw(10)
-                     << (*iter).second->good_counts << std::endl;
+        for (auto &entry: drr_entry_map) {
+            log_file << std::setw(5) << entry->hisID << std::setw(10)
+                     << entry->total_counts << std::setw(10)
+                     << entry->good_counts << std::endl;
         }
         log_file << "\nFailed histogram fills:\n\n";
         for (std::set<unsigned int>::iterator iter = failed_fills.begin();
