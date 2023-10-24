@@ -18,6 +18,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 
 #ifndef USE_HRIBF
 
@@ -182,14 +183,14 @@ struct drr_entry {
 };
 
 struct fill_queue {
-    drr_entry *entry; /// .drr entry of the histogram to be filled
-    unsigned int byte; /// Offset of bin (in bytes)
+    std::shared_ptr<drr_entry> entry; /// .drr entry of the histogram to be filled
+    unsigned int bin_offset_bytes; /// Offset of bin (in bytes)
     unsigned int weight; /// Weight of fill
     bool good; /// True if the histo array index is within range
 
-    fill_queue(drr_entry *entry_, unsigned int bin_, unsigned int w_) {
+    fill_queue(std::shared_ptr<drr_entry> entry_, unsigned int bin_, unsigned int w_) {
         entry = entry_;
-        byte = bin_ * entry->halfWords * 2;
+        bin_offset_bytes = bin_ * entry->halfWords * 2;
         weight = w_;
         good = entry->check_bin(bin_);
     }
@@ -216,12 +217,15 @@ protected:
     int date[6]; /// Date 0 YY MM DD HR MN
     char description[41]; /// Field for text description 
 
-    drr_entry *current_entry; /// Pointer to the current working drr entry
-    std::vector<drr_entry *> drr_entries; /// Vector of pointers to all drr_entries in drr file
-    std::map<unsigned int, drr_entry *> drrMap_; //!< Map associating IDs with drr entries.
+    std::shared_ptr<drr_entry> current_entry; /// Pointer to the current working drr entry
+    //std::vector<drr_entry *> drr_entries; /// Vector of pointers to all drr_entries in drr file
+    //std::map<unsigned int, drr_entry *> drrMap_; //!< Map associating IDs with drr entries.
+
+    // using shared_ptr allows automatic delete on calling clear()
+    std::vector<std::shared_ptr<drr_entry>> drr_entry_map = {};
 
     /// Read an entry from the drr file
-    drr_entry *read_entry();
+    std::shared_ptr<drr_entry> read_entry();
 
     /// Set the size of the histogram and allocate memory for data storage
     bool set_hist_size();
@@ -231,6 +235,8 @@ protected:
 
     /// Initialize all variables
     void initialize();
+
+    
 
 public:
     HisFile();
@@ -252,7 +258,7 @@ public:
     bool IsOpen() { return is_open; }
 
     /// Return a pointer to the current .drr file entry
-    drr_entry *GetDrrEntry() { return current_entry; }
+    std::shared_ptr<drr_entry> GetDrrEntry() { return current_entry; }
 
     /// Return the date formatted as mmm dd, yyyy HH:MM
     std::string GetDate();
@@ -328,6 +334,9 @@ public:
     void PrintHeader();
 
     void PrintEntry();
+    size_t CountDrrEntries();
+
+    void AddDrrEntry(std::shared_ptr<drr_entry> entry);
 };
 
 class OutputHisFile : public HisFile {
@@ -339,12 +348,12 @@ private:
     bool existing_file; /// True if the .his file was a previously existing file
     unsigned int Flush_wait; /// Number of fills to wait between Flushes
     unsigned int Flush_count; /// Number of fills since last Flush
-    std::vector<fill_queue *> fills_waiting; /// Vector containing list of histograms to be filled
+    std::vector<std::shared_ptr<fill_queue>> fills_waiting; /// Vector containing list of histograms to be filled
     std::set<unsigned int> failed_fills; /// Vector containing list of histogram fills into an invalid his id
     std::streampos total_his_size; /// Total size of .his file
 
     /// Find the specified .drr entry in the drr list using its histogram id
-    drr_entry *find_drr_in_list(unsigned int hisID_);
+    std::shared_ptr<drr_entry> find_drr_in_list(unsigned int hisID_);
 
 public:
     OutputHisFile();
@@ -368,7 +377,7 @@ public:
      * On success, returns the number of bytes the file was extended by and zero
      * upon failure.
      */
-    size_t push_back(drr_entry *entry_);
+    size_t push_back(std::shared_ptr<drr_entry> entry_);
 
     /* Lock the .his and .drr files from being modified. This prevents the user from
      * adding any more histograms to the .drr entry list.
