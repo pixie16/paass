@@ -839,7 +839,6 @@ std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
     {
         return drr_entry_map[hisId];
     }
-    failed_fills.insert(hisId);
     return nullptr;
 }
 
