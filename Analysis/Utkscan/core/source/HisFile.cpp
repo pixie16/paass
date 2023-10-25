@@ -1077,7 +1077,7 @@ bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
 
     std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr == nullptr) {
-        failed_fills.insert(hisID_);
+        
         return false;
     }
     unsigned int bin;
@@ -1103,7 +1103,6 @@ bool OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y
 
     std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr == nullptr) {
-        failed_fills.insert(hisID_);
         return false;
     }
     unsigned int bin;
