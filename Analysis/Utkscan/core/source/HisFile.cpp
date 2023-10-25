@@ -835,10 +835,11 @@ void HisFile::PrintEntry() {
 ///////////////////////////////////////////////////////////////////////////////
 
 std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
-    if(hisId < drr_entry_map.size() + 1)
+    if(hisId < drr_entry_map.size() + 1 && drr_entry_map[hisId])
     {
         return drr_entry_map[hisId];
     }
+    failed_fills.insert(hisId);
     return nullptr;
 }
 
@@ -848,10 +849,6 @@ void OutputHisFile::Flush() {
 
     if (writable) { // Do the filling
         for (auto &iter: fills_waiting) {
-
-            if (!iter->good)
-                continue;
-
             current_entry = iter->entry;
             current_entry->good_counts++;
 
