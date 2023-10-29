@@ -19,7 +19,10 @@
 #include <set>
 #include <vector>
 #include <memory>
-
+#include <thread>
+#include <deque>
+#include <unistd.h>
+#include <mutex>
 #ifndef USE_HRIBF
 
 /// Create a DAMM 1D histogram
@@ -182,20 +185,6 @@ struct drr_entry {
     void print_list(std::ofstream *file_);
 };
 
-struct fill_queue {
-    std::shared_ptr<drr_entry> entry; /// .drr entry of the histogram to be filled
-    unsigned int bin_offset_bytes; /// Offset of bin (in bytes)
-    unsigned int weight; /// Weight of fill
-    bool good; /// True if the histo array index is within range
-
-    fill_queue(std::shared_ptr<drr_entry> entry_, unsigned int bin_, unsigned int w_) {
-        entry = entry_;
-        bin_offset_bytes = bin_ * entry->halfWords * 2;
-        weight = w_;
-        good = entry->check_bin(bin_);
-    }
-};
-
 class HisFile {
 protected:
     bool is_good; /// True if a valid drr file is open
@@ -239,8 +228,6 @@ protected:
 
     /// Initialize all variables
     void initialize();
-
-    
 
 public:
     HisFile();
@@ -343,6 +330,91 @@ public:
     void AddDrrEntry(std::shared_ptr<drr_entry> entry);
 };
 
+/// @brief The execution thread for the HisFileWriter
+/// static object because I'm a dolt and sleep deprived
+inline std::thread HisFileWriterEventThread;
+/// @brief Used to allow utkscan and HisFileWriter to share the queues
+inline std::mutex HisWriterMutex;
+class HisFileWriter final
+{
+    protected:
+        /// @brief How many events have been processed since the last write
+        inline static unsigned long long events_since_write = 0;
+
+        /// @brief How many events will be processed between writes, serves as a way to keep from
+        /// writing too often
+        inline static unsigned long long max_events_between_writes = 1000000;
+
+        /// @brief Waiting writes to specific locations in the output file
+        inline static std::map<unsigned long long, std::pair<unsigned int, bool>> waiting_writes{}; 
+
+        /// @brief Events that are scheduled to be written but not yet processed
+        inline static std::deque<std::tuple<unsigned long long, unsigned int, bool>> event_queue = {};
+
+        /// @brief ptr to the output file in the OutputHisFile object
+        inline static std::fstream *ofile;
+
+        /// @brief used to help the thread determine if it needs to halt execution
+        inline static bool stopCalled = false;
+        
+        /// @brief serves as a guard to prevent multiple threads of execution being started
+        inline static bool running = false;
+
+    public: 
+        static void SetOfile(std::fstream *ofile_)
+        {
+            ofile = ofile_;
+        }
+        
+        /// @brief Takes a vector of events and pushes them to the queue on the execution thread
+        /// uses the mutex to lock access to the queue while operating
+        /// @param events a vector of events
+        static void EnqueueWrites(std::vector<std::tuple<std::shared_ptr<drr_entry>, unsigned int, unsigned int>> &events);
+
+        inline static void SetMaxEventsBetweenWrites(unsigned long long newMax)
+        {
+            max_events_between_writes = newMax;
+        }
+        
+        /// Stops the event loop, finishing processing all events
+        /// before terminating the thread
+        static void Stop(){
+            if(!running) {return;}
+            stopCalled = true;
+            running = false;
+            HisFileWriterEventThread.join();
+        }
+
+        /// @brief Starts the execution thread fo the HisFileWriter which does nothing until
+        /// events are passed in using EnqeueWrite()
+        static void Start(){
+            if(running) {return;}
+            running = true;
+            HisFileWriterEventThread = std::thread(EventLoop);
+        }
+
+        /// @brief Takes events from the event queue and pushes them into waiting writes
+        static void ProcessQueue();
+
+        /// @brief Flushes all waiting writes to disk
+        static void FlushWrites();
+
+        /// @brief Completely empties the event queue and then flushes all remaining writes to disk
+        static void Finalize();
+
+        /// @brief Handles processing the queue and flushing the disk, this is the
+        /// alternates between reading from the queue and writing to disk.
+        static inline void EventLoop(){
+            while(!stopCalled)
+            {
+                ProcessQueue();
+                FlushWrites();
+                usleep(10);
+            }
+            Finalize();
+        }
+};
+
 class OutputHisFile : public HisFile {
 private:
     std::fstream ofile; /// The output .his file stream
@@ -352,12 +424,20 @@ private:
     bool existing_file; /// True if the .his file was a previously existing file
     unsigned int Flush_wait; /// Number of fills to wait between Flushes
     unsigned int Flush_count; /// Number of fills since last Flush
-    std::vector<std::shared_ptr<fill_queue>> fills_waiting; /// Vector containing list of histograms to be filled
-    std::set<unsigned int> failed_fills; /// Vector containing list of histogram fills into an invalid his id
+
+    /// @brief a vector of events we're waiting to send to the writer
+    std::vector<std::tuple<std::shared_ptr<drr_entry>, unsigned int, unsigned int>> waiting_to_enqueue = {};
+    std::map<unsigned int, unsigned long long> failed_fills; /// Vector containing list of histogram fills into an invalid his id
+    std::set<unsigned int> undef_his_failed_fills; /// Vector containing list of histogram fills into an invalid his id
+    /// Vector containing list of histogram fills that failed because they did not try to access a valid bin
+    std::map<unsigned int, unsigned long long>  bin_not_found_failed_fills;
     std::streampos total_his_size; /// Total size of .his file
 
     /// Find the specified .drr entry in the drr list using its histogram id
     std::shared_ptr<drr_entry> find_drr_in_list(unsigned int hisID_);
+
+    /// Enqueues a write in the output file with a 
+    void EnqueueWrite(std::shared_ptr<drr_entry> entry, unsigned int bin, unsigned int weight);
 
 public:
     OutputHisFile();
@@ -373,7 +453,10 @@ public:
     std::fstream *GetOutputFile() { return &ofile; }
 
     /// Set the number of fills to wait between file Flushes
-    void SetFlushWait(unsigned int wait_) { Flush_wait = wait_; }
+    void SetFlushWait(unsigned int wait_) { 
+        Flush_wait = wait_;
+        HisFileWriter::SetMaxEventsBetweenWrites(wait_);
+    }
 
     /* Push back with another histogram entry. This command will also
      * extend the length of the .his file (if possible). DO NOT delete
