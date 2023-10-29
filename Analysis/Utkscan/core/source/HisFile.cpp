@@ -839,7 +839,6 @@ std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
     {
         return drr_entry_map[hisId];
     }
-    failed_fills.insert(hisId);
     return nullptr;
 }
 
@@ -847,43 +846,11 @@ void OutputHisFile::Flush() {
     if (debug_mode)
         std::cout << "debug: Flushing histogram entries to file.\n";
 
-    if (writable) { // Do the filling
-        for (auto &iter: fills_waiting) {
-            current_entry = iter->entry;
-            current_entry->good_counts++;
-
-            // Seek to the specified bin
-            ofile.seekg(current_entry->offset * 2 + iter->bin_offset_bytes,
-                        std::ios::beg); // input offset
-
-            unsigned short sval = 0;
-            unsigned int ival = 0;
-
-            // Overwrite the bin value
-            if (current_entry->use_int) {
-                // Get the original value of the bin
-                ofile.read((char *) &ival, 4);
-                ival += iter->weight;
-
-                // Set the new value of the bin
-                ofile.seekp(current_entry->offset * 2 + iter->bin_offset_bytes,
-                            std::ios::beg); // output offset
-                ofile.write((char *) &ival, 4);
-            } else {
-                // Get the original value of the bin
-                ofile.read((char *) &sval, 2);
-                sval += (short) iter->weight;
-
-                // Set the new value of the bin
-                ofile.seekp(current_entry->offset * 2 + iter->bin_offset_bytes,
-                            std::ios::beg); // output offset
-                ofile.write((char *) &sval, 2);
-            }
-        }
+    if (writable) { 
+        HisFileWriter::EnqueueWrites(waiting_to_enqueue);
     } else if (debug_mode) {
         std::cout << "debug: Output file is not writable!\n";
     }
-    fills_waiting.clear();
 
     Flush_count = 0;
 }
@@ -893,11 +860,13 @@ OutputHisFile::OutputHisFile() {
     writable = false;
     finalized = false;
     existing_file = false;
-    Flush_wait = 100000;
+    Flush_wait = 1000000;
     Flush_count = 0;
     total_his_size = 0;
 
     initialize();
+    HisFileWriter::SetOfile(&ofile);
+    HisFileWriter::SetMaxEventsBetweenWrites(Flush_wait);
 }
 
 OutputHisFile::OutputHisFile(std::string fname_prefix) {
@@ -905,12 +874,14 @@ OutputHisFile::OutputHisFile(std::string fname_prefix) {
     writable = false;
     finalized = false;
     existing_file = false;
-    Flush_wait = 100000;
+    Flush_wait = 1000000;
     Flush_count = 0;
     total_his_size = 0;
 
     initialize();
     Open(fname_prefix);
+    HisFileWriter::SetOfile(&ofile);
+    HisFileWriter::SetMaxEventsBetweenWrites(Flush_wait);
 }
 
 OutputHisFile::~OutputHisFile() {
@@ -1069,50 +1040,52 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
 
 bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
                          unsigned int weight_/*=1*/) {
-    if (!writable)
-        return false;
+    if (!writable)[[unlikely]]{return false;}
 
     std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr == nullptr) {
-        
+        undef_his_failed_fills.insert(hisID_);
         return false;
     }
     unsigned int bin;
     temp_drr->total_counts++;
     if (!temp_drr->find_bin((unsigned int) (x_ / temp_drr->comp[0]),
                             (unsigned int) (y_ / temp_drr->comp[1]), bin)){
+        bin_not_found_failed_fills[hisID_] += 1;
         return false;
     }
 
     // Push this fill into the queue
-    fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
-
-    if (++Flush_count >= Flush_wait)
+    waiting_to_enqueue.push_back({temp_drr, bin, weight_});
+    if(++Flush_count > Flush_wait)
     {
         Flush();
     }
     return true;
 }
 
+
 bool OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y_,
                        unsigned int weight_) {
-    if (!writable) { return false; }
+    if (!writable)[[unlikely]] { return false; }
 
     std::shared_ptr<drr_entry> temp_drr = find_drr_in_list(hisID_);
     if (temp_drr == nullptr) {
+        undef_his_failed_fills.insert(hisID_);
         return false;
     }
     unsigned int bin;
     temp_drr->total_counts++;
     if (!temp_drr->get_bin(x_, y_, bin)) { 
+        bin_not_found_failed_fills[hisID_] += 1;
         return false; 
     }
 
     // Push this fill into the queue
-    fills_waiting.push_back(std::make_shared<fill_queue>(temp_drr, bin, weight_));
-
-    if (++Flush_count >= Flush_wait) { 
-        Flush(); 
+    waiting_to_enqueue.push_back({temp_drr, bin, weight_});
+    if(++Flush_count > Flush_wait)
+    {
+        Flush();
     }
     return true;
 }
@@ -1164,6 +1137,8 @@ bool OutputHisFile::Open(std::string fname_prefix) {
     ofile.open((fname + ".his").c_str(),
                std::ios::out | std::ios::in | std::ios::trunc |
                std::ios::binary);
+    HisFileWriter::SetOfile(&ofile);
+    HisFileWriter::Start();
     return (writable = ofile.good());
 }
 
@@ -1182,9 +1157,23 @@ void OutputHisFile::Close() {
                      << entry->total_counts << std::setw(10)
                      << entry->good_counts << std::endl;
         }
-        log_file << "\nFailed histogram fills:\n\n";
-        for (auto &i: failed_fills) {
-            log_file << std::setw(5) << i << std::endl;
+        log_file << "\nFailed histogram fills with bad or out of range bin:\n\n";
+        int ct = 0;
+        for (auto &i: bin_not_found_failed_fills) {
+            log_file << std::setw(5) << i.first << "-" << std::setw(10) << i.second;
+            if(ct++%5 ==0 && ct != 0)
+            {
+                log_file<< std::endl;
+            }
+        }
+        log_file << "\nFailed Histogram Fills For Undefined Histogram:\n\n";
+        ct = 0;
+        for (auto &i: undef_his_failed_fills) {
+            log_file << std::setw(5) << i;
+            if(ct++%5 ==0 && ct != 0)
+            {
+                log_file<< std::endl;
+            }
         }
     } else if (debug_mode) {
         std::cout << "debug: Failed to open the .log file for writing!\n";
@@ -1193,7 +1182,117 @@ void OutputHisFile::Close() {
 
     // Clear the .drr entries in the entries vector
     clear_drr_entries();
-
     writable = false;
+    HisFileWriter::Stop();
     ofile.close();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// class HisFileWriter
+///////////////////////////////////////////////////////////////////////////////
+
+void HisFileWriter::EnqueueWrites(std::vector<std::tuple<std::shared_ptr<drr_entry>, unsigned int, unsigned int>> &events)
+{
+    /// called from the main utkscan thread
+    HisWriterMutex.lock();
+    for(auto &evt: events){
+        std::shared_ptr<drr_entry> entry  = std::get<0>(evt);
+        unsigned int bin                  = std::get<1>(evt);
+        unsigned int weight               = std::get<2>(evt);
+        entry->good_counts++;
+        unsigned long long BufferLocation = entry->offset * 2 + bin * entry->halfWords * 2;
+        event_queue.push_back({BufferLocation, entry->use_int, weight});
+    }
+    HisWriterMutex.unlock();
+    events.clear();
+}
+
+void HisFileWriter::ProcessQueue()
+{
+    if(!HisWriterMutex.try_lock()){return;}
+    while(event_queue.size() > 0 && events_since_write < max_events_between_writes)
+    {
+        std::tuple<unsigned long long, bool, unsigned int> evt = event_queue.front();
+        event_queue.pop_front();
+        unsigned long long loc = std::get<0>(evt);
+        bool isInt = std::get<1>(evt);
+        unsigned int weight = std::get<2>(evt);
+        if(waiting_writes.find(loc) == waiting_writes.end())
+        {
+           waiting_writes.insert({loc, {weight, isInt}});
+        }
+        else
+        {
+            waiting_writes.at(loc).first += weight;
+        }
+        events_since_write++;
+    }
+    HisWriterMutex.unlock();
+}
+
+void HisFileWriter::FlushWrites()
+{
+    if(waiting_writes.size() == 0) {return;}
+    for (auto &fill: waiting_writes) {
+        // the location in the file that we're filling with the value the map 
+        // being sorted by smallest location allows piling what would've 
+        // been multiple writes to the same location to a single write
+        unsigned long long location = fill.first;
+        unsigned int weight         = fill.second.first;
+        bool isInt                  = fill.second.second;
+
+        // Seek to the specified bin
+        ofile->seekg(location,
+                    std::ios::beg); // input offset
+
+        unsigned short sval = 0;
+        unsigned int ival = 0;
+
+        // Overwrite the bin value
+        if (isInt) {
+            // Get the original value of the bin
+            ofile->read((char *) &ival, 4);
+            ival += weight;
+
+            // Set the new value of the bin
+            ofile->seekp(location, std::ios::beg); 
+            ofile->write((char *) &ival, 4);
+        } else {
+            // Get the original value of the bin
+            ofile->read((char *) &sval, 2);
+            sval += (short) weight;
+
+            // Set the new value of the bin
+            ofile->seekp(location, std::ios::beg);
+            ofile->write((char *) &sval, 2);
+        }
+    }
+    events_since_write = 0;
+    waiting_writes.clear();
+}
+
+void HisFileWriter::Finalize()
+{
+    // block till we acquire the lock because we're going to lose data otherwise
+    HisWriterMutex.lock();
+    while(event_queue.size() > 0 && events_since_write < max_events_between_writes)
+    {
+        std::tuple<unsigned long long, bool, unsigned int> evt = event_queue.front();
+        event_queue.pop_front();
+        unsigned long long loc = std::get<0>(evt);
+        bool isInt = std::get<1>(evt);
+        unsigned int weight = std::get<2>(evt);
+        if(waiting_writes.find(loc) == waiting_writes.end())
+        {
+           waiting_writes.insert({loc, {weight, isInt}});
+        }
+        else
+        {
+            waiting_writes.at(loc).first += weight;
+        }
+        events_since_write++;
+    }
+    HisWriterMutex.unlock();
+    FlushWrites();
 }
