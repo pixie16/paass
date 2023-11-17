@@ -183,7 +183,13 @@ struct drr_entry {
 
     /// Print a formatted .list file entry
     void print_list(std::ofstream *file_);
+
+    unsigned long long calculate_buffer_location(unsigned int bin)
+    {
+        return (offset * 2) + (bin * halfWords * 2);
+    }
 };
+
 
 class HisFile {
 protected:
@@ -330,67 +336,97 @@ public:
     void AddDrrEntry(std::shared_ptr<drr_entry> entry);
 };
 
-/// @brief The execution thread for the HisFileWriter
-/// static object because I'm a dolt and sleep deprived
-inline std::thread HisFileWriterEventThread;
-/// @brief Used to allow utkscan and HisFileWriter to share the queues
-inline std::mutex HisWriterMutex;
+
+
+struct WriteQueueObject
+{
+
+    /// @brief Location in the file that needs to be written to
+    unsigned long long bufferLocation;
+    /// @brief If the drr_entry for the histogram indicates that this histogram is integer valued
+    bool isInt;
+    /// @brief How much weight to add to the bin
+    unsigned int weight;
+
+
+    WriteQueueObject(unsigned long long bufferLoc, bool isInt, unsigned int weight) :
+        bufferLocation(bufferLoc), isInt(isInt), weight(weight){};
+};
+
+
 class HisFileWriter final
 {
-    protected:
+    private:
         /// @brief How many events have been processed since the last write
-        inline static unsigned long long events_since_write = 0;
+        unsigned long long events_since_write;
 
         /// @brief How many events will be processed between writes, serves as a way to keep from
         /// writing too often
-        inline static unsigned long long max_events_between_writes = 1000000;
+        unsigned long long max_events_between_writes;
 
         /// @brief Waiting writes to specific locations in the output file
-        inline static std::map<unsigned long long, std::pair<unsigned int, bool>> waiting_writes{}; 
+        std::map<unsigned long long, std::pair<unsigned int, bool>> waiting_writes; 
 
         /// @brief Events that are scheduled to be written but not yet processed
-        inline static std::deque<std::tuple<unsigned long long, unsigned int, bool>> event_queue = {};
+        std::deque<WriteQueueObject> event_queue;
 
         /// @brief ptr to the output file in the OutputHisFile object
-        inline static std::fstream *ofile;
+        std::fstream *ofile;
 
         /// @brief used to help the thread determine if it needs to halt execution
-        inline static bool stopCalled = false;
+        bool stopCalled;
         
         /// @brief serves as a guard to prevent multiple threads of execution being started
-        inline static bool running = false;
+        bool running;
+ 
+        /// @brief The execution thread for the HisFileWriter
+        /// static object because I'm a dolt and sleep deprived
+        std::thread HisFileWriterEventThread;
+    public:
+        static std::shared_ptr<HisFileWriter> instance;
+        HisFileWriter()
+        {
+            events_since_write = 0;
+            max_events_between_writes = 1000000;
+            waiting_writes = {};
+            event_queue = {};
+            ofile = nullptr;
+            stopCalled = false;
+            running = false;
+        }
+        /// @brief Used to allow utkscan and HisFileWriter to share the queues
+        std::mutex HisWriterMutex;
 
-    public: 
         static void SetOfile(std::fstream *ofile_)
         {
-            ofile = ofile_;
+            instance->ofile = ofile_;
         }
         
         /// @brief Takes a vector of events and pushes them to the queue on the execution thread
         /// uses the mutex to lock access to the queue while operating
         /// @param events a vector of events
-        static void EnqueueWrites(std::vector<std::tuple<std::shared_ptr<drr_entry>, unsigned int, unsigned int>> &events);
+        static void EnqueueWrites(std::vector<WriteQueueObject> &events);
 
         inline static void SetMaxEventsBetweenWrites(unsigned long long newMax)
         {
-            max_events_between_writes = newMax;
+            instance->max_events_between_writes = newMax;
         }
         
         /// Stops the event loop, finishing processing all events
         /// before terminating the thread
         static void Stop(){
-            if(!running) {return;}
-            stopCalled = true;
-            running = false;
-            HisFileWriterEventThread.join();
+            if(!instance->running) {return;}
+            instance->stopCalled = true;
+            instance->running = false;
+            instance->HisFileWriterEventThread.join();
         }
 
         /// @brief Starts the execution thread fo the HisFileWriter which does nothing until
         /// events are passed in using EnqeueWrite()
         static void Start(){
-            if(running) {return;}
-            running = true;
-            HisFileWriterEventThread = std::thread(EventLoop);
+            if(instance->running) {return;}
+            instance->running = true;
+            instance->HisFileWriterEventThread = std::thread(EventLoop);
         }
 
         /// @brief Takes events from the event queue and pushes them into waiting writes
@@ -405,7 +441,7 @@ class HisFileWriter final
         /// @brief Handles processing the queue and flushing the disk, this is the
         /// alternates between reading from the queue and writing to disk.
         static inline void EventLoop(){
-            while(!stopCalled)
+            while(!instance->stopCalled)
             {
                 ProcessQueue();
                 FlushWrites();
@@ -414,6 +450,8 @@ class HisFileWriter final
             Finalize();
         }
 };
+
+
 
 class OutputHisFile : public HisFile {
 private:
@@ -426,7 +464,7 @@ private:
     unsigned int Flush_count; /// Number of fills since last Flush
 
     /// @brief a vector of events we're waiting to send to the writer
-    std::vector<std::tuple<std::shared_ptr<drr_entry>, unsigned int, unsigned int>> waiting_to_enqueue = {};
+    std::vector<WriteQueueObject> waiting_to_enqueue = {};
     std::map<unsigned int, unsigned long long> failed_fills; /// Vector containing list of histogram fills into an invalid his id
     std::set<unsigned int> undef_his_failed_fills; /// Vector containing list of histogram fills into an invalid his id
     /// Vector containing list of histogram fills that failed because they did not try to access a valid bin
