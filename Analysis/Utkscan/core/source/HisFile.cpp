@@ -967,7 +967,7 @@ OutputHisFile::OutputHisFile() {
     writable = false;
     finalized = false;
     existing_file = false;
-    Flush_wait = 1000000;
+    Flush_wait = 100000;
     Flush_count = 0;
     total_his_size = 0;
 
