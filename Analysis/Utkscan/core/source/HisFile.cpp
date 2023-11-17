@@ -24,6 +24,111 @@
 
 #ifndef USE_HRIBF
 
+
+///////////////////////////////////////////////////////////////////////////////
+// class HisFileWriter
+///////////////////////////////////////////////////////////////////////////////
+// do not redefine
+std::shared_ptr<HisFileWriter> HisFileWriter::instance = nullptr;
+
+void HisFileWriter::EnqueueWrites(std::vector<WriteQueueObject> &events)
+{
+    /// called from the main utkscan thread
+    instance->HisWriterMutex.lock();
+    for(auto &evt: events){
+        instance->event_queue.push_back(evt);
+    }
+    instance->HisWriterMutex.unlock();
+    events.clear();
+}
+
+void HisFileWriter::ProcessQueue()
+{
+    if(!instance->HisWriterMutex.try_lock()){return;}
+    while(instance->event_queue.size() > 0 && instance->events_since_write < instance->max_events_between_writes)
+    {
+        WriteQueueObject evt = instance->event_queue.front();
+        instance->event_queue.pop_front();
+        
+        if(instance->waiting_writes.find(evt.bufferLocation) == instance->waiting_writes.end())
+        {
+           instance->waiting_writes.insert({evt.bufferLocation, {evt.weight, evt.isInt}});
+        }
+        else
+        {
+            instance->waiting_writes.at(evt.bufferLocation).first += evt.weight;
+        }
+        instance->events_since_write++;
+    }
+    instance->HisWriterMutex.unlock();
+}
+
+void HisFileWriter::FlushWrites()
+{
+    if(instance->waiting_writes.size() == 0) {return;}
+    for (auto &fill: instance->waiting_writes) {
+        // the location in the file that we're filling with the value the map 
+        // being sorted by smallest location allows piling what would've 
+        // been multiple writes to the same location to a single write
+        unsigned long long location = fill.first;
+        unsigned int weight         = fill.second.first;
+        bool isInt                  = fill.second.second;
+
+        // Seek to the specified bin
+        instance->ofile->seekg(location,
+                    std::ios::beg); // input offset
+
+        unsigned short sval = 0;
+        unsigned int ival = 0;
+
+        // Overwrite the bin value
+        if (isInt) {
+            // Get the original value of the bin
+            instance->ofile->read((char *) &ival, 4);
+            ival += weight;
+
+            // Set the new value of the bin
+            instance->ofile->seekp(location, std::ios::beg); 
+            instance->ofile->write((char *) &ival, 4);
+        } else {
+            // Get the original value of the bin
+            instance->ofile->read((char *) &sval, 2);
+            sval += (short) weight;
+
+            // Set the new value of the bin
+            instance->ofile->seekp(location, std::ios::beg);
+            instance->ofile->write((char *) &sval, 2);
+        }
+    }
+    instance->events_since_write = 0;
+    instance->waiting_writes.clear();
+}
+
+void HisFileWriter::Finalize()
+{
+    // block till we acquire the lock because we're going to lose data otherwise
+    instance->HisWriterMutex.lock();
+    while(instance->event_queue.size() > 0 && instance->events_since_write < instance->max_events_between_writes)
+    {
+        WriteQueueObject evt = instance->event_queue.front();
+        instance->event_queue.pop_front();
+        if(instance->waiting_writes.find(evt.bufferLocation) == instance->waiting_writes.end())
+        {
+           instance->waiting_writes.insert({evt.bufferLocation, {evt.weight, evt.isInt}});
+        }
+        else
+        {
+            instance->waiting_writes.at(evt.bufferLocation).first += evt.weight;
+        }
+        instance->events_since_write++;
+    }
+    instance->HisWriterMutex.unlock();
+    FlushWrites();
+}
+
+
+
+
 /// Create a DAMM 1D histogram (implemented for backwards compatibility)
 void
 hd1d_(int dammId, int nHalfWords, int rawlen, int histlen, int min, int max,
@@ -427,10 +532,12 @@ void HisFile::initialize() {
 }
 
 HisFile::HisFile() {
+    HisFileWriter::instance = std::make_shared<HisFileWriter>();
     initialize();
 }
 
 HisFile::HisFile(const char *prefix_) {
+    HisFileWriter::instance = std::make_shared<HisFileWriter>();
     initialize();
     LoadDrr(prefix_);
 }
@@ -1054,9 +1161,8 @@ bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
         bin_not_found_failed_fills[hisID_] += 1;
         return false;
     }
-
     // Push this fill into the queue
-    waiting_to_enqueue.push_back({temp_drr, bin, weight_});
+    waiting_to_enqueue.push_back(WriteQueueObject(temp_drr->calculate_buffer_location(bin), temp_drr->use_int, weight_));
     if(++Flush_count > Flush_wait)
     {
         Flush();
@@ -1080,9 +1186,8 @@ bool OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y
         bin_not_found_failed_fills[hisID_] += 1;
         return false; 
     }
-
     // Push this fill into the queue
-    waiting_to_enqueue.push_back({temp_drr, bin, weight_});
+    waiting_to_enqueue.push_back(WriteQueueObject(temp_drr->calculate_buffer_location(bin), temp_drr->use_int, weight_));
     if(++Flush_count > Flush_wait)
     {
         Flush();
@@ -1188,111 +1293,3 @@ void OutputHisFile::Close() {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
-// class HisFileWriter
-///////////////////////////////////////////////////////////////////////////////
-
-void HisFileWriter::EnqueueWrites(std::vector<std::tuple<std::shared_ptr<drr_entry>, unsigned int, unsigned int>> &events)
-{
-    /// called from the main utkscan thread
-    HisWriterMutex.lock();
-    for(auto &evt: events){
-        std::shared_ptr<drr_entry> entry  = std::get<0>(evt);
-        unsigned int bin                  = std::get<1>(evt);
-        unsigned int weight               = std::get<2>(evt);
-        entry->good_counts++;
-        unsigned long long BufferLocation = entry->offset * 2 + bin * entry->halfWords * 2;
-        event_queue.push_back({BufferLocation, entry->use_int, weight});
-    }
-    HisWriterMutex.unlock();
-    events.clear();
-}
-
-void HisFileWriter::ProcessQueue()
-{
-    if(!HisWriterMutex.try_lock()){return;}
-    while(event_queue.size() > 0 && events_since_write < max_events_between_writes)
-    {
-        std::tuple<unsigned long long, bool, unsigned int> evt = event_queue.front();
-        event_queue.pop_front();
-        unsigned long long loc = std::get<0>(evt);
-        bool isInt = std::get<1>(evt);
-        unsigned int weight = std::get<2>(evt);
-        if(waiting_writes.find(loc) == waiting_writes.end())
-        {
-           waiting_writes.insert({loc, {weight, isInt}});
-        }
-        else
-        {
-            waiting_writes.at(loc).first += weight;
-        }
-        events_since_write++;
-    }
-    HisWriterMutex.unlock();
-}
-
-void HisFileWriter::FlushWrites()
-{
-    if(waiting_writes.size() == 0) {return;}
-    for (auto &fill: waiting_writes) {
-        // the location in the file that we're filling with the value the map 
-        // being sorted by smallest location allows piling what would've 
-        // been multiple writes to the same location to a single write
-        unsigned long long location = fill.first;
-        unsigned int weight         = fill.second.first;
-        bool isInt                  = fill.second.second;
-
-        // Seek to the specified bin
-        ofile->seekg(location,
-                    std::ios::beg); // input offset
-
-        unsigned short sval = 0;
-        unsigned int ival = 0;
-
-        // Overwrite the bin value
-        if (isInt) {
-            // Get the original value of the bin
-            ofile->read((char *) &ival, 4);
-            ival += weight;
-
-            // Set the new value of the bin
-            ofile->seekp(location, std::ios::beg); 
-            ofile->write((char *) &ival, 4);
-        } else {
-            // Get the original value of the bin
-            ofile->read((char *) &sval, 2);
-            sval += (short) weight;
-
-            // Set the new value of the bin
-            ofile->seekp(location, std::ios::beg);
-            ofile->write((char *) &sval, 2);
-        }
-    }
-    events_since_write = 0;
-    waiting_writes.clear();
-}
-
-void HisFileWriter::Finalize()
-{
-    // block till we acquire the lock because we're going to lose data otherwise
-    HisWriterMutex.lock();
-    while(event_queue.size() > 0 && events_since_write < max_events_between_writes)
-    {
-        std::tuple<unsigned long long, bool, unsigned int> evt = event_queue.front();
-        event_queue.pop_front();
-        unsigned long long loc = std::get<0>(evt);
-        bool isInt = std::get<1>(evt);
-        unsigned int weight = std::get<2>(evt);
-        if(waiting_writes.find(loc) == waiting_writes.end())
-        {
-           waiting_writes.insert({loc, {weight, isInt}});
-        }
-        else
-        {
-            waiting_writes.at(loc).first += weight;
-        }
-        events_since_write++;
-    }
-    HisWriterMutex.unlock();
-    FlushWrites();
-}
