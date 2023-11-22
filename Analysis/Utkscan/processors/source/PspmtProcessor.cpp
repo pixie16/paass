@@ -901,7 +901,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
    return (true);
 }
 
-pair<double, double> PspmtProcessor::CalculatePosition(double &xa, double &xb, double &ya, double &yb, const VDTYPES &vdtype, double &rot, bool &xflip)
+pair<double, double> PspmtProcessor::CalculatePosition(const double &xa, const double &xb, const double &ya, const double &yb, const VDTYPES &vdtype, const double &rot, const bool &xflip) const
 {
    double x = 0, y = 0, x_tmp = 0, y_tmp = 0, center = 0;
 
