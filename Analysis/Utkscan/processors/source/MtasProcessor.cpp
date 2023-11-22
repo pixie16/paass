@@ -188,7 +188,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 		} else if (isBack) {
 			chanOffset = 1;
 		} else if ((isFront && isBack) || (!isBack && !isFront) ) {
-			cout<<"ERROR::MtasProcessor:PreProcess BOTHESSSSS ("<<(*chanEvtIter)->GetModuleNumber()<<" , " << (*chanEvtIter)->GetChannelNumber() << ") !"<<endl;
+			cout<<"ERROR::MtasProcessor:PreProcess ("<<(*chanEvtIter)->GetModuleNumber()<<" , " << (*chanEvtIter)->GetChannelNumber() << ") HAS BOTH FRONT AND BACK TAG OR NEITHER FRONT OR BACK TAG!"<<endl;
 			return false;
 		} else {
 			chanOffset = -9999;
