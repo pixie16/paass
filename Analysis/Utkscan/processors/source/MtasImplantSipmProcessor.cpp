@@ -1,6 +1,6 @@
-/** @file MtasProcessor.cpp
- * @brief  Basic MtasProcessor for MTAS at FRIB
- * @authors T.T. King, T. Ruland, B.C. Rasco
+/** @file MtasImplantSipmProcessor.cpp
+ * @brief  Basic MtasImplantSipmProcessor for MTAS at FRIB
+ * @authors T.T. King, I. Cox, D. Hoskins (WHO ELSE?)
  * @date 03/25/2022
  */
 
