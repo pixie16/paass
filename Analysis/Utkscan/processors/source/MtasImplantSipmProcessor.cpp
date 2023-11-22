@@ -367,13 +367,14 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     mtasImplStruct.group = evt->GetChanID().GetGroup();
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
 }
-pair<double, double> MtasImplantSipmProcessor::CalculatePosition(std::vector<std::vector<double>> &data) {
+pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data) const{
     // x = energy(1,1)*1 + energy(1,2) * 2 ... + energy (2,1)*1 + energy (2,2) *2 ../sumE
     // y = energy (1,1)*1 + energy(2,1)*2 .. + energy (1,2) * 1 + energy (2,2) *2 ../sumE
     double x_tmp_ = 0;
     double y_tmp_ = 0;
     double energy_sum = 0;
 
+    //TODO: REWRITE INTO USING FOR_EACH TYPE LOOPS
     for (unsigned int iter = 0; iter < data.size(); ++iter) {
         for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
             energy_sum += (data.at(iter)).at(iter2);
