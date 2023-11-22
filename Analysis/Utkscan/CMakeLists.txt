@@ -105,6 +105,9 @@ if (PAASS_USE_ROOT)
 endif (PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------
+if( PAASS_OVERRIDE_EXE_PREFIX )
+	add_custom_command( TARGET ${SCAN_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan --bold "EXECUTABLE NAMES HAVE BEEN CHANGED FROM DEFAULT")
+endif( PAASS_OVERRIDE_EXE_PREFIX )
 
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
 install(DIRECTORY share/utkscan DESTINATION share)
