@@ -75,8 +75,8 @@ private:
     ///@param[in] map : The map containing the set of x and y points that we
     /// will use to calculate the position.
     ///@return The x,y position of the interaction
-    std::pair<double, double> CalculatePosition(double &xa, double &xb, double &ya,
-                                                double &yb, const VDTYPES &vdtype, double &rot, bool &xfilp);
+    std::pair<double, double> CalculatePosition(const double &xa, const double &xb, const double &ya,
+                                                const double &yb, const VDTYPES &vdtype, const double &rot, const bool &xfilp) const;
 
     ///@brief A method to fill PSStruc members. Trace analysis is also implementd here.
     void FillPSPMTStruc(const ChanEvent &chan_event);
