@@ -173,7 +173,7 @@ bool CloverFragProcessor::Process(RawEvent &event) {
         }
 
         if (DetectorDriver::get()->GetSysRootOutput()) {
-            //Fill root struct and push back on to vector3
+            //Fill root struct and push back on to vector
             Cstruct.cloverHigh = cloverHighGain;
             Cstruct.rawEnergy = (*itClover)->GetEnergy();
             Cstruct.energy = gEnergy;
