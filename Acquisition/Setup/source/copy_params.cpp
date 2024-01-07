@@ -8,7 +8,7 @@
 
 #include <cstdlib>
 
-#include "pixie16app_export.h"
+#include <pixie16/pixie16.h>
 
 #include "Display.h"
 #include "PixieInterface.h"

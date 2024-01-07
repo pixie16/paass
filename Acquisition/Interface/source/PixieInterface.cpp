@@ -10,8 +10,6 @@
 
 #include <sys/time.h>
 
-#include "pixie16app_export.h"
-
 #include "Display.h"
 #include "PixieInterface.h"
 
@@ -126,9 +124,8 @@ PixieInterface::PixieInterface(const char *fn) : lock("PixieInterface") {
         }
         exit(EXIT_FAILURE);
     }
-    //Overwrite the default path 'pxisys.ini' with the one specified in the scan file.
-    PCISysIniFile = configStrings["global"]["CrateConfig"].c_str();
 
+    statistics = stats_t(Pixie16GetStatisticsSize(), 0);
 }
 
 PixieInterface::~PixieInterface() {
@@ -658,7 +655,7 @@ bool PixieInterface::ReadSglChanTrace(unsigned short *buf, unsigned long sz,
 }
 
 bool PixieInterface::GetStatistics(unsigned short mod) {
-    retval = Pixie16ReadStatisticsFromModule(statistics, mod);
+    retval = Pixie16ReadStatisticsFromModule(statistics.data(), mod);
 
     if (retval < 0) {
         cout << WarningStr("Error reading statistics from module ") << mod
@@ -670,23 +667,23 @@ bool PixieInterface::GetStatistics(unsigned short mod) {
 }
 
 double PixieInterface::GetInputCountRate(int mod, int chan) {
-    return Pixie16ComputeInputCountRate(statistics, mod, chan);
+    return Pixie16ComputeInputCountRate(statistics.data(), mod, chan);
 }
 
 double PixieInterface::GetOutputCountRate(int mod, int chan) {
-    return Pixie16ComputeOutputCountRate(statistics, mod, chan);
+    return Pixie16ComputeOutputCountRate(statistics.data(), mod, chan);
 }
 
 double PixieInterface::GetLiveTime(int mod, int chan) {
-    return Pixie16ComputeLiveTime(statistics, mod, chan);
+    return Pixie16ComputeLiveTime(statistics.data(), mod, chan);
 }
 
 double PixieInterface::GetRealTime(int mod) {
-    return Pixie16ComputeRealTime(statistics, mod);
+    return Pixie16ComputeRealTime(statistics.data(), mod);
 }
 
 double PixieInterface::GetProcessedEvents(int mod) {
-    return Pixie16ComputeProcessedEvents(statistics, mod);
+    return Pixie16ComputeProcessedEvents(statistics.data(), mod);
 }
 
 bool PixieInterface::StartHistogramRun(unsigned short mode) {
@@ -764,7 +761,7 @@ unsigned long PixieInterface::CheckFIFOWords(unsigned short mod)
     cout << WarningStr("Error checking FIFO status in module ") << mod << endl;
     return 0;
   }
- 
+
     return nWords + extraWords[mod].size();
 }
 
