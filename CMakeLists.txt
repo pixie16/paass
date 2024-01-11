@@ -142,6 +142,57 @@ endif (PAASS_BUILD_ACQ)
 #Find ROOT if USE_ROOT was set.
 if (PAASS_USE_ROOT)
     find_package(ROOT REQUIRED COMPONENTS TreePlayer)
+    set(ROOTSYS $ENV{ROOTSYS} CACHE STRING "ROOT directory.")
+    find_program(ROOT_CONFIG_EXECUTABLE root-config PATHS ${ROOTSYS}/bin)
+    find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
+    find_program(GENREFLEX_EXECUTABLE genreflex PATHS $ENV{ROOTSYS}/bin)
+    if (ROOT_CONFIG_EXECUTABLE)
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --prefix
+                OUTPUT_VARIABLE ROOTSYS
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --version
+                OUTPUT_VARIABLE ROOT_VERSION
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --incdir
+                OUTPUT_VARIABLE ROOT_INCLUDE_DIR
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --libs
+                OUTPUT_VARIABLE ROOT_LIBRARIES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --glibs
+                OUTPUT_VARIABLE ROOT_GUI_LIBRARIES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        set(ROOT_LIBRARY_DIR ${ROOTSYS}/lib)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-minuit2
+                OUTPUT_VARIABLE ROOT_HAS_MINUIT2
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx17
+                OUTPUT_VARIABLE ROOT_HAS_CXX17)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx14
+                OUTPUT_VARIABLE ROOT_HAS_CXX14)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx11
+                OUTPUT_VARIABLE ROOT_HAS_CXX11)
+
+    endif ()
+
     if (${ROOT_VERSION} VERSION_LESS "6.10")
             message(FATAL_ERROR "Minimum ROOT version is 6.10.00.")
     endif (${ROOT_VERSION} VERSION_LESS "6.10")

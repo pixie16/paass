@@ -59,6 +59,7 @@ add_subdirectory(experiment)
 add_subdirectory(processors)
 
 #added by T.T. King for Vector Root Libs
+cmake_policy(SET CMP0068 OLD)
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_SKIP_INSTALL_RPATH FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -66,8 +67,9 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-ROOT_GENERATE_DICTIONARY(PaassRootStruct PaassRootStruct.hpp LINKDEF core/include/PaassRootLinkDef.hpp )
-add_library(PaassRootStruct SHARED PaassRootStruct.cxx PaassRootStruct)
+ROOT_GENERATE_DICTIONARY(PaassRootStruct_root PaassRootStruct.hpp LINKDEF core/include/PaassRootLinkDef.hpp )
+add_library(PaassRootStruct SHARED PaassRootStruct_root.cxx PaassRootStruct_root)
+target_link_libraries(PaassRootStruct ${ROOT_LIBRARIES})  
 
 #End T.T. King Additions
 #------------------------------------------------------------------------------
@@ -119,4 +121,5 @@ install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/processors/include/GSaddback.
 #Install the ROOT 6 PCM.
 if (${ROOT_VERSION} VERSION_GREATER "6.0")
     install( FILES ${CMAKE_CURRENT_BINARY_DIR}/PaassRootStruct_rdict.pcm DESTINATION lib/)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/lib/libPaassRootStruct_root_rdict.pcm ${CMAKE_INSTALL_PREFIX}/bin/libPaassRootStruct_root_rdict.pcm)")
 endif (${ROOT_VERSION} VERSION_GREATER "6.0")
