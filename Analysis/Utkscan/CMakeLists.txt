@@ -41,7 +41,7 @@ if (PAASS_UTKSCAN_VERBOSE)
 endif (PAASS_UTKSCAN_VERBOSE)
 
 if (PAASS_OVERRIDE_EXE_PREFIX)
-    ##  Overrid exe name
+    ##  Override exe name
     set(PAASS_SCANNAME_PREFIX utk CACHE STRING "Set Prefix name for scan")
     set(SCANOR_NAME "${PAASS_SCANNAME_PREFIX}scanor")
     set(SCAN_NAME "${PAASS_SCANNAME_PREFIX}scan")
@@ -92,11 +92,16 @@ else (PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanProcessorObjects>
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
             $<TARGET_OBJECTS:ScanorObjects>
-            PaassRootStruct.cxx)
+            PaassRootStruct_root.cxx)
     target_link_libraries(${SCANOR_NAME} ${HRIBF_LIBRARIES})
 endif (NOT PAASS_USE_HRIBF)
 
-target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic )
+if (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN" )
+target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic "-Wl,-no_compact_unwind")
+else()
+  target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic )
+endif()
+
 
 if (PAASS_USE_GSL)
     target_link_libraries(${SCAN_NAME} ${GSL_LIBRARIES})
@@ -114,12 +119,11 @@ endif( PAASS_OVERRIDE_EXE_PREFIX )
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
 install(DIRECTORY share/utkscan DESTINATION share)
 install(TARGETS PaassRootStruct DESTINATION lib)
-install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/lib/PaassRootStruct_rdict.pcm ${CMAKE_INSTALL_PREFIX}/bin/PaassRootStruct_rdict.pcm)")
 
 install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/core/include/PaassRootStruct.hpp DESTINATION include/)
 install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/processors/include/GSaddback.hpp DESTINATION include/)
 #Install the ROOT 6 PCM.
 if (${ROOT_VERSION} VERSION_GREATER "6.0")
-    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/PaassRootStruct_rdict.pcm DESTINATION lib/)
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libPaassRootStruct_root_rdict.pcm DESTINATION lib/)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/lib/libPaassRootStruct_root_rdict.pcm ${CMAKE_INSTALL_PREFIX}/bin/libPaassRootStruct_root_rdict.pcm)")
 endif (${ROOT_VERSION} VERSION_GREATER "6.0")
