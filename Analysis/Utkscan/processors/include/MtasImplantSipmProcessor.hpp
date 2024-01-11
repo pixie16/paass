@@ -47,6 +47,7 @@ class MtasImplantSipmProcessor : public EventProcessor {
 		void FillRootStruct(ChanEvent* evt, double& onboardqdc, const std::pair<int,int> &positions = {0,0});
 
 		std::pair<double,double> CalculatePosition(const std::vector<std::vector<double>>& data) const;
+        double CalculateHarmonicMean(const std::vector<std::vector<double>>& data) const;
 
 	private:
 		std::string PixieRevision;  //! pixie revision
