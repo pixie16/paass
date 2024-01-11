@@ -12,35 +12,6 @@
 #include "RawEvent.hpp"
 #include "Globals.hpp"
 
-
-class MtasProcessor : public EventProcessor {
-   public:
-    /**Constructor */
-    MtasProcessor();
-
-    /** Deconstructor */
-    ~MtasProcessor() = default;
-
-    /** Preprocess the event
-		 * \param [in] event : the event to preprocess
-		 * \return true if successful
-		 */
-    bool PreProcess(RawEvent& event);
-
-    /** Process the event
-		 * \param [in] event : the event to process
-		 * \return true if successful
-		 */
-    bool Process(RawEvent& event);
-
-    /** Declares the plots for the class */
-    void DeclarePlots(void);
-
-   private:
-    processor_struct::MTAS Mtasstruct;  //!<Root Struct
-    std::string PixieRevision;               //! pixie revision
-};
-
 class MtasSegment : public SegmentDetector {
    public:
     MtasSegment() : SegmentDetector() {
@@ -54,5 +25,59 @@ class MtasSegment : public SegmentDetector {
     int RingSegNum_;
     string segRing_;
 };
+
+class MtasProcessor : public EventProcessor {
+	public:
+		/**Constructor */
+		MtasProcessor(bool,double,double,double,double);
+
+		/** Deconstructor */
+		~MtasProcessor() = default;
+
+		/** Preprocess the event
+		 * \param [in] event : the event to preprocess
+		 * \return true if successful
+		 */
+		bool PreProcess(RawEvent& event);
+
+		/** Process the event
+		 * \param [in] event : the event to process
+		 * \return true if successful
+		 */
+		bool Process(RawEvent& event);
+
+		/** Declares the plots for the class */
+		void DeclarePlots(void);
+
+	private:
+		processor_struct::MTAS Mtasstruct;  //!<Root Struct
+		processor_struct::MTASTOTALS MtasTotalsstruct;
+		std::string PixieRevision;               //! pixie revision
+
+		std::string MTASMode;
+		
+		std::vector<MtasSegment> MtasSegVec;
+		double MTASTotal;
+		double MTASCenter;
+		double MTASInner;
+		double MTASMiddle;
+		double MTASOuter;
+		double MTASFirstTime;
+		
+		bool HasBetaInfo;
+		double BetaMin;
+		double BetaMax;
+		double IonMin;
+		double IonMax;
+
+		bool IsPrevBetaTriggered;
+		double PrevBetaTimeStamp;
+		double PrevBetaEnergy;
+		
+		bool IsPrevIonTriggered;
+		double PrevIonTimeStamp;
+		double PrevIonEnergy;
+};
+
 
 #endif  //PAASS_MtasProcessor_H

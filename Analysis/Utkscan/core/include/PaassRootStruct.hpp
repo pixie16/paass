@@ -86,7 +86,6 @@ struct MTAS {
 };
 static const MTAS MTAS_DEFAULT_STRUCT;
 
-
 struct MTASIMPLANT {
     /* std::vector<unsigned> trace = {}; */
     /* bool hastraceInfile = false; */
@@ -102,6 +101,17 @@ struct MTASIMPLANT {
     TString group ="";
 };
 static const MTASIMPLANT MTASIMPLANT_DEFAULT_STRUCT;
+
+struct MTASTOTALS {
+	double Total = -999;
+	double Center = -999;
+	double Inner = -999;
+	double Middle = -999;
+	double Outer = -999;
+};
+static const MTASTOTALS MTASTOTALS_DEFAULT_STRUCT;
+
+
 struct NEXT {
     /* Data container for NEXT */
    double tof = -9999;
@@ -288,6 +298,7 @@ class PixTreeEvent : public TObject {
         logic_vec_ = obj.logic_vec_;
         mtas_vec_ = obj.mtas_vec_;
         mtasimpl_vec_ = obj.mtasimpl_vec_;
+        mtastotals_vec_ = obj.mtastotals_vec_;
         next_vec_ = obj.next_vec_;
         pid_vec_ = obj.pid_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
@@ -313,6 +324,7 @@ class PixTreeEvent : public TObject {
         logic_vec_.clear();
         mtas_vec_.clear();
         mtasimpl_vec_.clear();
+        mtastotals_vec_.clear();
         next_vec_.clear();
         pid_vec_.clear();
         pspmt_vec_.clear();
@@ -335,6 +347,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::LOGIC> logic_vec_;
     std::vector<processor_struct::MTAS> mtas_vec_;
     std::vector<processor_struct::MTASIMPLANT> mtasimpl_vec_;
+    std::vector<processor_struct::MTASTOTALS> mtastotals_vec_;
     std::vector<processor_struct::NEXT> next_vec_;
     std::vector<processor_struct::PID> pid_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;

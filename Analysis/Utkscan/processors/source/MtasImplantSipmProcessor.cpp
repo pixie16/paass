@@ -46,6 +46,10 @@ const unsigned int DD_SIPM_HIRES_IMAGE_LG_QDC_THRESH = 18;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG_QDC_THRESH = 19;
 const unsigned int DD_SIPM_HIRES_IMAGE_LG_THRESH = 20;
 const unsigned int DD_SIPM_HIRES_IMAGE_HG_THRESH = 21;
+const unsigned int DD_HG_DY_HG_ANODE = 22;
+const unsigned int DD_LG_DY_LG_ANODE = 23;
+const unsigned int DD_HG_DY_LG_ANODE = 24;
+const unsigned int DD_LG_DY_HG_ANODE = 25;
 const unsigned int DD_MULTIS = 30;
 }  // namespace mtasimplant
 }  // namespace dammIds
@@ -93,6 +97,10 @@ void MtasImplantSipmProcessor::DeclarePlots(void) {
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_THRESH, SB, SB, "THRESHL:: High Res HG Image Filter Energy");
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_LG_QDC_THRESH, SB, SB, "THRESHL:: High Res LG QDC");
     DeclareHistogram2D(DD_SIPM_HIRES_IMAGE_HG_QDC_THRESH, SB, SB, "THRESHL:: High Res HG QDC");
+    DeclareHistogram2D(DD_HG_DY_HG_ANODE,SC,SC,"High Gain Dynode High Gain Anode");
+    DeclareHistogram2D(DD_LG_DY_LG_ANODE,SC,SC,"Low Gain Dynode Low Gain Anode");
+    DeclareHistogram2D(DD_LG_DY_HG_ANODE,SC,SC,"Low Gain Dynode High Gain Anode");
+    DeclareHistogram2D(DD_HG_DY_LG_ANODE,SC,SC,"High Gain Dynode Low Gain Anode");
       DeclareHistogram2D(DD_MULTIS,S9,S3, "SiPm Multis: DYH,DYL,ANH,ANL");
 }
 
@@ -115,6 +123,8 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     vector<double> anodeH_energyList_for_calculations(64, 0.0);
     vector<vector<double>> anode_L_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_H_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
+    vector<vector<double>> anode_L_HarmonicMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
+    vector<vector<double>> anode_H_HarmonicMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_L_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_H_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     
@@ -126,10 +136,14 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     if (!Dynode_H.empty()){
         dyh_max = event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetCalibratedEnergy() ;
         dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc());
+        EventData MTASBetaEvent(event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTimeSansCfd(),dyh_max,-1,true,"MTASImplantBeta");
+        TreeCorrelator::get()->place("MTASBeta")->activate(MTASBetaEvent);
     }
      if (!Dynode_L.empty()){
         dyl_max = event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetCalibratedEnergy() ;
         dyl_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetTrace().GetQdc());
+        EventData MTASIonEvent(event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetTimeSansCfd(),dyh_max,-1,true,"MTASImplantIon");
+        TreeCorrelator::get()->place("MTASIon")->activate(MTASIonEvent);
      }
     //!#########################################
     //!       DYNODE LOW GAIN
@@ -229,6 +243,8 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             FillRootStruct(itAl, oqdc, sipmPixels);
         }
 
+        plot(DD_HG_DY_LG_ANODE,energy,dyh_max);
+        plot(DD_LG_DY_LG_ANODE,energy,dyl_max);
         if (energy > yso_thresh) {
             anodeL_energyList_for_calculations.at(detLoc) += energy;
             (anode_L_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
@@ -250,6 +266,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
     pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
     pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC);
+    double LG_Harmonic = CalculateHarmonicMean(anode_L_HarmonicMatrix);
 
     if (dyl_max >= dyl_thresh ){
         plot(DD_SIPM_HIRES_IMAGE_LG_THRESH,LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
@@ -286,6 +303,8 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             FillRootStruct(itAh, oqdc, sipmPixels);
         }
 
+        plot(DD_HG_DY_HG_ANODE,energy,dyh_max);
+        plot(DD_LG_DY_HG_ANODE,energy,dyl_max);
         if (energy > yso_thresh) {
             anodeH_energyList_for_calculations.at(detLoc) += energy;
             (anode_H_positionMatrix.at(sipmPixels.first)).at(sipmPixels.second) += energy;
@@ -306,6 +325,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     }
 
     pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
+    double HG_Harmonic = CalculateHarmonicMean(anode_H_HarmonicMatrix);
     pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC);
 
     if (dyh_max <= dyh_upperThresh && dyh_max >= dyh_thresh){
@@ -367,6 +387,19 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     mtasImplStruct.group = evt->GetChanID().GetGroup();
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
 }
+
+double MtasImplantSipmProcessor::CalculateHarmonicMean(const std::vector<std::vector<double>>& data) const{
+    double tmp = 0.0;
+    for (unsigned int iter = 0; iter < data.size(); ++iter) {
+        for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
+            if ( (data.at(iter)).at(iter2) > 0.0 )
+                tmp += 1.0/(data.at(iter)).at(iter2);
+        }
+    }
+    //std::cout << "tmp: " << tmp << std::endl;
+    return 1.0/tmp;
+}
+
 pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data) const{
     // x = energy(1,1)*1 + energy(1,2) * 2 ... + energy (2,1)*1 + energy (2,2) *2 ../sumE
     // y = energy (1,1)*1 + energy(2,1)*2 .. + energy (1,2) * 1 + energy (2,2) *2 ../sumE
