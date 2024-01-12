@@ -39,7 +39,7 @@ void UtkUnpacker::ProcessRawEvent() {
     static RawEvent rawev;
     DetectorDriver *driver = DetectorDriver::get();
     DetectorLibrary *detectorLibrary = DetectorLibrary::get();
-    set<string> usedDetectors;
+    usedDetectors;
     Messenger m;
     stringstream ss;
 
