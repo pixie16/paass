@@ -38,10 +38,10 @@ DetectorSummary *RawEvent::GetSummary(const std::string &s, bool construct) {
     map<string, DetectorSummary>::iterator it = sumMap.find(s);
     static set <string> nullSummaries;
 
-    Messenger m;
-    stringstream ss;
     if (it == sumMap.end()) {
         if (construct) {
+            Messenger m;
+            stringstream ss;
             // construct the summary
             ss << "Constructing detector summary for type " << s;
             m.detail(ss.str());
@@ -49,6 +49,8 @@ DetectorSummary *RawEvent::GetSummary(const std::string &s, bool construct) {
             it = sumMap.find(s);
         } else {
             if (nullSummaries.count(s) == 0) {
+                Messenger m;
+                stringstream ss;
                 ss << "Returning NULL detector summary for type " << s;
                 m.detail(ss.str());
                 nullSummaries.insert(s);

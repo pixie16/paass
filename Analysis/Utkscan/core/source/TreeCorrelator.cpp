@@ -25,7 +25,7 @@ TreeCorrelator *TreeCorrelator::get() {
     return instance;
 }
 
-Place *TreeCorrelator::place(std::string name) {
+Place *TreeCorrelator::place(const std::string& name) {
     map<string, Place *>::iterator element = places_.find(name);
     if (element == places_.end()) {
         stringstream ss;
@@ -35,18 +35,19 @@ Place *TreeCorrelator::place(std::string name) {
     return element->second;
 }
 
-bool TreeCorrelator::checkPlace(std::string name) {
-    map<string, Place *>::iterator element = places_.find(name);
-    bool status;
-    if (element == places_.end()) {
-        status = false;
-    } else {
-        status = true; 
-    } 
-    return status;
+bool TreeCorrelator::checkPlace(const std::string& name) {
+    return (places_.find(name) != places_.end());
+//    map<string, Place *>::iterator element = places_.find(name);
+//    bool status;
+//    if (element == places_.end()) {
+//        status = false;
+//    } else {
+//        status = true; 
+//    } 
+//    return status;
 } 
 
-void TreeCorrelator::addChild(std::string parent, std::string child, bool coin, bool verbose) {
+void TreeCorrelator::addChild(const std::string& parent,const std::string& child, bool coin, bool verbose) {
     if (places_.count(parent) == 1 && places_.count(child) == 1) {
         place(parent)->addChild(place(child), coin);
         if (verbose) {
@@ -121,7 +122,7 @@ void TreeCorrelator::buildTree() {
     m.done();
 }
 
-vector<string> TreeCorrelator::split_names(std::string name) {
+vector<string> TreeCorrelator::split_names(const std::string& name) {
     vector<string> names;
     vector<string> name_tokens = TokenizeString(name, "_");
 
