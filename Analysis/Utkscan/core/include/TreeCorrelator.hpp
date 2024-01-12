@@ -26,11 +26,11 @@ public:
 
     /** \return pointer to place or throw exception if it doesn't exist.
     * \param [in] name : the name of the place */
-    Place *place(std::string name);
+    Place *place(const std::string& name);
 
     /** \return bool if place defined. This is ONLY for checking the existance not accessing the place. As such it is very similar to the "place" method
      * \param [in] name : the name of the place */
-    bool checkPlace(std::string name);
+    bool checkPlace(const std::string& name);
 
     /** Create place, alter or add existing place to the tree.
     * \param [in] params : the map of the parameters
@@ -43,7 +43,7 @@ public:
     * \param [in] child : the name of the child node
     * \param [in] coin : coincidence
     * \param [in] verbose : verbosity */
-    void addChild(std::string parent, std::string child, bool coin,
+    void addChild(const std::string& parent,const std::string& child, bool coin,
                   bool verbose);
 
     /**
@@ -77,7 +77,7 @@ private:
     * returned as a only element of the vector
     * \param [in] name : the name string to split
     * \return a vector of the split names */
-    std::vector<std::string> split_names(std::string name);
+    std::vector<std::string> split_names(const std::string& name);
 };
 
 #endif
