@@ -303,7 +303,7 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 		return false;
     //start_time = std::chrono::high_resolution_clock::now();
 
-	static const auto &chanEvents = event.GetSummary("mtas", true)->GetList();
+	const auto &chanEvents = event.GetSummary("mtas", true)->GetList();
 
 	vector<short> MtasSegMulti(48,0); // MTAS segment multiplicity "map"
 
