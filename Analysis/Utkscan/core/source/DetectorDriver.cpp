@@ -433,30 +433,30 @@ void DetectorDriver::FillLogicStruc() { //This should be called away from the ev
 //TODO We need to make this sensative to running on something other than a 250MHz, also in the logic processor plotting its self
     double convertTimeNS = Globals::get()->GetClockInSeconds() * 1.0e9; // converstion factor from DSP TICKs to NS
    
-    if(TreeCorrelator::get()->checkPlace("Beam")){
-        LogStruc.beamStatus = TreeCorrelator::get()->place("Beam")->status();
-        if (TreeCorrelator::get()->place("Beam")->status()){
-            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->last().time* convertTimeNS;
-            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->secondlast().time * convertTimeNS;
+    if(TreeCorrelator::get()->checkPlace(BEAMNAME)){
+        LogStruc.beamStatus = TreeCorrelator::get()->place(BEAMNAME)->status();
+        if (TreeCorrelator::get()->place(BEAMNAME)->status()){
+            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place(BEAMNAME)->last().time* convertTimeNS;
+            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place(BEAMNAME)->secondlast().time * convertTimeNS;
         } else {
-            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->secondlast().time* convertTimeNS;
-            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->last().time * convertTimeNS;
+            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place(BEAMNAME)->secondlast().time* convertTimeNS;
+            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place(BEAMNAME)->last().time * convertTimeNS;
         }
     }
 
-    if(TreeCorrelator::get()->checkPlace("TapeMove")){
-        LogStruc.tapeMoving =  TreeCorrelator::get()->place("TapeMove")->status();
-        if (TreeCorrelator::get()->place("TapeMove")->status()){
-            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->last().time* convertTimeNS;
+    if(TreeCorrelator::get()->checkPlace(TAPEMOVENAME)){
+        LogStruc.tapeMoving =  TreeCorrelator::get()->place(TAPEMOVENAME)->status();
+        if (TreeCorrelator::get()->place(TAPEMOVENAME)->status()){
+            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place(TAPEMOVENAME)->last().time* convertTimeNS;
         } else {
-            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->secondlast().time* convertTimeNS;
+            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place(TAPEMOVENAME)->secondlast().time* convertTimeNS;
         }
     }
 
-    if(TreeCorrelator::get()->checkPlace("Cycle")){
-        LogStruc.tapeCycleStatus = TreeCorrelator::get()->place("Cycle")->status();
-        if (TreeCorrelator::get()->place("Cycle")->status()){
-            double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time* convertTimeNS;
+    if(TreeCorrelator::get()->checkPlace(CYCLENAME)){
+        LogStruc.tapeCycleStatus = TreeCorrelator::get()->place(CYCLENAME)->status();
+        if (TreeCorrelator::get()->place(CYCLENAME)->status()){
+            double currentTime_ = TreeCorrelator::get()->place(CYCLENAME)->last().time* convertTimeNS;
             if (currentTime_ != lastCycleTime_){
                 lastCycleTime_ = currentTime_;
                 tapeCycleNum_++;
@@ -464,20 +464,20 @@ void DetectorDriver::FillLogicStruc() { //This should be called away from the ev
             LogStruc.lastTapeCycleStartTime = currentTime_;
             LogStruc.cycleNum = tapeCycleNum_;
         } else {
-            LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time* convertTimeNS;
+            LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place(CYCLENAME)->secondlast().time* convertTimeNS;
             LogStruc.cycleNum = tapeCycleNum_;
         }
     }
     
-    if(TreeCorrelator::get()->checkPlace("Protons") && TreeCorrelator::get()->place("Protons")->status()){
-        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("Protons")->last().time*convertTimeNS;
+    if(TreeCorrelator::get()->checkPlace(PROTONNAME) && TreeCorrelator::get()->place(PROTONNAME)->status()){
+        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place(PROTONNAME)->last().time*convertTimeNS;
     }
     
-    if (TreeCorrelator::get()->checkPlace("Supercycle") ){
-        if (TreeCorrelator::get()->place("Supercycle")->status()){
-            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time* convertTimeNS;
+    if (TreeCorrelator::get()->checkPlace(SUPERCYCLENAME) ){
+        if (TreeCorrelator::get()->place(SUPERCYCLENAME)->status()){
+            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place(SUPERCYCLENAME)->last().time* convertTimeNS;
         } else {
-            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->secondlast().time* convertTimeNS;
+            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place(SUPERCYCLENAME)->secondlast().time* convertTimeNS;
         }
     }
     //fill the vector

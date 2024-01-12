@@ -262,6 +262,12 @@ private:
     std::set<std::string> setProcess; /**< list of processors used in the analysis.
     * This should be identical to vecProcess, but in string form */
 
+    const std::string CYCLENAME = "Cycle";
+    const std::string TAPEMOVENAME = "TapeMove";
+    const std::string BEAMNAME = "Beam";
+    const std::string PROTONNAME = "Protons";
+    const std::string SUPERCYCLENAME = "Supercycle";
+
     TFile *PixieFile;
     TTree *PTree;
     TBranch *PBr;
