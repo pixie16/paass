@@ -37,14 +37,6 @@ Place *TreeCorrelator::place(const std::string& name) {
 
 bool TreeCorrelator::checkPlace(const std::string& name) {
     return (places_.find(name) != places_.end());
-//    map<string, Place *>::iterator element = places_.find(name);
-//    bool status;
-//    if (element == places_.end()) {
-//        status = false;
-//    } else {
-//        status = true; 
-//    } 
-//    return status;
 } 
 
 void TreeCorrelator::addChild(const std::string& parent,const std::string& child, bool coin, bool verbose) {
