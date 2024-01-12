@@ -7,6 +7,8 @@
 #define __UTKUNPACKER_HPP__
 
 #include <ctime>
+#include <set>
+#include <string>
 
 #include "DetectorDriver.hpp"
 #include "DetectorLibrary.hpp"
@@ -50,6 +52,7 @@ private:
     ///@param[in] driver Pointer to the DetectorDriver class that we're using.
     ///@param[in] addr_  Pointer to a ScanInterface object.
     virtual void RawStats(XiaData *event_, DetectorDriver *driver);
+    std::set<std::string> usedDetectors;
 };
 
 #endif //__UTKUNPACKER_HPP__
