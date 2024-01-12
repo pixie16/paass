@@ -88,6 +88,22 @@ class SegmentDetector {
 			return ( ((segFront_->GetTimeSansCfd() + segBack_->GetTimeSansCfd()) / 2.0)  * clockInSeconds * 1.0e9);
 		}
 
+        virtual double GetEarliestSegTimeSansCfd(){
+            if( IsValidSegment() ){
+                if( segFront_->GetTimeSansCfd() < segBack_->GetTimeSansCfd() ){
+                    return segFront_->GetTimeSansCfd();
+                }else{
+                    return segBack_->GetTimeSansCfd();
+                }
+            }else if( segFront_ == nullptr and segBack_ != nullptr ){
+                return segBack_->GetTimeSansCfd();
+            }else if( segBack_ == nullptr and segFront_ != nullptr ){
+                return segFront_->GetTimeSansCfd();
+            }else{
+                return 1.0e99;  
+            } 
+        }
+
 		virtual double GetSegPosition() const {
 			if( IsValidSegment() ){
 				return (segFront_->GetCalibratedEnergy() - segBack_->GetCalibratedEnergy()) / (segFront_->GetCalibratedEnergy() + segBack_->GetCalibratedEnergy());
