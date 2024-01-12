@@ -108,7 +108,7 @@ void WalkCorrector::AddChannel(const ChannelConfiguration &chanID, const std::st
     }
 }
 
-double WalkCorrector::GetCorrection(ChannelConfiguration &chanID, double raw) const {
+double WalkCorrector::GetCorrection(const ChannelConfiguration &chanID, double raw) const {
     map < ChannelConfiguration, vector < CorrectionParams > > ::const_iterator itch = channels_.find(chanID);
     if (itch != channels_.end()) {
         vector<CorrectionParams>::const_iterator itf;
