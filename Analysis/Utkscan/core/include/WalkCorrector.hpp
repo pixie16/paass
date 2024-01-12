@@ -59,7 +59,7 @@ public:
      * \param [in] chanID : The channel channelConfiguration to get
      * \param [in] raw : The raw value to perform the correction on
      * \return The walk corrected value of raw */
-    double GetCorrection(ChannelConfiguration &chanID, double raw) const;
+    double GetCorrection(const ChannelConfiguration &chanID, double raw) const;
 
 protected:
     /** \return always 0.
