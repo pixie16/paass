@@ -6,6 +6,10 @@
 #ifndef PAASS_MtasProcessor_H
 #define PAASS_MtasProcessor_H
 
+#include <string>
+#include <chrono>
+#include <iostream>
+
 #include "EventProcessor.hpp"
 #include "PaassRootStruct.hpp"
 #include "SegmentDetector.hpp"
@@ -32,7 +36,11 @@ class MtasProcessor : public EventProcessor {
 		MtasProcessor(bool,double,double,double,double);
 
 		/** Deconstructor */
-		~MtasProcessor() = default;
+		//~MtasProcessor() = default;
+		~MtasProcessor(){
+            std::cout << "Preprocess : " << preprocesstime << std::endl;
+            std::cout << "Process : " << processtime << std::endl;
+        }
 
 		/** Preprocess the event
 		 * \param [in] event : the event to preprocess
@@ -46,6 +54,8 @@ class MtasProcessor : public EventProcessor {
 		 */
 		bool Process(RawEvent& event);
 
+        void Reset();
+
 		/** Declares the plots for the class */
 		void DeclarePlots(void);
 
@@ -56,7 +66,11 @@ class MtasProcessor : public EventProcessor {
 
 		std::string MTASMode;
 		
-		std::vector<MtasSegment> MtasSegVec;
+		//std::vector<MtasSegment> MtasSegVec;
+		std::vector<MtasSegment> MtasCenterSegVec;
+		std::vector<MtasSegment> MtasInnerSegVec;
+		std::vector<MtasSegment> MtasMiddleSegVec;
+		std::vector<MtasSegment> MtasOuterSegVec;
 		double MTASTotal;
 		double MTASCenter;
 		double MTASInner;
@@ -77,6 +91,17 @@ class MtasProcessor : public EventProcessor {
 		bool IsPrevIonTriggered;
 		double PrevIonTimeStamp;
 		double PrevIonEnergy;
+
+        bool IsBetaEvent;
+        bool IsIonEvent;
+        const std::string BETANAME = "MTASBeta";
+        const std::string IONNAME = "MTASIon";
+        const std::string BETATYPE = "MTASImplantBeta";
+
+        double processtime;
+        double preprocesstime;
+        std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+        std::chrono::time_point<std::chrono::high_resolution_clock> stop_time;
 };
 
 
