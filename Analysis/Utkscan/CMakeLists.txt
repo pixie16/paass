@@ -82,7 +82,7 @@ if (NOT PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanAnalyzerObjects>
             $<TARGET_OBJECTS:UtkscanProcessorObjects>
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
-            PaassRootStruct.cxx)
+            PaassRootStruct_root.cxx)
 else (PAASS_USE_HRIBF)
     set(SCAN_NAME ${SCANOR_NAME})
     add_executable(${SCAN_NAME}
