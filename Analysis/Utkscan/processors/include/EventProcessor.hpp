@@ -8,8 +8,7 @@
 #include <map>
 #include <set>
 #include <string>
-
-#include <sys/times.h>
+#include <chrono>
 
 #include "Plots.hpp"
 #include "Globals.hpp"
@@ -30,6 +29,22 @@ class TTree;
 //! Class to handle event processing
 class EventProcessor {
 public:
+    enum STEP{
+	    PREPROCESS,
+	    PROCESS,
+	    POSTPROCESS,
+	    UNKNOWN
+    };
+    STEP currstep;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+    std::chrono::time_point<std::chrono::high_resolution_clock> stop_time;
+    double preprocesstime;
+    double processtime;
+    double postprocesstime; 
+    unsigned long long preprocesscalls;
+    unsigned long long processcalls;
+    unsigned long long postprocesscalls;
+
     /** Default Constructor */
     EventProcessor();
 
@@ -166,11 +181,6 @@ protected:
             histo.DeclareHistogram2D(dammId, xSize, ySize, title);
         }
     }
-private:
-    tms tmsBegin; //!< The beginning processor time
-    double userTime;//!< The user time spent in the processor
-    double systemTime;//!< The system time spent in the processor
-    double clocksPerSecond;//!< The number of clock cycles per second
 };
 
 #endif // __EVENTPROCESSOR_HPP_

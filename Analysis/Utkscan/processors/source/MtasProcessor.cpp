@@ -301,7 +301,6 @@ MtasProcessor::MtasProcessor(bool HasBeta,double BetaMinEnergy,double BetaMaxEne
 bool MtasProcessor::PreProcess(RawEvent &event) {
 	if (!EventProcessor::PreProcess(event))
 		return false;
-    //start_time = std::chrono::high_resolution_clock::now();
 
 	const auto &chanEvents = event.GetSummary("mtas", true)->GetList();
 
@@ -530,15 +529,11 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 		plot(D_ONE_OFFS + 0, it, MtasSegMulti.at(it));
 	}
 
-
-    //stop_time = std::chrono::high_resolution_clock::now();
-    //std::chrono::duration<double,std::milli> dur = stop_time - start_time;
-    //preprocesstime += dur.count();
+	EndProcess();
 	return true;
 }
 
 bool MtasProcessor::Process(RawEvent &event) {
-    //start_time = std::chrono::high_resolution_clock::now();
 	if (!EventProcessor::Process(event))
 		return false;
 
@@ -677,11 +672,8 @@ bool MtasProcessor::Process(RawEvent &event) {
 		}
 	}
 
-    Reset();
+    	Reset();
 	EndProcess();
-    //stop_time = std::chrono::high_resolution_clock::now();
-    //std::chrono::duration<double,std::milli> dur = stop_time - start_time;
-    //processtime += dur.count();
 	return true;
 }
 

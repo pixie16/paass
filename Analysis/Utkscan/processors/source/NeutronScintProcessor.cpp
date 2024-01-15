@@ -58,6 +58,7 @@ void NeutronScintProcessor::DeclarePlots(void) {
 bool NeutronScintProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
+    EndProcess();
     return true;
 }
 

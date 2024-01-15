@@ -113,6 +113,7 @@ bool Hen3Processor::PreProcess(RawEvent &event) {
         TreeCorrelator::get()->place(neutron.str())->activate(data);
     }
 
+    EndProcess();
     return true;
 }
 

@@ -64,5 +64,6 @@ bool GeProcessor::PreProcess(RawEvent &event) {
             GEstruct = processor_struct::CLOVER_DEFAULT_STRUCT;  //reset to initalized values (see PaassRootStruct.hpp
         }
     }
+    EndProcess();
     return true;
 }

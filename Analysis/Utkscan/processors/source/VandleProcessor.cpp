@@ -126,6 +126,7 @@ bool VandleProcessor::PreProcess(RawEvent &event) {
     }
 
     FillVandleOnlyHists();
+    EndProcess();
     return true;
 }
 

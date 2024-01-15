@@ -224,6 +224,7 @@ bool CloverCalibProcessor::PreProcess(RawEvent &event) {
     // now we sort the germanium events according to their corrected time
     sort(geEvents_.begin(), geEvents_.end());
 
+    EndProcess();
     return true;
 }
 

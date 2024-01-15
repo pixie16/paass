@@ -113,11 +113,13 @@ bool TeenyVandleProcessor::PreProcess(RawEvent &event) {
                  left.GetMaximumValue());
         }
     }
+    EndProcess();
     return (true);
 }
 
 bool TeenyVandleProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return (false);
+    EndProcess();
     return (true);
 }

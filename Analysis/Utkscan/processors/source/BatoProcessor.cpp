@@ -93,6 +93,7 @@ bool BatoProcessor::PreProcess(RawEvent &event) {
             BatoStruct = processor_struct::BATO_DEFAULT_STRUCT;  //reset to initalized values (see PaassRootStruct.hpp
         }
     }
+    EndProcess();
     return true;
 }
 
