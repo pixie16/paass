@@ -102,6 +102,7 @@ bool DoubleBetaProcessor::PreProcess(RawEvent &event) {
             plot(DD_QDCTDIFF, (*it).second.GetTimeDifference()*resolution+offset,(*it).second.GetQdc());
         }
     }
+    EndProcess();
     return (true);
 }
 

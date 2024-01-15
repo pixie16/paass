@@ -256,6 +256,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 
     }//events loop
 
+    EndProcess();
     return (true);
 }
 

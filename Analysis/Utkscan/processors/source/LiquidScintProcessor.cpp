@@ -63,6 +63,7 @@ void LiquidScintProcessor::DeclarePlots(void) {
 bool LiquidScintProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
+    EndProcess();
     return true;
 }
 

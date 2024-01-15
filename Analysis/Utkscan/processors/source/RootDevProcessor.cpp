@@ -31,6 +31,7 @@ bool RootDevProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
+    EndProcess();
     return true;
 }
 

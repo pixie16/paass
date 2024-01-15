@@ -338,7 +338,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     plot(DD_SIPM_HIRES_IMAGE_HG_QDC, HG_QDCpositions.first * yso_scale + yso_offset/2, HG_QDCpositions.second * yso_scale + yso_offset);
 
    
-
+    EndProcess();
     return true;
 }
 

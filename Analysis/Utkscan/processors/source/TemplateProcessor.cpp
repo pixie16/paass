@@ -45,6 +45,7 @@ bool TemplateProcessor::PreProcess(RawEvent &event) {
         if (location == 0)
             plot(D_ENERGY, (*it)->GetEnergy() * a_);
     }
+    EndProcess();
     return true;
 }
 
@@ -60,5 +61,6 @@ bool TemplateProcessor::Process(RawEvent &event) {
             if (loc == 0)
                 plot(DD_TEMPLATE_VS_PULSER, (*it)->GetEnergy(), (*itA)->GetEnergy());
     }
+    EndProcess();
     return true;
 }

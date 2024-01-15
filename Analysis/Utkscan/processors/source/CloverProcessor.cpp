@@ -475,6 +475,7 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
         refTime = time;
     }
 
+    EndProcess();
     return true;
 }
 

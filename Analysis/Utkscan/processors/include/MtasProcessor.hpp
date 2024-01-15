@@ -36,11 +36,7 @@ class MtasProcessor : public EventProcessor {
 		MtasProcessor(bool,double,double,double,double);
 
 		/** Deconstructor */
-		//~MtasProcessor() = default;
-		~MtasProcessor(){
-            std::cout << "Preprocess : " << preprocesstime << std::endl;
-            std::cout << "Process : " << processtime << std::endl;
-        }
+		~MtasProcessor() = default;
 
 		/** Preprocess the event
 		 * \param [in] event : the event to preprocess
@@ -97,11 +93,6 @@ class MtasProcessor : public EventProcessor {
         const std::string BETANAME = "MTASBeta";
         const std::string IONNAME = "MTASIon";
         const std::string BETATYPE = "MTASImplantBeta";
-
-        double processtime;
-        double preprocesstime;
-        std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
-        std::chrono::time_point<std::chrono::high_resolution_clock> stop_time;
 };
 
 

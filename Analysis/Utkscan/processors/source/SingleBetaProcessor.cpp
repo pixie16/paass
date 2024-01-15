@@ -81,6 +81,7 @@ bool SingleBetaProcessor::PreProcess(RawEvent &event) {
         }
     }
 
+    EndProcess();
     return (true);
 }
 

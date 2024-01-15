@@ -123,6 +123,7 @@ bool BetaScintProcessor::PreProcess(RawEvent &event) {
         plot(D_ENERGY_BETA, energyBin);
     }
     plot(D_MULT_BETA, multiplicity);
+    EndProcess();
     return (true);
 }
 

@@ -219,6 +219,7 @@ bool GammaScintProcessor::PreProcess(RawEvent &event) {
     evtNum_ = DetectorDriver::get()->GetEventNumber();
     GSEvents_ = event.GetSummary("gscint")->GetList();
 
+    EndProcess();
     return (true);
 }
 
