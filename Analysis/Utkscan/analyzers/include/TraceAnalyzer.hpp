@@ -7,14 +7,14 @@
 #define __TRACEANALYZER_HPP_
 
 #include <string>
-#include <sys/times.h>
+#include <chrono>
 
 #include "ChannelConfiguration.hpp"
 #include "Plots.hpp"
 #include "Trace.hpp"
 
 ///Abstract class that all trace analyzers are derived from
-class TraceAnalyzer {
+class TraceAnalyzer{
 public:
     /** Default Constructor */
     TraceAnalyzer();
@@ -71,6 +71,11 @@ public:
     /** Set the level of the trace analysis
      * \param [in] i : the level of the analysis to be done */
     void SetLevel(int i) { level = i; }
+
+    unsigned long long calls;
+    double time;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
+    std::chrono::time_point<std::chrono::high_resolution_clock> stop_time;
 
 protected:
     int level;                ///< the level of analysis to proceed with
@@ -153,12 +158,6 @@ protected:
     * \param [in] row : the row to plot the trace into
     * \param [in] offset : the offset for the trace*/
     void OffsetPlot(const std::vector<unsigned int> &trc, int id, int row, double offset);
-
-private:
-    tms tmsBegin;             ///< time at which the analyzer began
-    double userTime;          ///< user time used by this class
-    double systemTime;        ///< system time used by this class
-    double clocksPerSecond;   ///< frequency of system clock
 };
 
 #endif // __TRACEANALYZER_HPP_

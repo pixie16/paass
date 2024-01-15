@@ -24,17 +24,17 @@ using namespace std;
 
 int TraceAnalyzer::numTracesAnalyzed = -1; //!< number of analyzed traces
 
-TraceAnalyzer::TraceAnalyzer() : histo(0, 0, "generic"), userTime(0.), systemTime(0.) {
-    clocksPerSecond = sysconf(_SC_CLK_TCK);
+TraceAnalyzer::TraceAnalyzer() : histo(0, 0, "generic"){
 }
 
 TraceAnalyzer::TraceAnalyzer(const unsigned int &offset, const unsigned int &range, const std::string &name) :
-        histo(offset, range, name), userTime(0.), systemTime(0.) {
-    clocksPerSecond = sysconf(_SC_CLK_TCK);
+         histo(offset, range, name){
 }
 
 TraceAnalyzer::~TraceAnalyzer() {
-    cout << name << " analyzer : " << userTime << " user time, " << systemTime << " system time" << endl;
+	std::cout << name
+		  << " Analyze : ( "<< calls << " calls, " << time << " s ) " << numTracesAnalyzed << " traces"
+		  <<std::endl;
 }
 
 void TraceAnalyzer::Plot(const vector<unsigned int> &trc, const int &id) {
@@ -68,9 +68,9 @@ void TraceAnalyzer::OffsetPlot(const vector<unsigned int> &trc, int id, int row,
 }
 
 void TraceAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
-    times(&tmsBegin);
+    start_time = std::chrono::high_resolution_clock::now();
+    ++calls;
     numTracesAnalyzed++;
-    EndAnalyze(trace);
     return;
 }
 
@@ -79,15 +79,9 @@ void TraceAnalyzer::EndAnalyze(Trace &trace) {
 }
 
 void TraceAnalyzer::EndAnalyze(void) {
-    tms tmsEnd;
-    times(&tmsEnd);
-
-    userTime += (tmsEnd.tms_utime - tmsBegin.tms_utime) / clocksPerSecond;
-    systemTime += (tmsEnd.tms_stime - tmsBegin.tms_stime) / clocksPerSecond;
-
-    // reset the beginning time so multiple calls of EndAnalyze from
-    //   derived classes work properly
-    times(&tmsBegin);
+    stop_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> dur = stop_time - start_time;
+    time += dur.count();
 }
 
 bool TraceAnalyzer::IsIgnored(const std::set<std::string> &list, const ChannelConfiguration &id){ bool retVal;
