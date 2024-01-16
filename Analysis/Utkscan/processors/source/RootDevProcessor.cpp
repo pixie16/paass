@@ -5,6 +5,8 @@
 */
 
 
+#include "StringManipulationFunctions.hpp"
+
 #include "DetectorDriver.hpp"
 #include "RawEvent.hpp"
 #include "RootDevProcessor.hpp"
