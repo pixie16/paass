@@ -10,11 +10,11 @@
 namespace processor_struct {
 
 struct BATO {
-    std::vector<double> pQDCsums = {};
     double time = -999;
     double energy = -999;
     double qdc = -999;
     int detNum = -999;
+    std::vector<double> pQDCsums = {};
 };
 static const BATO BATO_DEFAULT_STRUCT;
 
@@ -87,9 +87,6 @@ struct MTAS {
 static const MTAS MTAS_DEFAULT_STRUCT;
 
 struct MTASIMPLANT {
-    /* std::vector<unsigned> trace = {}; */
-    /* bool hastraceInfile = false; */
-    /* bool hasValidWaveform = false; */
     double energy = -999;
     double oqdc = -999;
     double tqdc = -999;
@@ -148,6 +145,7 @@ static const NEXT NEXT_DEFAULT_STRUCT;
 //    double tof1 = -999;
 //};
 //new PID class for FDSi
+
 struct PID {
     double cross_scint_b1_energy = -999;
     double cross_scint_b1_time = -999;
@@ -228,8 +226,10 @@ struct ROOTDEV {
     int detNum = -999;   //the instance number of RD in the xml Map
     int modNum = -999;   // the physical module number
     int chanNum = -999;  // the physical channel number
+    TString type = "";
     TString subtype = "";
     TString group = "";
+    std::vector<std::string> tag = {};
     bool pileup = false;                   //Did pixie detect pileup in the event
     bool saturation = false;               //Did the trace go out of the ADC range
     std::vector<unsigned int> trace = {};  //The trace if present
