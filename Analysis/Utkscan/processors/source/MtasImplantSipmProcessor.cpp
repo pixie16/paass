@@ -123,8 +123,6 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     vector<double> anodeH_energyList_for_calculations(64, 0.0);
     vector<vector<double>> anode_L_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_H_positionMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
-    vector<vector<double>> anode_L_HarmonicMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
-    vector<vector<double>> anode_H_HarmonicMatrix(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_L_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     vector<vector<double>> anode_H_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     
@@ -132,6 +130,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     double dyh_qdc_max=0;
     double dyl_max =0;
     double dyl_qdc_max =0;
+    pair<int,int> low_res_pos = {-99,-99};
     
     if (!Dynode_H.empty()){
         dyh_max = event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetCalibratedEnergy() ;
@@ -261,12 +260,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             plot(DD_ANODES_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
-        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
-    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
-    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC);
-    double LG_Harmonic = CalculateHarmonicMean(anode_L_HarmonicMatrix);
+    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix,low_res_pos);
+    plot(DD_SIPM_PIXEL_IMAGE_LG, low_res_pos.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - low_res_pos.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC,low_res_pos);
 
     if (dyl_max >= dyl_thresh ){
         plot(DD_SIPM_HIRES_IMAGE_LG_THRESH,LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
@@ -321,12 +319,11 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
-        plot(DD_SIPM_PIXEL_IMAGE_HG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
-    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
-    double HG_Harmonic = CalculateHarmonicMean(anode_H_HarmonicMatrix);
-    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC);
+    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix,low_res_pos);
+    plot(DD_SIPM_PIXEL_IMAGE_HG, low_res_pos.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - low_res_pos.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC,low_res_pos);
 
     if (dyh_max <= dyh_upperThresh && dyh_max >= dyh_thresh){
         plot(DD_SIPM_HIRES_IMAGE_HG_THRESH, HG_positions.first * yso_scale + yso_offset/2, HG_positions.second * yso_scale + yso_offset);
@@ -388,31 +385,26 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
 }
 
-double MtasImplantSipmProcessor::CalculateHarmonicMean(const std::vector<std::vector<double>>& data) const{
-    double tmp = 0.0;
-    for (unsigned int iter = 0; iter < data.size(); ++iter) {
-        for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
-            if ( (data.at(iter)).at(iter2) > 0.0 )
-                tmp += 1.0/(data.at(iter)).at(iter2);
-        }
-    }
-    //std::cout << "tmp: " << tmp << std::endl;
-    return 1.0/tmp;
-}
-
-pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data) const{
+pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data,std::pair<int,int>& pixel) const{
     // x = energy(1,1)*1 + energy(1,2) * 2 ... + energy (2,1)*1 + energy (2,2) *2 ../sumE
     // y = energy (1,1)*1 + energy(2,1)*2 .. + energy (1,2) * 1 + energy (2,2) *2 ../sumE
     double x_tmp_ = 0;
     double y_tmp_ = 0;
     double energy_sum = 0;
+    double max_erg = 0.0;
 
     //TODO: REWRITE INTO USING FOR_EACH TYPE LOOPS
     for (unsigned int iter = 0; iter < data.size(); ++iter) {
         for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
-            energy_sum += (data.at(iter)).at(iter2);
-            x_tmp_ += (data.at(iter)).at(iter2) * (iter + 1);
-            y_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1);
+	    double erg = (data.at(iter)).at(iter2);
+	    if( erg > max_erg ){
+		    max_erg = erg;
+		    pixel.first = iter+1;
+		    pixel.second = iter2+1;
+	    }
+            energy_sum += erg;
+            x_tmp_ += erg * (iter + 1);
+            y_tmp_ += erg * (iter2 + 1);
             /* x_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1); */
             /* y_tmp_ += (data.at(iter)).at(iter2) * (iter + 1); */
         }
