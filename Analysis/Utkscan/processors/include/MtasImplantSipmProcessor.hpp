@@ -42,9 +42,12 @@ class MtasImplantSipmProcessor : public EventProcessor {
 
 		double CalOnboardQDC(int bkg, int waveform, const std::vector<unsigned> oqdcs, double bkgTimeScaling = 1, double waveformTimeScaling = 1);
 
+		std::pair<int, int> ComputeSiPmPixelLoc(int xmlLocation_);
+
 		void FillRootStruct(ChanEvent* evt, double& onboardqdc, const std::pair<int,int> &positions = {0,0});
 
-		std::pair<double,double> CalculatePosition(const std::vector<std::vector<double>>& data,std::pair<int,int>& pixel) const;
+		std::pair<double,double> CalculatePosition(const std::vector<std::vector<double>>& data) const;
+        double CalculateHarmonicMean(const std::vector<std::vector<double>>& data) const;
 
 	private:
 		std::string PixieRevision;  //! pixie revision
