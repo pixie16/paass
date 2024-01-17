@@ -47,6 +47,8 @@ public:
 
     /** Default Constructor */
     EventProcessor();
+    
+    EventProcessor(std::string name);
 
     /** Constructor taking histogram information
      * \param [in] offset : the offset for the histograms
