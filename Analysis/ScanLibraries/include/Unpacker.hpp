@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "XiaListModeDataDecoder.hpp"
 #include "XiaListModeDataMask.hpp"
 
 #ifndef MAX_PIXIE_MOD
@@ -104,6 +105,7 @@ protected:
     std::vector<std::deque<XiaData *>> eventList; ///< The list of all events in a spill.
     double eventWidth_; ///< The width of the raw event in pixie clock ticks
     XiaListModeDataMask mask_; ///< Object providing the masks necessary to decode the data.
+    XiaListModeDataDecoder decoder;
     std::map<unsigned int, std::pair<std::string, unsigned int> > maskMap_;///< Maps firmware/frequency to module number
     unsigned int maxModuleNumberInFile_; ///< The maximum module number that we've encountered in the data file.
     std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.

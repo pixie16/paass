@@ -194,7 +194,7 @@ void Unpacker::ProcessRawEvent() {
 ///@param[in] buf : Pointer to an array of unsigned ints containing raw buffer data.
 ///@return The number of XiaDatas read from the buffer.
 int Unpacker::ReadBuffer(unsigned int *buf, const unsigned int &vsn) {
-    static XiaListModeDataDecoder decoder;
+    //static XiaListModeDataDecoder decoder;
 
     if (maskMap_.size() != 0) {
         auto found = maskMap_.find(vsn);
@@ -205,7 +205,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, const unsigned int &vsn) {
         mask_.SetFrequency((*found).second.second);
     }
 
-    std::vector<XiaData *> decodedList = decoder.DecodeBuffer(buf, mask_);
+    std::vector<XiaData*> decodedList = decoder.DecodeBuffer(buf, mask_);
     for (vector<XiaData *>::iterator it = decodedList.begin(); it != decodedList.end(); it++)
         AddEvent(*it);
     return (int) decodedList.size();

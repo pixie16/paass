@@ -44,7 +44,9 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
 
 
     while (buf < bufStart + bufLen) {
-        XiaData *data = new XiaData();
+        //XiaData *data = new XiaData();
+	events.push_back(new XiaData());
+	XiaData* data = events.back();
         bool hasExternalTimestamp = false;
         bool hasQdc = false;
         bool hasEnergySums = false;
@@ -114,12 +116,16 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
 
         if (hasQdc) {
             static const unsigned int numQdcs = 8;
-            vector<unsigned int> tmp;
+	    data->ReserveQdc(numQdcs);
+            //vector<unsigned int> tmp;
             unsigned int offset = headerLength - numQdcs;
             for (unsigned int i = 0; i < numQdcs; i++) {
-                tmp.push_back(buf[offset + i]);
-            }
-            data->SetQdc(tmp);
+            	data->PushBackQdc(buf[offset + i]);
+	    }
+            //for (unsigned int i = 0; i < numQdcs; i++) {
+            //    tmp.push_back(buf[offset + i]);
+            //}
+            //data->SetQdc(tmp);
         }
 
 
@@ -171,11 +177,13 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
         //   printf("\n");
 
           data->SetExternalTimeStamp(CalculateExternalTimeStamp(*data));
+	  #ifndef NDEBUG
           if(headerLength);
           // printf("headerLength %u, ", headerLength);
           // printf("ExternalTimeHigh %u,", data->GetExternalTimeHigh());
           // printf("ExternalTimeLow %u,", data->GetExternalTimeLow());
           // printf("ExternalTimeStamp %llu \n", data->GetExternalTimeStamp());
+          #endif
 
         }
 
@@ -210,14 +218,15 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
                  << traceLength / 2 << "). Skipped a total of "
                  << numSkippedBuffers << " buffers in this file." << endl;
             return vector<XiaData *>();
-        } else //Advance the buffer past the header and to the trace
+        } else { //Advance the buffer past the header and to the trace
             buf += headerLength;
+	}
 
         if (traceLength > 0) {
             DecodeTrace(buf, *data, traceLength);
             buf += traceLength / 2;
         }
-        events.push_back(data);
+        //events.push_back(data);
     }// while(buf < bufStart + bufLen)
     return events;
 }
@@ -282,15 +291,19 @@ unsigned int XiaListModeDataDecoder::DecodeWordThree(const unsigned int &word, X
 }
 
 void XiaListModeDataDecoder::DecodeTrace(unsigned int *buf, XiaData &data, const unsigned int &traceLength) {
-    vector<unsigned int> tmp;
+    //vector<unsigned int> tmp;
     // sbuf points to the beginning of trace data
     unsigned short *sbuf = (unsigned short *) buf;
 
     // Read the trace data (2-bytes per sample, i.e. 2 samples per word)
+    data.ReserveTrace(traceLength*2);
     for (unsigned int k = 0; k < traceLength; k++)
-        tmp.push_back((unsigned int &&) sbuf[k]);
+	data.PushBackTraceValue((unsigned int &&) sbuf[k]);
 
-    data.SetTrace(tmp);
+    //old method with lot's of copying
+    //for (unsigned int k = 0; k < traceLength; k++)
+    //    tmp.push_back((unsigned int &&) sbuf[k]);
+    //data.SetTrace(tmp);
 }
 
 pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaListModeDataMask &mask,

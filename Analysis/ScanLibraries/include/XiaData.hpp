@@ -202,6 +202,8 @@ public:
     ///@brief Sets the QDCs that were calculated on-board
     ///@param[in] a : The value to set
     void SetQdc(const std::vector<unsigned int> &a) { qdc_ = a; }
+    void PushBackQdc(const unsigned int& val) { qdc_.push_back(val); }
+    void ReserveQdc(const unsigned int& size) { qdc_.reserve(size); }
 
     ///@brief Sets the saturation flag
     ///@param[in] a : True if we found a saturation on board
@@ -223,6 +225,8 @@ public:
     ///@brief Sets the trace recorded on board
     ///@param[in] a : The value to set
     void SetTrace(const std::vector<unsigned int> &a) { trace_ = a; }
+    void ReserveTrace(const unsigned int& size) { trace_.reserve(size); }
+    void PushBackTraceValue(const unsigned int& val) { trace_.push_back(val); }
 
     ///@brief Sets the flag for channels generated on-board
     ///@param[in] a : True if we this channel was generated on-board
