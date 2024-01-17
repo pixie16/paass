@@ -417,8 +417,8 @@ class HisFileWriter final
         static void Stop(){
             if(!instance->running) {return;}
             instance->stopCalled = true;
-            instance->running = false;
             instance->HisFileWriterEventThread.join();
+            instance->running = false;
         }
 
         /// @brief Starts the execution thread fo the HisFileWriter which does nothing until
@@ -445,8 +445,12 @@ class HisFileWriter final
             {
                 ProcessQueue();
                 FlushWrites();
-                usleep(10);
+                //usleep(10);
             }
+	    while( instance->event_queue.size() > 0 ){
+            	ProcessQueue();
+            	FlushWrites();
+	    }
             Finalize();
         }
 };
