@@ -445,7 +445,6 @@ class HisFileWriter final
             {
                 ProcessQueue();
                 FlushWrites();
-                //usleep(10);
             }
         }
 };
