@@ -34,6 +34,19 @@ EventProcessor::EventProcessor() :
     currstep = STEP::UNKNOWN;
 }
 
+EventProcessor::EventProcessor(std::string proc_name) :
+        name(proc_name), initDone(false), didProcess(false),
+        histo(0, 0, "generic"){
+    preprocesscalls = 0;
+    processcalls = 0;
+    postprocesscalls = 0;
+    preprocesstime = 0;
+    processtime = 0;
+    postprocesstime = 0;
+    currstep = STEP::UNKNOWN;
+}
+
+
 EventProcessor::EventProcessor(int offset, int range, std::string proc_name) :
         name(proc_name), initDone(false), didProcess(false),
         histo(offset, range, proc_name){

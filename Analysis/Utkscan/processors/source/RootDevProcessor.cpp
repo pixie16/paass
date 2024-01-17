@@ -22,7 +22,7 @@
 
 using namespace std;
 
-RootDevProcessor::RootDevProcessor(std::string additionaltypes) : EventProcessor() {
+RootDevProcessor::RootDevProcessor(std::string additionaltypes) : EventProcessor("RootDevProcessor") {
     //associatedTypes.insert("RD");
     typestoread = std::vector<std::string>();
     typestoread.push_back("RD");
