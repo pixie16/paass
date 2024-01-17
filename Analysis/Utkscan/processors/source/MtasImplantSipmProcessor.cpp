@@ -133,8 +133,6 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     double dyl_max =0;
     double dyl_qdc_max =0;
     
-    pair<int,int> sipmPixels = {-99,-99};
-    
     if (!Dynode_H.empty()){
         dyh_max = event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetCalibratedEnergy() ;
         dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc());
@@ -238,6 +236,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itAl->GetQdc());
+        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
 
         //! Fill the root struct
         if (DetectorDriver::get()->GetSysRootOutput()) {
@@ -262,11 +261,12 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             plot(DD_ANODES_L_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
+        plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
-    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix,sipmPixels);
-    plot(DD_SIPM_PIXEL_IMAGE_LG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
-    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC,sipmPixels);
+    pair<double, double> LG_positions = CalculatePosition(anode_L_positionMatrix);
+    pair<double, double> LG_QDCpositions = CalculatePosition(anode_L_positionMatrixQDC);
+    double LG_Harmonic = CalculateHarmonicMean(anode_L_HarmonicMatrix);
 
     if (dyl_max >= dyl_thresh ){
         plot(DD_SIPM_HIRES_IMAGE_LG_THRESH,LG_positions.first * yso_scale + yso_offset/2, LG_positions.second * yso_scale + yso_offset);
@@ -296,6 +296,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
 
         //! calculate the qdc from the onboard sums. returns -999 if no qdcsums are in the data stream.
         double oqdc = CalOnboardQDC(0, 2, itAh->GetQdc());
+        pair<int, int> sipmPixels = ComputeSiPmPixelLoc(detLoc);
 
         // ! Fill the root struct
         if (DetectorDriver::get()->GetSysRootOutput()) {
@@ -320,11 +321,12 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
             plot(DD_ANODES_H_TQDC, tqdc / EandQDC_down_scaling_, detLoc);
         }
 
+        plot(DD_SIPM_PIXEL_IMAGE_HG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
     }
 
-    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix,sipmPixels);
-    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC,sipmPixels);
-    plot(DD_SIPM_PIXEL_IMAGE_HG, sipmPixels.first + dammSiPm_pixelShifts.first, dammSiPm_pixelShifts.second - sipmPixels.second);  // x+2 and 12-y should center the image in a S4 by S4 histo
+    pair<double, double> HG_positions = CalculatePosition(anode_H_positionMatrix);
+    double HG_Harmonic = CalculateHarmonicMean(anode_H_HarmonicMatrix);
+    pair<double, double> HG_QDCpositions = CalculatePosition(anode_H_positionMatrixQDC);
 
     if (dyh_max <= dyh_upperThresh && dyh_max >= dyh_thresh){
         plot(DD_SIPM_HIRES_IMAGE_HG_THRESH, HG_positions.first * yso_scale + yso_offset/2, HG_positions.second * yso_scale + yso_offset);
@@ -356,6 +358,15 @@ double MtasImplantSipmProcessor::CalOnboardQDC(int bkg, int waveform, const std:
     }
 }
 
+pair<int, int> MtasImplantSipmProcessor::ComputeSiPmPixelLoc(int xmlLocation_) {
+    /* int y = floor(xmlLocation_ / 8.0);  //! 0 counting the rows and columns */
+    /* int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2 */
+
+    int y =  floor(xmlLocation_ / 8.0);  //! 0 counting the rows and columns
+    int x = xmlLocation_ % 8;           //! Modulus returns the integer remainder i.e. 10 % 8 gives 2
+    return (make_pair(x, y));  //! returning "raw" positions so the plot offets are clearly in the plot command.
+}
+
 void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc, const std::pair<int, int> &positions) {
     mtasImplStruct = processor_struct::MTASIMPLANT_DEFAULT_STRUCT;
     mtasImplStruct.energy = evt->GetCalibratedEnergy();
@@ -377,24 +388,29 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
 }
 
-pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data,std::pair<int,int>& pixel) const{
+double MtasImplantSipmProcessor::CalculateHarmonicMean(const std::vector<std::vector<double>>& data) const{
+    double tmp = 0.0;
+    for (unsigned int iter = 0; iter < data.size(); ++iter) {
+        for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
+            if ( (data.at(iter)).at(iter2) > 0.0 )
+                tmp += 1.0/(data.at(iter)).at(iter2);
+        }
+    }
+    //std::cout << "tmp: " << tmp << std::endl;
+    return 1.0/tmp;
+}
+
+pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data) const{
     // x = energy(1,1)*1 + energy(1,2) * 2 ... + energy (2,1)*1 + energy (2,2) *2 ../sumE
     // y = energy (1,1)*1 + energy(2,1)*2 .. + energy (1,2) * 1 + energy (2,2) *2 ../sumE
     double x_tmp_ = 0;
     double y_tmp_ = 0;
     double energy_sum = 0;
-    double erg_max = 0.0;
 
     //TODO: REWRITE INTO USING FOR_EACH TYPE LOOPS
     for (unsigned int iter = 0; iter < data.size(); ++iter) {
         for (unsigned int iter2 = 0; iter2 < data.at(iter).size(); ++iter2) {
-            double erg =  (data.at(iter)).at(iter2);
-            if( erg > erg_max ){
-		    erg_max = erg;
-		    pixel.first = iter+1;
-		    pixel.second = iter2+1;
-	    }
-            energy_sum += erg;
+            energy_sum += (data.at(iter)).at(iter2);
             x_tmp_ += (data.at(iter)).at(iter2) * (iter + 1);
             y_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1);
             /* x_tmp_ += (data.at(iter)).at(iter2) * (iter2 + 1); */
