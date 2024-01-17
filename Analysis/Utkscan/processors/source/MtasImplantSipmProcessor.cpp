@@ -385,7 +385,7 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     pixie_tree_event_->mtasimpl_vec_.emplace_back(mtasImplStruct);
 }
 
-pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data) const{
+pair<double, double> MtasImplantSipmProcessor::CalculatePosition(const std::vector<std::vector<double>> &data,std::pair<int,int>& pixel) const{
     // x = energy(1,1)*1 + energy(1,2) * 2 ... + energy (2,1)*1 + energy (2,2) *2 ../sumE
     // y = energy (1,1)*1 + energy(2,1)*2 .. + energy (1,2) * 1 + energy (2,2) *2 ../sumE
     double x_tmp_ = 0;
