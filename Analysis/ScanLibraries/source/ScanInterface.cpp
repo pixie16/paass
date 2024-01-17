@@ -454,6 +454,7 @@ void ScanInterface::RunControl() {
     run_ctrl_exit = false;
 
     // Set debug mode, if enabled.
+   #ifndef NDEBUG
     if (debug_mode) {
         pldHead.SetDebugMode();
         pldData.SetDebugMode();
@@ -462,6 +463,7 @@ void ScanInterface::RunControl() {
         databuff.SetDebugMode();
         eofbuff.SetDebugMode();
     }
+    #endif
 
     while (true) {
         if (kill_all) { break; }
@@ -530,23 +532,29 @@ void ScanInterface::RunControl() {
                         continue;
                     }
 
+		    #ifndef NDEBUG
                     if (debug_mode) {
                         cout << "debug: Received " << nWords << " words from the network\n";
                     }
+		    #endif
                     memcpy((char *) &current_chunk, &shm_data[0], 4);
                     memcpy((char *) &total_chunks, &shm_data[1], 4);
 
                     if (previous_chunk == -1 && current_chunk != 1) {
                         // Started reading in the middle of a spill, ignore the rest of it
+		        #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Skipping chunk " << current_chunk << " of " << total_chunks << endl;
                         }
+			#endif
                         continue;
                     } else if (previous_chunk != current_chunk - 1) { // We missed a spill chunk somewhere
+		        #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Found chunk " << current_chunk << " but expected chunk "
                                  << previous_chunk + 1 << endl;
                         }
+			#endif
                         break;
                     }
 
@@ -557,9 +565,11 @@ void ScanInterface::RunControl() {
                         memcpy(&data[nTotalWords], &shm_data[2], (nWords - 2) * 4);
                         nTotalWords += (nWords - 2);
                     } else {
+		        #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Abnormally full spill buffer with " << nTotalWords + 2 + nWords << " words!\n";
                         }
+			#endif
                         break;
                     }
                 }
@@ -570,9 +580,11 @@ void ScanInterface::RunControl() {
                 if (!batch_mode) { term->SetStatus(status.str()); }
                 else { cout << "\r" << status.str(); }
 
-                if (debug_mode) {
-                    cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords * 4 << " bytes)\n";
-                }
+		#ifndef NDEBUG
+		if (debug_mode) {
+			cout << "debug: Retrieved spill of " << nTotalWords << " words (" << nTotalWords * 4 << " bytes)\n";
+		}
+		#endif
                 if (!dry_run_mode && full_spill) {
                     int word1 = 2, word2 = 9999;
                     memcpy(&data[nTotalWords], (char *) &word1, 4);
@@ -588,7 +600,10 @@ void ScanInterface::RunControl() {
 
             delete[] shm_data;
         } else if (file_format == 0) {
-            if (debug_mode) cout << "debug: file_format == 0: ldf" << endl;
+	    #ifndef NDEBUG
+            if (debug_mode) 
+		    cout << "debug: file_format == 0: ldf" << endl;
+	    #endif
 
             unsigned int *data = NULL;
             bool full_spill;
@@ -612,30 +627,42 @@ void ScanInterface::RunControl() {
 
                 if (!databuff.Read(&input_file, (char *) data, nBytes, 1000000, full_spill, bad_spill, dry_run_mode)) {
                     if (databuff.GetRetval() == 1) {
+	                #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Encountered single EOF buffer (end of run).\n";
                         }
+			#endif
                     } else if (databuff.GetRetval() == 2) {
+	                #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Encountered double EOF buffer (end of file).\n";
                         }
+			#endif
                         break;
                     } else if (databuff.GetRetval() == 3) {
+	                #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Encountered unknown ldf buffer type.\n";
                         }
+			#endif
                     } else if (databuff.GetRetval() == 4) {
+	                #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Encountered invalid spill chunk.\n";
                         }
+			#endif
                     } else if (databuff.GetRetval() == 5) {
+	                #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Received bad spill footer size.\n";
                         }
+			#endif
                     } else if (databuff.GetRetval() == 6) {
+	                #ifndef NDEBUG
                         if (debug_mode) {
                             cout << "debug: Failed to read buffer from input file.\n";
                         }
+			#endif
                         break;
                     }
                     continue;
@@ -649,10 +676,12 @@ void ScanInterface::RunControl() {
                 else { cout << "\r" << status.str(); }
 
                 if (full_spill) {
+	            #ifndef NDEBUG
                     if (debug_mode) {
                         cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes / 4 << " words)\n";
                         cout << "debug: Read up to word number " << input_file.tellg() / 4 << " in input file\n";
                     }
+		    #endif
                     if (!dry_run_mode) {
                         if (!bad_spill) {
                             unpacker_->ReadSpill(data, nBytes / 4, is_verbose);
@@ -662,9 +691,11 @@ void ScanInterface::RunControl() {
                                  << " in file)!\n";
                         }
                     }
+	        #ifndef NDEBUG
                 } else if (debug_mode) {
                     cout << "debug: Retrieved spill fragment of " << nBytes << " bytes (" << nBytes / 4 << " words)\n";
                     cout << "debug: Read up to word number " << input_file.tellg() / 4 << " in input file\n";
+		#endif
                 }
                 num_spills_recvd++;
             }
@@ -675,7 +706,10 @@ void ScanInterface::RunControl() {
                 term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
             } else { cout << endl << endl; }
         } else if (file_format == 1) {
-            if (debug_mode) cout << "debug: file_format == 1: pld" << endl;
+	    #ifndef NDEBUG
+            if (debug_mode) 
+		    cout << "debug: file_format == 1: pld" << endl;
+	    #endif
 
             unsigned int *data = NULL;
             unsigned int nBytes;
@@ -700,10 +734,12 @@ void ScanInterface::RunControl() {
                 if (!batch_mode) { term->SetStatus(status.str()); }
                 else { cout << "\r" << status.str(); }
 
+	        #ifndef NDEBUG
                 if (debug_mode) {
                     cout << "debug: Retrieved spill of " << nBytes << " bytes (" << nBytes / 4 << " words)\n";
                     cout << "debug: Read up to word number " << input_file.tellg() / 4 << " in input file\n";
                 }
+		#endif
 
                 if (!dry_run_mode) {
                     int word1 = 2, word2 = 9999;
@@ -727,10 +763,16 @@ void ScanInterface::RunControl() {
                 term->SetStatus("\033[0;33m[IDLE]\033[0m Finished scanning file.");
             } else { cout << endl << endl; }
         } else if (file_format == 2) {
-            if (debug_mode) cout << "debug: file_format == 2: root (not implemented)" << endl;
+	    #ifndef NDEBUG
+            if (debug_mode) 
+		    cout << "debug: file_format == 2: root (not implemented)" << endl;
+	    #endif
         }
         else if (file_format == 3) {
-            if (debug_mode) cout << "debug: file_format == 3: evt" << endl;
+	    #ifndef NDEBUG
+            if (debug_mode) 
+		    cout << "debug: file_format == 3: evt" << endl;
+	    #endif
 
             std::vector<unsigned int> spillbuf; // spill buffer
             std::vector<unsigned int> modfifo; // module fifo
@@ -758,7 +800,10 @@ void ScanInterface::RunControl() {
                 if (ringitemtype == 30) {
                     input_file.read((char *) &bodyhdrsize, 4);
                     if (bodyhdrsize == 0) { // PHYSICS_EVENT of pre-sort ring has no body header
-                        if (debug_mode) std::cout << "debug: got a PHYSICS_EVENT item (ring item type " << ringitemtype << ")" << std::endl;
+			#ifndef NDEBUG
+                        if (debug_mode) 
+				std::cout << "debug: got a PHYSICS_EVENT item (ring item type " << ringitemtype << ")" << std::endl;
+			#endif
                         // skip two words inserted by NSCLDAQ
                         input_file.seekg(8, input_file.cur);
                         nBytes = ringitemsize-20;
@@ -766,12 +811,18 @@ void ScanInterface::RunControl() {
                         modfifofrag.resize(nBytes/4);
                         input_file.read((char *) modfifofrag.data(), nBytes);
                     } else { // if body header size is NOT zero, it's NOT a PHYSICS_EVENT we are looking for
-                        if (debug_mode) std::cout << "debug: got a PHYSICS_EVENT item (ring item type " << ringitemtype << ") but non-zero body header size" << std::endl;
+			#ifndef NDEBUG
+                        if (debug_mode) 
+				std::cout << "debug: got a PHYSICS_EVENT item (ring item type " << ringitemtype << ") but non-zero body header size" << std::endl;
+			#endif
                         // most likely bodyhdrsize == 20 but it doesn't matter, just skip the rest
                         input_file.seekg(ringitemsize-12, input_file.cur);
                     }
                 } else {
-                    if (debug_mode) std::cout << "debug: got a non-PHYSICS_EVENT item (ring item type " << ringitemtype << "), skipping..." << std::endl;
+		    #ifndef NDEBUG
+                    if (debug_mode) 
+			    std::cout << "debug: got a non-PHYSICS_EVENT item (ring item type " << ringitemtype << "), skipping..." << std::endl;
+		    #endif
                     input_file.seekg(ringitemsize-8, input_file.cur);
                     if(input_file.eof()) break;
                 }
@@ -784,10 +835,12 @@ void ScanInterface::RunControl() {
                 if (!batch_mode) { term->SetStatus(status.str()); }
                 else { cout << "\r" << status.str(); }
 
+		#ifndef NDEBUG
                 if (debug_mode) {
                     cout << "debug: Retrieved *partial* module fifo data of " << nBytes << " bytes (" << nBytes / 4 << " words)\n";
                     cout << "debug: Read up to word number " << input_file.tellg() / 4 << " in input file\n";
                 }
+		#endif
 
                 if (!dry_run_mode) {
                     int modn = 9999;
@@ -798,10 +851,12 @@ void ScanInterface::RunControl() {
                         // this is revision specific!! has to be changed for RevH
                         modn = (pixhead1 >> 4) & 0xf;
                         modn -= 2; // modnum is slotnum - 2
+		        #ifndef NDEBUG
                         if (debug_mode) {
                             std::cout << "debug: first pixie event header in this module fifo fragment 0x"  << std::setfill('0') << std::setw(8) << std::right << std::hex << pixhead1;
                             std::cout << " (module number " << std::dec << modn << ")" << std::endl;
                         }
+			#endif
                         if (modn < 0) {
                             std::cout << "invalid slot number (got " << modn << "), likely hit the end of file or potentially corrupted data" << std::endl;
                             continue;
@@ -813,7 +868,10 @@ void ScanInterface::RunControl() {
 
                     // detect completion of module fifo
                     if (prevmodn < modn) {
-                        if (debug_mode) std::cout << "debug: module fifo completion detected" << std::endl;
+		        #ifndef NDEBUG
+                        if (debug_mode) 
+				std::cout << "debug: module fifo completion detected" << std::endl;
+			#endif
                         spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
                         spillbuf.push_back(prevmodn);
                         spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
@@ -829,7 +887,10 @@ void ScanInterface::RunControl() {
                     // detect completion of a spill
                     // second condition is for systems where only one module is present
                     else if ( (prevmodn > modn) || (prevmodn == modn && prevnBytes < nBytes)){
-                        if (debug_mode) std::cout << "debug: spill completion detected" << std::endl;
+		        #ifndef NDEBUG
+                        if (debug_mode) 
+				std::cout << "debug: spill completion detected" << std::endl;
+			#endif
                         spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
                         spillbuf.push_back(prevmodn);
                         spillbuf.insert(spillbuf.end(), modfifo.begin(), modfifo.end());
@@ -857,7 +918,10 @@ void ScanInterface::RunControl() {
             }
 
             if (!dry_run_mode) {
-                if (debug_mode) std::cout << "debug: closing out last spill" << std::endl;
+		#ifndef NDEBUG
+                if (debug_mode) 
+			std::cout << "debug: closing out last spill" << std::endl;
+		#endif
                 if (spillbuf.size()>0 || modfifo.size()>0) {
                     spillbuf.push_back(modfifo.size()+2); // number of words (including this header)
                     spillbuf.push_back(prevmodn);
@@ -960,6 +1024,7 @@ void ScanInterface::CmdControl() {
         } else if (cmd == "stop") { // Stop acquisition.
             stop_scan();
         } else if (cmd == "debug") { // Toggle debug mode
+	    #ifndef NDEBUG
             if (debug_mode) {
                 cout << msgHeader << "Toggling debug mode OFF\n";
                 debug_mode = false;
@@ -968,6 +1033,9 @@ void ScanInterface::CmdControl() {
                 debug_mode = true;
             }
             unpacker_->SetDebugMode(debug_mode);
+	    #else
+                cout << msgHeader << "I wasn't compiled in Debug or RelWithDebInfo, recompile me and run again.\n";
+	    #endif
         } else if (cmd == "quiet") { // Toggle quiet mode
             if (!is_verbose) {
                 cout << msgHeader << "Toggling quiet mode OFF\n";
@@ -1149,8 +1217,10 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
         throw invalid_argument("ScanInterface::Setup - Firmware/Frequency Flags or Config file are not set properly. "
                                        "Cannot Initialize Data Mask.");
 
+    #ifndef NDEBUG
     if (debug_mode)
         unpacker_->SetDebugMode();
+    #endif
 
     // Parse for any extra arguments that are known to the derived class.
     ExtraArguments();
@@ -1189,7 +1259,9 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
     cout << "\n " << progName << " v" << SCAN_VERSION << "\n";
     cout << " ==  ==  ==  ==  == \n\n";
 
+    #ifndef NDEBUG
     if (debug_mode) { cout << msgHeader << "Using debug mode.\n\n"; }
+    #endif
     if (dry_run_mode) { cout << msgHeader << "Doing a dry run.\n\n"; }
     if (shm_mode) {
         cout << msgHeader << "Using shared-memory mode.\n\n";

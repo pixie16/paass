@@ -614,10 +614,12 @@ void HisFile::AddDrrEntry(std::shared_ptr<drr_entry> entry)
     }
     if(drr_entry_map[entry->hisID] != nullptr)
     {
+	#ifndef NDEBUG
         if(debug_mode)
         {
             std::cout << "tried to add a drr_entry that already exists!" << std::endl;
         }
+	#endif
         return;
     }
     drr_entry_map[entry->hisID] = entry;
@@ -950,6 +952,7 @@ std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
 }
 
 void OutputHisFile::Flush() {
+    #ifndef NDEBUG
     if (debug_mode)
         std::cout << "debug: Flushing histogram entries to file.\n";
 
@@ -958,6 +961,10 @@ void OutputHisFile::Flush() {
     } else if (debug_mode) {
         std::cout << "debug: Output file is not writable!\n";
     }
+    #else
+    if (writable) 
+        HisFileWriter::EnqueueWrites(waiting_to_enqueue);
+    #endif
 
     Flush_count = 0;
 }
@@ -997,22 +1004,25 @@ OutputHisFile::~OutputHisFile() {
 
 size_t OutputHisFile::push_back(std::shared_ptr<drr_entry> entry) {
     if (!entry) {
+	#ifndef NDEBUG
         if (debug_mode)
-            std::cout
-                    << "debug: OutputHisFile::push_back was passed a NULL pointer!\n";
+            std::cout << "debug: OutputHisFile::push_back was passed a NULL pointer!\n";
+        #endif
         return (0);
     } else if (!writable || finalized) {
+	#ifndef NDEBUG
         if (debug_mode)
-            std::cout
-                    << "debug: The .drr and .his files have already been finalized and are locked!\n";
+            std::cout << "debug: The .drr and .his files have already been finalized and are locked!\n";
+	#endif
         return (0);
     }
 
     // Search for existing histogram with the same id
     if (find_drr_in_list(entry->hisID)) {
+	#ifndef NDEBUG
         if (debug_mode)
-            std::cout << "debug: His id = " << entry->hisID
-                      << " is already in the drr entry list!\n";
+            std::cout << "debug: His id = " << entry->hisID << " is already in the drr entry list!\n";
+	#endif
         return (0);
     }
 
@@ -1022,10 +1032,12 @@ size_t OutputHisFile::push_back(std::shared_ptr<drr_entry> entry) {
             (size_t) ofile.tellp() / 2; // Set the file offset (in 2 byte words)
     AddDrrEntry(entry);
 
+    #ifndef NDEBUG
     if (debug_mode)
         std::cout << "debug: Extending .his file by " << entry->total_size
                   << " bytes for his ID = " << entry->hisID << " i.e. '"
                   << rstrip(entry->title) << "'\n";
+    #endif
 
     char *block = new char[entry->total_size];
     memset(block, 0x0, entry->total_size);
@@ -1043,9 +1055,10 @@ size_t OutputHisFile::push_back(std::shared_ptr<drr_entry> entry) {
 bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
                              const std::string &descrip_/*="RootPixieScan .drr file"*/) {
     if (!writable || finalized) {
+	#ifndef NDEBUG
         if (debug_mode)
-            std::cout
-                    << "debug: The .drr and .his files have already been finalized and are locked!\n";
+            std::cout << "debug: The .drr and .his files have already been finalized and are locked!\n";
+	#endif
         return (false);
     }
 
@@ -1055,8 +1068,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
     set_char_array(description, descrip_, 40);
 
     nHis = CountDrrEntries();
+    #ifndef NDEBUG
     if (debug_mode)
         std::cout << "debug: NHIS = " << nHis << std::endl;
+    #endif
     
     nHWords = (128 * (1 + nHis) + nHis * 4) / 2;
 
@@ -1091,10 +1106,14 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
 
         // Write the drr entries
         for (auto &entry: drr_entry_map) {
-            if(entry == nullptr){continue;}
+            if(entry == nullptr){
+		    continue;
+	    }
+            #ifndef NDEBUG
             if (debug_mode)
                 std::cout << "debug: Writing .drr entry for his id = "
                           << entry->hisID << std::endl;
+            #endif
             entry->print_drr(&drr_file);
         }
 
@@ -1105,8 +1124,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
             drr_file.write((char *) &his_id, 4);
         }
     } else {
+        #ifndef NDEBUG
         if (debug_mode)
             std::cout << "debug: Failed to open the .drr file for writing!\n";
+        #endif
         retval = false;
     }
     drr_file.close();
@@ -1133,8 +1154,10 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
             entry->print_list(&list_file);
         }
     } else {
+	#ifndef NDEBUG
         if (debug_mode)
             std::cout << "debug: Failed to open the .list file for writing!\n";
+        #endif
         retval = false;
     }
     list_file.close();
@@ -1280,8 +1303,10 @@ void OutputHisFile::Close() {
                 log_file<< std::endl;
             }
         }
+    #ifndef NDEBUG
     } else if (debug_mode) {
         std::cout << "debug: Failed to open the .log file for writing!\n";
+    #endif
     }
     log_file.close();
 
@@ -1291,5 +1316,3 @@ void OutputHisFile::Close() {
     HisFileWriter::Stop();
     ofile.close();
 }
-
-
