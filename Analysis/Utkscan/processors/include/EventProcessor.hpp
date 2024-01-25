@@ -44,6 +44,9 @@ public:
     unsigned long long preprocesscalls;
     unsigned long long processcalls;
     unsigned long long postprocesscalls;
+    unsigned long long numprocEvts;
+    unsigned long long numpreprochits;
+    unsigned long long numprochits;
 
     /** Default Constructor */
     EventProcessor();

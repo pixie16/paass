@@ -63,8 +63,11 @@ EventProcessor::~EventProcessor() {
 	std::cout << name 
 		  << " Preprocess: ( "<< preprocesscalls << " calls, " << preprocesstime << " s )"
 		  << " Process: ( "<< processcalls << " calls, " << processtime << " s )"
+      #ifndef NDEBUG
 		  << " Postprocess: ( "<< postprocesscalls << " calls, " << postprocesstime << " s )"
-		  << std::endl;
+		  << " Preproc Hits: ( "<< numpreprochits << " )  Proc Hits: ( " << numprochits<< " )"
+      #endif // !NDEBUG
+      <<std::endl;
 }
 
 bool EventProcessor::HasEvent(void) const {
@@ -106,6 +109,9 @@ bool EventProcessor::Init(RawEvent &rawev) {
 bool EventProcessor::PreProcess(RawEvent &event) {
     start_time = std::chrono::high_resolution_clock::now();
     currstep = STEP::PREPROCESS;
+    #ifndef NDEBUG
+    numpreprochits+=event.Size();
+    #endif // !NDEBUG
     ++preprocesscalls;
     if (!initDone)
         return (didProcess = false);
@@ -116,7 +122,10 @@ bool EventProcessor::Process(RawEvent &event) {
     start_time = std::chrono::high_resolution_clock::now();
     currstep = STEP::PROCESS;
     ++processcalls;
-    if (!initDone)
+  #ifndef NDEBUG
+  numprochits+=event.Size(); 
+  #endif // !NDEBUG    
+  if (!initDone)
         return (didProcess = false);
     return (didProcess = true);
 }
