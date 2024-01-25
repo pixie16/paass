@@ -101,6 +101,8 @@ public:
     void Run() { running = true; }
 
 protected:
+    unsigned long droppedEventsPerSpill;
+    unsigned long droppedRawEvtPerSpill;
     bool debug_mode; ///< True if debug mode is set.
     std::vector<std::deque<XiaData *>> eventList; ///< The list of all events in a spill.
     double eventWidth_; ///< The width of the raw event in pixie clock ticks

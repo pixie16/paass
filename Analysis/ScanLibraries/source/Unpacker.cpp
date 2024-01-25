@@ -24,13 +24,28 @@
 
 using namespace std;
 
-void clearDeque(deque<XiaData *> &list) {
+#ifndef NDEBUG
+
+void clearDeque(deque<XiaData *> &list, unsigned long & droppedEventsPerSpill, int id=0) {
     while (!list.empty()) {
-        delete list.front();
+    if (id ==1){
+      droppedEventsPerSpill+=1;
+    }
+    if (id == 0){
+      droppedEventsPerSpill+=1;
+    }
+    delete list.front();
         list.pop_front();
     }
 }
-
+#else 
+void clearDeque(deque<XiaData *> &list) {
+    while (!list.empty()) {
+    delete list.front();
+        list.pop_front();
+    }
+}
+#endif
 ///Scan the event list and sort it by timestamp.
 /// @return Nothing.
 void Unpacker::TimeSort() {
@@ -97,8 +112,9 @@ bool Unpacker::BuildRawEvent() {
             // If the time difference between the current and previous event is
             // larger than the event width, finalize the current event, otherwise
             // treat this as part of the current event
-            if ((currtime - eventStartTime) > eventWidth_)
+            if ((currtime - eventStartTime) > eventWidth_){
                 break;
+            }
 
             // Check for the minimum time in this raw event.
             if (currtime < realStartTime)
@@ -146,15 +162,24 @@ bool Unpacker::AddEvent(XiaData *event_) {
   * event list. This could cause seg faults if the events are used elsewhere.
   * \return Nothing. */
 void Unpacker::ClearEventList() {
-    for (std::vector<std::deque<XiaData *> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++)
-        clearDeque((*iter));
+  for (std::vector<std::deque<XiaData *> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++){
+#ifndef NDEBUG
+    clearDeque((*iter),droppedEventsPerSpill,1);
+#else 
+    clearDeque(*iter);
+#endif // !NDEBUG
+  }
 }
 
 /** Clear all events in the raw event list. WARNING! This method will delete all events in the
   * event list. This could cause seg faults if the events are used elsewhere.
   * \return Nothing. */
 void Unpacker::ClearRawEvent() {
-    clearDeque(rawEvent);
+#ifndef NDEBUG
+  clearDeque(rawEvent,droppedRawEvtPerSpill,0);
+#else 
+  clearDeque(rawEvent);
+#endif // !NDEBUG
 }
 
 /** Get the minimum channel time from the event list.
@@ -215,7 +240,7 @@ Unpacker::Unpacker() : debug_mode(false), eventWidth_(62), running(true),
                        TOTALREAD(1000000), // Maximum number of data words to read.
                        maxWords(131072), // Maximum number of data words for revision D.
                        numRawEvt(0), // Count of raw events read from file.
-                       firstTime(0), eventStartTime(0), realStartTime(0), realStopTime(0) {
+                       firstTime(0), eventStartTime(0), realStartTime(0), realStopTime(0),droppedEventsPerSpill(0),droppedRawEvtPerSpill(0) {
 
     for (unsigned int i = 0; i <= MAX_PIXIE_MOD; i++)
         for (unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++)
@@ -223,6 +248,10 @@ Unpacker::Unpacker() : debug_mode(false), eventWidth_(62), running(true),
 }
 
 Unpacker::~Unpacker() {
+    #ifndef NDEBUG
+    cout<<"Total Events Dropped == " << droppedEventsPerSpill <<endl;
+    cout<<"Total  raw Events Dropped == " << droppedRawEvtPerSpill <<endl; 
+    #endif // !DEBUG
     ClearRawEvent();
     ClearEventList();
 }
