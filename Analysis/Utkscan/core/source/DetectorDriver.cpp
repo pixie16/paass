@@ -180,10 +180,14 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
     plot(dammIds::raw::D_NUMBER_OF_EVENTS, dammIds::GENERIC_CHANNEL);
     try {
         int innerEvtCounter=0;
+	int eventLength = rawev.GetEventList().size();
         for (vector<ChanEvent *>::const_iterator it = rawev.GetEventList().begin(); it != rawev.GetEventList().end(); ++it) {
             PlotRaw((*it));
             ThreshAndCal((*it), rawev);
             PlotCal((*it));
+	    //This is wrong for pixie32s
+	    //and assume only 1 crate for now
+	    plot(dammIds::raw::DD_CHAN_MULT_DIST,(*it)->GetChannelNumber()+(*it)->GetModuleNumber()*16,eventLength);
 
             //internal TS for the FDSi experiment (Xu)
             if ((*it)->GetChanID().HasTag("its")) {
@@ -278,6 +282,7 @@ void DetectorDriver::DeclarePlots() {
         DeclareHistogram1D(D_EVENT_GAP, SE, "Time Between Events in ns");
         DeclareHistogram1D(D_EVENT_MULTIPLICITY, S7, "Number of Channels Event");
         DeclareHistogram1D(D_BUFFER_END_TIME, SE, "Buffer Length in ns");
+	DeclareHistogram2D(DD_CHAN_MULT_DIST,S8,SA,"Channel Distribution vs Event Length");
 
         if (Globals::get()->HasRawHistogramsDefined()) {
             DetectorLibrary *modChan = DetectorLibrary::get();
