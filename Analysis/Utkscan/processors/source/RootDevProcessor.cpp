@@ -68,6 +68,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
 			    RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds() * 1e9;
 		    }
 		    RDstruct.detNum = (*it)->GetChanID().GetLocation();
+		    RDstruct.crateNum = (*it)->GetCrateNumber();
 		    RDstruct.modNum = (*it)->GetModuleNumber();
 		    RDstruct.chanNum = (*it)->GetChannelNumber();
 		    RDstruct.type = (*it)->GetChanID().GetType();

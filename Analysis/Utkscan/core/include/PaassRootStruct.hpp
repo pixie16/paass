@@ -224,6 +224,7 @@ struct ROOTDEV {
     double cfdFraction = -999;
     int cfdSourceBit = -999;
     int detNum = -999;   //the instance number of RD in the xml Map
+    int crateNum = -999;   // the physical crate number (forced to 0 for now in Unpacker. TTK jan23,2024)
     int modNum = -999;   // the physical module number
     int chanNum = -999;  // the physical channel number
     TString type = "";
