@@ -50,6 +50,7 @@ namespace dammIds {
         const int D_HAS_TRACE_2 = 1815;//!< Plot for Channels w/ valid waveform analysis 
         const int D_HAS_TRACE_3 = 1816;//!< Plot for Channels w/ valid fit analysis 
         //const int DD_TRACE_MAX_PINGATE = 1817;//!< Plot for Max Value in Trace gated by PIN0 energy
+	const int DD_CHAN_MULT_DIST = 1818;
     }
 
     /// in PspmtProcessor.cpp
