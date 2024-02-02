@@ -28,4 +28,4 @@ target_link_libraries(mainmonitor PaassCoreStatic)
 # add_executable(exec_test ${EXEC_TEST})
 # # target_link_libraries(exec_test PaassCoreStatic)
 
-install(TARGETS listener monitor submonitors mainmonitor DESTINATION bin)
+install(TARGETS listener monitor submonitor mainmonitor DESTINATION bin)
