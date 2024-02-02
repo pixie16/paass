@@ -17,7 +17,7 @@ add_executable(monitor ${MONITOR_SOURCES})
 target_link_libraries(monitor PaassCoreStatic)
 
 set(SUBMONITORS_SOURCES submonitor.cpp monitor.cpp)
-add_executable(submonitors ${SUBMONITORS_SOURCES})
+add_executable(submonitor ${SUBMONITORS_SOURCES})
 target_link_libraries(submonitor PaassCoreStatic)
 
 set(MAIN_MONITOR_SOURCES mainmonitor.cpp  monitor.cpp)
