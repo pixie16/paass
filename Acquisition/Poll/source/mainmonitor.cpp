@@ -9,7 +9,6 @@
  */
 
 #include "mainmonitor.hpp"
-#include <__config>
 using namespace std;
 
 // TODO test what happens when subs are ctrlC'd first then try to quit main
