@@ -9,6 +9,7 @@
  */
 
 #include "mainmonitor.hpp"
+#include <__config>
 using namespace std;
 
 // TODO test what happens when subs are ctrlC'd first then try to quit main
@@ -265,7 +266,7 @@ int main(int argc, char *argv[]) {
     }
     if (Submonitor_Client_List && !mmon.GetDummyMode()) {
         mmon.CloseSubmonitors();
-        delete[] Submonitor_Client_List;
+        Submonitor_Client_List = nullptr;
     }
     return 0;
 }
