@@ -31,17 +31,16 @@ ScanorInterface *ScanorInterface::get() {
  * \param [in] nWords : the length of the data
  * \param [in] maxWords : the maximum words to get
  * \return true if successful */
-bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
-                                     unsigned int maxWords) {
+bool ScanorInterface::MakeModuleData(const unsigned int *data, unsigned long nWords, unsigned int maxWords) {
     const unsigned int maxVsn = 14; // no more than 14 pixie modules per crate
 
     unsigned int inWords = 0, outWords = 0;
 
-    static uint32_t modData[TOTALREAD];
+    static unsigned int modData[TOTALREAD];
 
     do {
-        uint32_t lenRec = data[inWords];
-        uint32_t vsn = data[inWords + 1];
+        unsigned int lenRec = data[inWords];
+        unsigned int vsn = data[inWords + 1];
         /* Check sanity of record length and vsn*/
         if (lenRec > maxWords || (vsn > maxVsn && vsn != 9999 && vsn != 1000)) {
 #ifdef VERBOSE
@@ -53,7 +52,7 @@ bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
         }
 
         /*Extract the data from TotData and place into ModData*/
-        memcpy(&modData[outWords], &data[inWords], lenRec * sizeof(uint32_t));
+        memcpy(&modData[outWords], &data[inWords], lenRec * sizeof(unsigned int));
         inWords += lenRec;
         outWords += lenRec;
 
@@ -106,7 +105,7 @@ bool ScanorInterface::MakeModuleData(const uint32_t *data, unsigned long nWords,
 void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
     const unsigned int maxChunks = 200;
 
-    static uint32_t totData[TOTALREAD];
+    static unsigned int totData[TOTALREAD];
     // keep track of the number of bad spills
     static unsigned int spillInvalidCount = 0, spillValidCount = 0;
     static bool firstTime = true;
@@ -115,13 +114,13 @@ void ScanorInterface::Hissub(unsigned short **sbuf, unsigned short *nhw) {
     static unsigned int dataWords = 0;
 
     /*Assign ibuf variable to local variable for use in function */
-    uint32_t *buf = (uint32_t *) sbuf;
+    unsigned int *buf = (unsigned int *) sbuf;
 
     /* Initialize variables */
     unsigned long totWords = 0;
-    uint32_t nWords = buf[0] / 4;
-    uint32_t totBuf = buf[1];
-    uint32_t bufNum = buf[2];
+    unsigned int nWords = buf[0] / 4;
+    unsigned int totBuf = buf[1];
+    unsigned int bufNum = buf[2];
     static unsigned int lastBuf = U_DELIMITER;
     unsigned int maxWords = EXTERNAL_FIFO_LENGTH;
 

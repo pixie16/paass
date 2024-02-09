@@ -6,6 +6,7 @@
 
 #include "Unpacker.hpp"
 
+
 class ScanorInterface {
 public:
     static ScanorInterface *get();
@@ -25,7 +26,7 @@ private:
     ScanorInterface &
     operator=(ScanorInterface const &);//!< Equality constructor
 
-    bool MakeModuleData(const uint32_t *data, unsigned long nWords, unsigned
+    bool MakeModuleData(const unsigned int *data, unsigned long nWords, unsigned
     int maxWords);
 
     static ScanorInterface *instance_;//!< The only instance of ScanorInterface

@@ -64,7 +64,7 @@ extern "C" void startup_() {
 ///@brief Defines the main interface with the SCANOR library, the program
 /// essentially starts here.
 ///@param [in] iexist : unused paramter from SCANOR call
-extern "C" void drrsub_(uint32_t &iexist) {
+extern "C" void drrsub_(unsigned int &iexist) {
     drrmake_();
     hd1d_(8000, 2, 256, 256, 0, 255, "Run DAMM you!", strlen("Run DAMM you!"));
     endrr_();
