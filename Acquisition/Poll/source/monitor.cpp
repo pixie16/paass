@@ -231,7 +231,7 @@ int monitor::ParseCliFlags(int &argc, char *argv[], monitor *obj) {
 /* Print help dialogue for command line options. */
 void monitor::help(const char *progName) {
     std::cout << "\n SYNTAX: " << progName << " [options]\n";
-    std::cout << "  --color (-c)          | Use colored output (not implemented yet)\n";
+    std::cout << "  --color (-c)          | Use Colors\n";
     if (strcmp(progName, "submonitor") == 0) {
         int minport = PREDEFINED_POLL2_PORT + 1;
         int maxPort = PREDEFINED_POLL2_PORT + MAX_NUM_SUBMONITORS;
@@ -239,7 +239,7 @@ void monitor::help(const char *progName) {
     } else if (strcmp(progName, "mainmonitor") == 0) {
         std::cout << "  --log (-l)            | Write monitor log files (not implemented yet)\n";
     }
-    std::cout << "  --rows (-r)           | Number of rows to draw monitor on (not implemented yet)\n";
+    std::cout << "  --rows (-r)           | Number of rows\n";
     std::cout << "  --help (-h)           | Display this help dialogue.\n\n";
 }
 
