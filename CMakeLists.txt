@@ -1,6 +1,6 @@
 # @authors S.V. Paulauskas, K. Smith, and C. Thronsberry
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 project(PAASS C CXX Fortran)
 
@@ -52,9 +52,14 @@ include(CMakeDependentOption)
 
 #Install options
 option(PAASS_BUILD_ACQ "Build and install Acquisition software" ON)
-option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" ON)
 option(PAASS_BUILD_SETUP "Include the older setup programs in installation" OFF)
-option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
+if ( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+  option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" OFF)
+  option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" OFF)
+else()
+  option(PAASS_BUILD_SCAN_UTILITIES "Build and install the Analysis Utilities" ON)
+  option(PAASS_BUILD_SHARED_LIBS "Install only scan libraries" ON)
+endif()
 option(PAASS_BUILD_TESTS "Builds programs designed to test the package. Including UnitTest++ test." OFF)
 option(PAASS_BUILD_UTKSCAN "Build utkscan" OFF)
 option(PAASS_USE_DAMM "Use DAMM for MCA" ON)
@@ -142,24 +147,80 @@ endif (PAASS_BUILD_ACQ)
 #Find ROOT if USE_ROOT was set.
 if (PAASS_USE_ROOT)
     find_package(ROOT REQUIRED COMPONENTS TreePlayer)
-    if (${ROOT_VERSION} VERSION_LESS "6.10")
-            message(FATAL_ERROR "Minimum ROOT version is 6.10.00.")
-    endif (${ROOT_VERSION} VERSION_LESS "6.10")
-    mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
+    set(ROOTSYS $ENV{ROOTSYS} CACHE STRING "ROOT directory.")
+    find_program(ROOT_CONFIG_EXECUTABLE root-config PATHS ${ROOTSYS}/bin)
+    find_program(ROOTCINT_EXECUTABLE rootcint PATHS $ENV{ROOTSYS}/bin)
+    find_program(GENREFLEX_EXECUTABLE genreflex PATHS $ENV{ROOTSYS}/bin)
+    if (ROOT_CONFIG_EXECUTABLE)
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --prefix
+                OUTPUT_VARIABLE ROOTSYS
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --version
+                OUTPUT_VARIABLE ROOT_VERSION
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --incdir
+                OUTPUT_VARIABLE ROOT_INCLUDE_DIR
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --libs
+                OUTPUT_VARIABLE ROOT_LIBRARIES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --glibs
+                OUTPUT_VARIABLE ROOT_GUI_LIBRARIES
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        set(ROOT_LIBRARY_DIR ${ROOTSYS}/lib)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-minuit2
+                OUTPUT_VARIABLE ROOT_HAS_MINUIT2
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx17
+                OUTPUT_VARIABLE ROOT_HAS_CXX17)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx14
+                OUTPUT_VARIABLE ROOT_HAS_CXX14)
+
+        execute_process(
+                COMMAND ${ROOT_CONFIG_EXECUTABLE} --has-cxx11
+                OUTPUT_VARIABLE ROOT_HAS_CXX11)
+
+  endif ()
+
+  if (${ROOT_VERSION} VERSION_LESS "6.10")
+    message(FATAL_ERROR "Minimum ROOT version is 6.10.00.")
+  endif (${ROOT_VERSION} VERSION_LESS "6.10")
+  mark_as_advanced(FORCE GENREFLEX_EXECUTABLE ROOTCINT_EXECUTABLE ROOT_CONFIG_EXECUTABLE)
+  if ( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+    include_directories(${ROOT_INCLUDE_DIR})
+    link_directories(${ROOT_LIBRARY_DIR})
+  else() 
     include_directories(SYSTEM ${ROOT_INCLUDE_DIR})
     link_directories(SYSTEM ${ROOT_LIBRARY_DIR})
-    add_definitions("-D USE_ROOT")
-    add_definitions("-D useroot")
-    if (ROOT_HAS_CXX11 MATCHES "yes")
-        message(STATUS "ROOT was built with cxx11. Setting CMAKE_CXX_STANDARD to match")
-        set(CMAKE_CXX_STANDARD 11)
-    elseif (ROOT_HAS_CXX14 MATCHES "yes")
-        message(STATUS "ROOT was built with cxx14. Setting CMAKE_CXX_STANDARD to match")
-        set(CMAKE_CXX_STANDARD 14)
-    elseif (ROOT_HAS_CXX17 MATCHES "yes")
-        message(STATUS "ROOT was built with cxx17. Setting CMAKE_CXX_STANDARD to match")
-        set(CMAKE_CXX_STANDARD 17)
-    endif()
+  endif()
+  add_definitions("-D USE_ROOT")
+  add_definitions("-D useroot")
+  if (ROOT_HAS_CXX11 MATCHES "yes")
+    message(STATUS "ROOT was built with cxx11. Setting CMAKE_CXX_STANDARD to match")
+    set(CMAKE_CXX_STANDARD 11)
+  elseif (ROOT_HAS_CXX14 MATCHES "yes")
+    message(STATUS "ROOT was built with cxx14. Setting CMAKE_CXX_STANDARD to match")
+    set(CMAKE_CXX_STANDARD 14)
+  elseif (ROOT_HAS_CXX17 MATCHES "yes")
+    message(STATUS "ROOT was built with cxx17. Setting CMAKE_CXX_STANDARD to match")
+    set(CMAKE_CXX_STANDARD 17)
+  endif()
 endif (PAASS_USE_ROOT)
 
 #------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ if (PAASS_UTKSCAN_VERBOSE)
 endif (PAASS_UTKSCAN_VERBOSE)
 
 if (PAASS_OVERRIDE_EXE_PREFIX)
-    ##  Overrid exe name
+    ##  Override exe name
     set(PAASS_SCANNAME_PREFIX utk CACHE STRING "Set Prefix name for scan")
     set(SCANOR_NAME "${PAASS_SCANNAME_PREFIX}scanor")
     set(SCAN_NAME "${PAASS_SCANNAME_PREFIX}scan")
@@ -59,6 +59,7 @@ add_subdirectory(experiment)
 add_subdirectory(processors)
 
 #added by T.T. King for Vector Root Libs
+cmake_policy(SET CMP0068 OLD)
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_SKIP_INSTALL_RPATH FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -66,8 +67,9 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-ROOT_GENERATE_DICTIONARY(PaassRootStruct PaassRootStruct.hpp LINKDEF core/include/PaassRootLinkDef.hpp )
-add_library(PaassRootStruct SHARED PaassRootStruct.cxx PaassRootStruct)
+ROOT_GENERATE_DICTIONARY(PaassRootStruct_root PaassRootStruct.hpp LINKDEF core/include/PaassRootLinkDef.hpp )
+add_library(PaassRootStruct SHARED PaassRootStruct_root.cxx PaassRootStruct_root)
+target_link_libraries(PaassRootStruct ${ROOT_LIBRARIES})  
 
 #End T.T. King Additions
 #------------------------------------------------------------------------------
@@ -80,7 +82,7 @@ if (NOT PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanAnalyzerObjects>
             $<TARGET_OBJECTS:UtkscanProcessorObjects>
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
-            PaassRootStruct.cxx)
+            PaassRootStruct_root.cxx)
 else (PAASS_USE_HRIBF)
     set(SCAN_NAME ${SCANOR_NAME})
     add_executable(${SCAN_NAME}
@@ -90,11 +92,16 @@ else (PAASS_USE_HRIBF)
             $<TARGET_OBJECTS:UtkscanProcessorObjects>
             $<TARGET_OBJECTS:UtkscanExperimentObjects>
             $<TARGET_OBJECTS:ScanorObjects>
-            PaassRootStruct.cxx)
+            PaassRootStruct_root.cxx)
     target_link_libraries(${SCANOR_NAME} ${HRIBF_LIBRARIES})
 endif (NOT PAASS_USE_HRIBF)
 
-target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic )
+if (${CMAKE_SYSTEM_NAME} MATCHES "DARWIN" )
+target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic "-Wl,-no_compact_unwind")
+else()
+  target_link_libraries(${SCAN_NAME} ${LIBS} PaassRootStruct PaassScanStatic ResourceStatic PaassCoreStatic PugixmlStatic PaassResourceStatic )
+endif()
+
 
 if (PAASS_USE_GSL)
     target_link_libraries(${SCAN_NAME} ${GSL_LIBRARIES})
@@ -112,11 +119,11 @@ endif( PAASS_OVERRIDE_EXE_PREFIX )
 install(TARGETS ${SCAN_NAME} DESTINATION bin)
 install(DIRECTORY share/utkscan DESTINATION share)
 install(TARGETS PaassRootStruct DESTINATION lib)
-install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/lib/PaassRootStruct_rdict.pcm ${CMAKE_INSTALL_PREFIX}/bin/PaassRootStruct_rdict.pcm)")
 
 install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/core/include/PaassRootStruct.hpp DESTINATION include/)
 install(FILES ${CMAKE_SOURCE_DIR}/Analysis/Utkscan/processors/include/GSaddback.hpp DESTINATION include/)
 #Install the ROOT 6 PCM.
 if (${ROOT_VERSION} VERSION_GREATER "6.0")
-    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/PaassRootStruct_rdict.pcm DESTINATION lib/)
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/libPaassRootStruct_root_rdict.pcm DESTINATION lib/)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/lib/libPaassRootStruct_root_rdict.pcm ${CMAKE_INSTALL_PREFIX}/bin/libPaassRootStruct_root_rdict.pcm)")
 endif (${ROOT_VERSION} VERSION_GREATER "6.0")

@@ -19,6 +19,7 @@ if (PAASS_USE_HRIBF)
     #Find HRIBF Libraries
     find_package(HRIBF REQUIRED)
     add_definitions("-D USE_HRIBF")
+    set(CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-Wl,-no_compact_unwinding")
 
     #If we are using HRIBF interface we need to include the ScanorInterface header
     #	for the following code.
