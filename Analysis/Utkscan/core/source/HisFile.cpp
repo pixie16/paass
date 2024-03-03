@@ -39,17 +39,17 @@ void HisFileWriter::EnqueueWrites(std::vector<WriteQueueObject> &events)
         instance->event_queue.push_back(evt);
     }
     instance->HisWriterMutex.unlock();
-    events.clear();
 }
 
 void HisFileWriter::ProcessQueue()
 {
+    // prefer to let the main thread have control here
     if(!instance->HisWriterMutex.try_lock()){return;}
-    while(instance->event_queue.size() > 0 && instance->events_since_write < instance->max_events_between_writes)
+    // empty the whole queue every time we get the lock
+    while(instance->event_queue.size() > 0)
     {
         WriteQueueObject evt = instance->event_queue.front();
         instance->event_queue.pop_front();
-        
         if(instance->waiting_writes.find(evt.bufferLocation) == instance->waiting_writes.end())
         {
            instance->waiting_writes.insert({evt.bufferLocation, {evt.weight, evt.isInt}});
@@ -108,16 +108,14 @@ void HisFileWriter::Finalize()
 {
     // block till we acquire the lock because we're going to lose data otherwise
     instance->HisWriterMutex.lock();
-    while(instance->event_queue.size() > 0 && instance->events_since_write < instance->max_events_between_writes)
+    while(instance->event_queue.size() > 0)
     {
         WriteQueueObject evt = instance->event_queue.front();
         instance->event_queue.pop_front();
         if(instance->waiting_writes.find(evt.bufferLocation) == instance->waiting_writes.end())
         {
            instance->waiting_writes.insert({evt.bufferLocation, {evt.weight, evt.isInt}});
-        }
-        else
-        {
+        } else {
             instance->waiting_writes.at(evt.bufferLocation).first += evt.weight;
         }
         instance->events_since_write++;
@@ -125,9 +123,6 @@ void HisFileWriter::Finalize()
     instance->HisWriterMutex.unlock();
     FlushWrites();
 }
-
-
-
 
 /// Create a DAMM 1D histogram (implemented for backwards compatibility)
 void
@@ -532,12 +527,16 @@ void HisFile::initialize() {
 }
 
 HisFile::HisFile() {
+    #ifndef NO_HIS_THREAD
     HisFileWriter::instance = std::make_shared<HisFileWriter>();
+    #endif
     initialize();
 }
 
 HisFile::HisFile(const char *prefix_) {
+    #ifndef NO_HIS_THREAD
     HisFileWriter::instance = std::make_shared<HisFileWriter>();
+    #endif
     initialize();
     LoadDrr(prefix_);
 }
@@ -953,19 +952,58 @@ std::shared_ptr<drr_entry> OutputHisFile::find_drr_in_list(unsigned int hisId) {
 
 void OutputHisFile::Flush() {
     #ifndef NDEBUG
-    if (debug_mode)
+    if (debug_mode){
         std::cout << "debug: Flushing histogram entries to file.\n";
+    }
 
-    if (writable) { 
-        HisFileWriter::EnqueueWrites(waiting_to_enqueue);
-    } else if (debug_mode) {
+    if (debug_mode && !writable) {
         std::cout << "debug: Output file is not writable!\n";
     }
-    #else
-    if (writable) 
-        HisFileWriter::EnqueueWrites(waiting_to_enqueue);
     #endif
+    #ifdef NO_HIS_THREAD
+        if(writable){
+            for (auto &fill: waiting_writes) {
+                // the location in the file that we're filling with the value the map 
+                // being sorted by smallest location allows piling what would've 
+                // been multiple writes to the same location to a single write
+                unsigned long long location = fill.first;
+                unsigned int weight         = fill.second.first;
+                bool isInt                  = fill.second.second;
 
+                // Seek to the specified bin
+                ofile.seekg(location,
+                            std::ios::beg); // input offset
+
+                unsigned short sval = 0;
+                unsigned int ival = 0;
+
+                // Overwrite the bin value
+                if (isInt) {
+                    // Get the original value of the bin
+                    ofile.read((char *) &ival, 4);
+                    ival += weight;
+
+                    // Set the new value of the bin
+                    ofile.seekp(location, std::ios::beg); 
+                    ofile.write((char *) &ival, 4);
+                } else {
+                    // Get the original value of the bin
+                    ofile.read((char *) &sval, 2);
+                    sval += (short) weight;
+
+                    // Set the new value of the bin
+                    ofile.seekp(location, std::ios::beg);
+                    ofile.write((char *) &sval, 2);
+                }
+            }
+            waiting_writes.clear();
+        }
+    #else
+        if (writable) { 
+            HisFileWriter::EnqueueWrites(waiting_to_enqueue);
+        } 
+    #endif
+    waiting_to_enqueue.clear();
     Flush_count = 0;
 }
 
@@ -974,13 +1012,15 @@ OutputHisFile::OutputHisFile() {
     writable = false;
     finalized = false;
     existing_file = false;
-    Flush_wait = 100000;
+    Flush_wait = 1000000;
     Flush_count = 0;
     total_his_size = 0;
 
     initialize();
+    #ifndef NO_HIS_THREAD
     HisFileWriter::SetOfile(&ofile);
     HisFileWriter::SetMaxEventsBetweenWrites(Flush_wait);
+    #endif
 }
 
 OutputHisFile::OutputHisFile(std::string fname_prefix) {
@@ -994,8 +1034,10 @@ OutputHisFile::OutputHisFile(std::string fname_prefix) {
 
     initialize();
     Open(fname_prefix);
+    #ifndef NO_HIS_THREAD
     HisFileWriter::SetOfile(&ofile);
     HisFileWriter::SetMaxEventsBetweenWrites(Flush_wait);
+    #endif
 }
 
 OutputHisFile::~OutputHisFile() {
@@ -1167,6 +1209,25 @@ bool OutputHisFile::Finalize(bool make_list_file_/*=false*/,
     return retval;
 }
 
+void OutputHisFile::PushWrite(WriteQueueObject evt){
+    #ifdef NO_HIS_THREAD
+        if(waiting_writes.find(evt.bufferLocation) == waiting_writes.end())
+        {
+            waiting_writes.insert({evt.bufferLocation, {evt.weight, evt.isInt}});
+        }
+        else
+        {
+            waiting_writes.at(evt.bufferLocation).first += evt.weight;
+        }
+    #else
+        waiting_to_enqueue.push_back(evt);
+    #endif
+    if(++Flush_count > Flush_wait)
+    {
+        Flush();
+    }
+}
+
 
 bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
                          unsigned int weight_/*=1*/) {
@@ -1185,11 +1246,8 @@ bool OutputHisFile::Fill(unsigned int hisID_, unsigned int x_, unsigned int y_,
         return false;
     }
     // Push this fill into the queue
-    waiting_to_enqueue.push_back(WriteQueueObject(temp_drr->calculate_buffer_location(bin), temp_drr->use_int, weight_));
-    if(++Flush_count > Flush_wait)
-    {
-        Flush();
-    }
+    WriteQueueObject evt = WriteQueueObject(temp_drr->calculate_buffer_location(bin), temp_drr->use_int, weight_);
+    PushWrite(evt);
     return true;
 }
 
@@ -1209,12 +1267,10 @@ bool OutputHisFile::FillBin(unsigned int hisID_, unsigned int x_, unsigned int y
         bin_not_found_failed_fills[hisID_] += 1;
         return false; 
     }
+    temp_drr -> good_counts++;
     // Push this fill into the queue
-    waiting_to_enqueue.push_back(WriteQueueObject(temp_drr->calculate_buffer_location(bin), temp_drr->use_int, weight_));
-    if(++Flush_count > Flush_wait)
-    {
-        Flush();
-    }
+    WriteQueueObject evt = WriteQueueObject(temp_drr->calculate_buffer_location(bin), temp_drr->use_int, weight_);
+    PushWrite(evt);
     return true;
 }
 
@@ -1265,8 +1321,10 @@ bool OutputHisFile::Open(std::string fname_prefix) {
     ofile.open((fname + ".his").c_str(),
                std::ios::out | std::ios::in | std::ios::trunc |
                std::ios::binary);
+    #ifndef NO_HIS_THREAD
     HisFileWriter::SetOfile(&ofile);
     HisFileWriter::Start();
+    #endif
     return (writable = ofile.good());
 }
 
@@ -1313,6 +1371,8 @@ void OutputHisFile::Close() {
     // Clear the .drr entries in the entries vector
     clear_drr_entries();
     writable = false;
+    #ifndef NO_HIS_THREAD
     HisFileWriter::Stop();
+    #endif
     ofile.close();
 }
