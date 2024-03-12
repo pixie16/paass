@@ -90,7 +90,7 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
             throw invalid_argument("GlobalsXmlParser::ParseGlobal - The revision \"" + revision +
                                            "\", is not known to us. Known revisions are A, D, F");
         }
-        messenger_.detail("Revision : " + revision);
+        messenger_.detail("(Deprecatation Warning March12,2024) Revision : " + revision);
     } else
         throw invalid_argument(CriticalNodeMessage("Revision"));
 
@@ -100,8 +100,7 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
                 node.child("EventWidth").attribute("unit").as_string("None"));
         globals->SetEventLengthInSeconds(eventLengthInSeconds);
         globals->SetEventLengthInTicks((unsigned int) (eventLengthInSeconds / globals->GetClockInSeconds()));
-        sstream_ << "Event width: " << eventLengthInSeconds * 1e6 << " us" << ", i.e. "
-                 << eventLengthInSeconds / globals->GetClockInSeconds() << " pixie16 clock ticks.";
+        sstream_ << "Event width: " << eventLengthInSeconds * 1e6 << " us";
         messenger_.detail(sstream_.str());
         sstream_.str("");
     } else
@@ -117,8 +116,13 @@ void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *glob
     } else {
         globals->SetDammPlots(true);
     }
-    sstream_ << "DammPlots: " << globals->GetDammPlots() ;
+    string doPlots = globals->GetDammPlots() ? "True" : "False";
+    sstream_ << "DAMM Plotting: " << doPlots;
     messenger_.detail(sstream_.str());
+    sstream_.str("");
+    string doRawPlots = globals->HasRawHistogramsDefined() ? "True" : "False";
+    sstream_ << "RAW Plots: " << doRawPlots;
+    messenger_.detail(sstream_.str(),1);
     sstream_.str("");
 
     set <string> knownNodes = {"Revision", "EventWidth", "HasRaw", "DammPlots"};

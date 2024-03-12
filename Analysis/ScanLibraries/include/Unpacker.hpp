@@ -72,7 +72,11 @@ public:
     /// Set the width of events in pixie16 clock ticks.
     void SetEventWidth(double width) { eventWidth_ = width; }
 
-    void InitializeDataMask(const std::string &firmware, const unsigned int &frequency = 0);
+    /// Initialize the Data Mask when using the Config file (this should 100% be the default)
+    void InitializeDataMask(const std::string &setupCfg);
+
+    /// Initialize the Data Mask when firmware and freq are passed in from cli
+    void InitializeDataMask(const std::string &firmware, const unsigned int &frequency );
 
     /** ReadSpill is responsible for constructing a list of pixie16 events from
       * a raw data spill. This method performs sanity checks on the spill and
@@ -105,6 +109,7 @@ protected:
     double eventWidth_; ///< The width of the raw event in pixie clock ticks
     XiaListModeDataMask mask_; ///< Object providing the masks necessary to decode the data.
     std::map<unsigned int, std::pair<std::string, unsigned int> > maskMap_;///< Maps firmware/frequency to module number
+    std::vector<int> modEvtTimeConverts_; //< vector of the low res timestamp to ns for each module in the xml
     unsigned int maxModuleNumberInFile_; ///< The maximum module number that we've encountered in the data file.
     std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.
     bool running; ///< True if the scan is running.

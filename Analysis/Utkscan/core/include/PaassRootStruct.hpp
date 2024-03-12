@@ -218,6 +218,9 @@ struct ROOTDEV {
     int detNum = -999;   //the instance number of RD in the xml Map
     int modNum = -999;   // the physical module number
     int chanNum = -999;  // the physical channel number
+    int tickToNS = -999; // fpga tick to ns conversion factor
+    int adcTickToNS = -999; // adc tick to ns conversion factor
+    TString revision = ""; // the module's pixie revision
     TString subtype = "";
     TString group = "";
     bool pileup = false;                   //Did pixie detect pileup in the event

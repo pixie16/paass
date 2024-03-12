@@ -17,6 +17,7 @@
 #include <cstring>
 
 #include "Exceptions.hpp"
+#include "StringManipulationFunctions.hpp"
 #include "Unpacker.hpp"
 #include "XiaData.hpp"
 #include "XiaListModeDataDecoder.hpp"
@@ -217,9 +218,12 @@ Unpacker::Unpacker() : debug_mode(false), eventWidth_(62), running(true),
                        numRawEvt(0), // Count of raw events read from file.
                        firstTime(0), eventStartTime(0), realStartTime(0), realStopTime(0) {
 
-    for (unsigned int i = 0; i <= MAX_PIXIE_MOD; i++)
-        for (unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++)
+    for (unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
+        modEvtTimeConverts_.emplace_back(0);
+        for (unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
             channel_counts[i][j] = 0;
+        }
+    }
 }
 
 Unpacker::~Unpacker() {
@@ -228,33 +232,63 @@ Unpacker::~Unpacker() {
 }
 
 void Unpacker::InitializeDataMask(const std::string &firmware, const unsigned int &frequency) {
-    if (frequency == 0) {
-        unsigned int modCounter = 0;
-        pugi::xml_node node = XmlInterface::get(firmware)->GetDocument()->child("Configuration").child("Map");
-        unsigned int globalFreq_ = node.attribute("frequency").as_uint(0);
-        string globalFirm_ = node.attribute("firmware").as_string();
-
-        for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it, modCounter++) {
-            if (it->attribute("number").empty())
-                throw IOException("Unpacker::InitializeDataMask - Unable to read the \"number\" attribute "
-                                                               "from "
-                                               "the module in position #" + to_string(modCounter) + "(0 counting)");
-            if (it->attribute("firmware").empty()&& globalFirm_.empty())
-                throw IOException("Unpacker::InitializeDataMask - Unable to read the \"firmware\" attribute from"
-                                               " the /Configuration/Map/Module/" + to_string(modCounter) +
-                                       " and the Global default is not set");
-            if (it->attribute("frequency").empty()&& globalFreq_==0)
-                throw IOException("Unpacker::InitializeDataMask - Unable to read the \"frequency\" attribute from"
-                                               " the /Configuration/Map/Module/" + to_string(modCounter)+
-                                       " and the Global default is not set");
-
-            maskMap_.insert(make_pair(it->attribute("number").as_uint(),
-                                      make_pair(it->attribute("firmware").as_string(globalFirm_.c_str()),
-                                                it->attribute("frequency").as_uint(globalFreq_))));
-        }
-    } else {
         mask_.SetFrequency(frequency);
         mask_.SetFirmware(firmware);
+}
+
+void Unpacker::InitializeDataMask(const std::string &setupCfg) {
+    unsigned int modCounter = 0;
+    pugi::xml_node node = XmlInterface::get(setupCfg)->GetDocument()->child("Configuration").child("Map");
+    unsigned int defaultFreq_ = node.attribute("frequency").as_uint(0);
+    string defaultFirm_ = node.attribute("firmware").as_string();
+    string defaultRevision_= StringManipulation::StringUpper(node.attribute("revision").as_string());
+    for (pugi::xml_node_iterator it = node.begin(); it != node.end(); ++it, modCounter++) {
+        if (it->attribute("number").empty()){
+            throw IOException("Unpacker::InitializeDataMask - MISSING: \"number\" attribute from <Module> in parsed position #" + 
+                              to_string(modCounter) + "(0 counting)");
+        }
+        if (it->attribute("firmware").empty()&& defaultFirm_.empty()){
+            throw IOException("Unpacker::InitializeDataMask - MISSING: \"firmware\" attribute from <Module> in parsed position #" + 
+                              to_string(modCounter) + " (0 counting) and the System Default is not set");
+        }
+        if (it->attribute("frequency").empty()&& defaultFreq_==0){
+            throw IOException("Unpacker::InitializeDataMask - MISSING: \"frequency\" attribute from <Module> in parsed position # " +
+                              to_string(modCounter)+" and the System Default is not set");
+        }
+        if ( it->attribute("revision").empty() && (defaultRevision_.compare("F") != 0 && defaultRevision_.compare("H") != 0 && defaultRevision_.compare("D") != 0 )){
+            // We have to do this here in additon to the MapNodeXmlParser::ParseNode() because the Unpacker::BuildRawEvent() does NOT have access to 
+            // the ChannelConfiguration class yet. We only parse the FPGA to ns conversion because that is all which is needed for event building
+            throw IOException("Unpacker::InitializeDataMask - MISSING: \"revision\" attribute from <Module> in parsed position #" +
+                              to_string(modCounter)+" and the System Default is not set or recognized");
+        }
+
+        unsigned int module_number = it->attribute("number").as_uint();
+        unsigned int module_frequency = it->attribute("frequency").as_uint(defaultFreq_);
+        string module_firmware = it->attribute("firmware").as_string(defaultFirm_.c_str());
+        string revision = StringManipulation::StringUpper(it->attribute("revision").as_string(defaultRevision_.c_str()));
+        if (strcmp(revision.c_str(),"H") == 0 ){
+            modEvtTimeConverts_.at(module_number) = 8;
+        }else if (strcmp(revision.c_str(),"F") == 0) {
+            switch (module_frequency) {
+                case 100:
+                    modEvtTimeConverts_.at(module_number) = 10;
+                    break;
+                case 250:
+                    modEvtTimeConverts_.at(module_number) = 8;
+                    break;
+                case 500:
+                    modEvtTimeConverts_.at(module_number) = 10;
+                    break;
+                default:
+                    throw IOException("Unpacker::InitializeDataMask() Invalid RevF Module Frequency for Module Number: " + to_string(module_number));
+            }
+        }else if (strcmp(revision.c_str(),"D") == 0){
+            modEvtTimeConverts_.at(module_number) = 10;
+        }else {
+            throw IOException("Unpacker::InitializeDataMask() Invalid Module Revision for Module number: " + to_string(module_number));
+        }
+        
+        maskMap_.insert(make_pair(module_number,make_pair(module_firmware,module_frequency)));
     }
 }
 
