@@ -20,6 +20,14 @@ namespace StringManipulation {
         return s;
     }
 
+    ///Converts full string to lower case. 
+    /// @param [in] s : String to make lowercase
+    /// @return the lowercase string
+    inline std::string StringUpper(std::string s){
+        std::transform(s.begin(),s.end(),s.begin(),::toupper);
+        return s;
+    }
+
 
     ///Converts string to bool (True, true, 1 and False, false, 0) are
     /// accepted; throws an exception if not succesful. Notice tolower

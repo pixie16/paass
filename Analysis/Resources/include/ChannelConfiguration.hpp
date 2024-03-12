@@ -35,6 +35,9 @@ public:
     ///@param [in] n : the value of the tag to insert 
     void AddTag(const std::string &s) { tags_.insert(s); }
 
+    ///@return the value of the private variable subtype
+    int GetAdcTickToNS() const { return adcTickToNS_; }
+
     ///@return the baseline threshold
     double GetBaselineThreshold() const { return baselineThreshold_; }
 
@@ -50,23 +53,29 @@ public:
     ///@return the pair of fitting parameters to use in fits.
     std::pair<double, double> GetFittingParameters() const { return fittingParameters_; }
 
-    ///@return the frequency for this channel
-    int GetModFreq() const { return modFreq_ ; }
+    ///@return the value of the private variable group
+    std::string GetGroup() const { return group_; }
 
     ///@return The value of the private variable location
     unsigned int GetLocation() const { return location_; }
 
+    ///@return the frequency for this channel
+    int GetModFreq() const { return modFreq_ ; }
+
     ///@return The name of the place associated with the channel 
     std::string GetPlaceName() const { return type_ + "_" + subtype_ + "_" + std::to_string(location_); }
+
+    ///@return the revision of the associated module for this channel
+    std::string GetRevision() const { return revision_ ;}
 
     ///@return the value of the private variable subtype
     std::string GetSubtype() const { return subtype_; }
 
-    ///@return the value of the private variable group
-    std::string GetGroup() const { return group_; }
-
     ///@return Get the tag list
     std::set<std::string> GetTags() const { return tags_; }
+
+    ///@return the value of the private variable subtype
+    int GetTickToNS() const { return tickToNS_; }
 
     ///@return the trigger filter parameters
     TrapFilterParameters GetTriggerFilterParameters() const { return triggerFilterParameters_; }
@@ -96,6 +105,10 @@ public:
         std::cout << std::endl;
     };
 
+    /// Sets the ADC tick to ns conversion constant 
+    ///@param[in] a : The constant to set 
+    void SetAdcTickToNS(const int &a) { adcTickToNS_ = a; }
+
     ///Sets the baseline threshold that we use to reject noisey signals. This is measured as the standard deviation
     /// of the baseline.
     void SetBaselineThreshold(const double &a) { baselineThreshold_ = a; }
@@ -116,10 +129,6 @@ public:
     ///@param[in] a : The pair of parameters to set
     void SetFittingParameters(const std::pair<double, double> &a) { fittingParameters_ = a; }
 
-    /// Sets the frequency of the module for this channel
-    ///@param[in] a : The frequency to set 
-    void SetModFreq(const int &a) { modFreq_ = a; }
-
     /// Sets the Group string. Mainly used for the "addback" in the PostPaassProcessor ROOT code
     ///@param[in] a : The Group string to set
     void SetGroup(const std::string &a) { group_ = a; }
@@ -128,9 +137,21 @@ public:
     ///@param [in] a : sets the location for the channel
     void SetLocation(const unsigned int &a) { location_ = a; }
 
+    /// Sets the frequency of the module for this channel
+    ///@param[in] a : The frequency to set 
+    void SetModFreq(const int &a) { modFreq_ = a; }
+
+    /// Sets the Pixie Module Revision. This is tracked per channel now because the Rev F and Rev H are crate compatible.
+    ///@param[in] a : The frequency to set 
+    void SetRevision(const std::string &a) { revision_ = a; }
+
     ///Sets the subtype of the channel
     ///@param [in] a : the subtype to set 
     void SetSubtype(const std::string &a) { subtype_ = a; }
+
+    /// Sets the FPGA tick to ns conversion constant
+    ///@param[in] a : The constant to set 
+    void SetTickToNS(const int &a) { tickToNS_ = a; }
 
     /// Sets the trace delay in units of trace samples
     ///@param[in] a : The value for the trace delay in units of samples.
@@ -199,8 +220,11 @@ private:
     unsigned int discriminationStartInSamples_; ///< The position from the max that we'll do particle discrimination
     TrapFilterParameters energyFilterParameters_; ///< Parameters to use for energy filter calculations
     std::pair<double, double> fittingParameters_; ///< The parameters to use for the fitting routines
-    int modFreq_; ///<Frequency of the module for this channel 
     unsigned int location_; ///< Specifies the real world location of the channel.
+    int modFreq_; ///<Frequency of the module for this channel 
+    std::string revision_; ///<revision for the module for this channel
+    int tickToNS_; ///<tick to ns conversion factor for the low resolution timestamp for this revision and frequency
+    int adcTickToNS_; ///<tick to ns conversion factor for the high resolution timestamp (onboard CFD based) for this revision and frequency
     std::string subtype_; ///< Specifies the detector sub type
     std::string group_; ///<Specifies the detector group
     std::set<std::string> tags_; ///< A list of associated tags

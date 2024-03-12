@@ -20,58 +20,100 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
     pugi::xml_node map = XmlInterface::get()->GetDocument()->child("Configuration").child("Map");
 
     if (!map)
-        throw invalid_argument("MapNodeXmlParser::ParseNode : The Map node could not be read! This is fatal.");
+        throw invalid_argument("MapNodeXmlParser::ParseNode(Map) : The \"Map\" node could not be read! This is fatal.");
 
     bool isVerbose = map.attribute("verbose").as_bool(false);
-    bool isVerboseTree =
-            XmlInterface::get()->GetDocument()->child("Configuration").child("Tree").attribute("verbose").as_bool(
-                    false);
-    double globalTraceDelay = map.attribute("TraceDelay").as_double(-999);
-    if (globalTraceDelay <= 0)
-        throw GeneralException("MapNodeXmlParser::ParseNode : Global TraceDelay must be set and greater than 0");
+    bool isVerboseTree = XmlInterface::get()->GetDocument()->child("Configuration").child("Tree").attribute("verbose").as_bool(false);
+    double defaultTraceDelay = map.attribute("TraceDelay").as_double(-999);
+    if (defaultTraceDelay <= 0)
+        throw GeneralException("MapNodeXmlParser::ParseNode(Map) : Default \"TraceDelay\" must be set and greater than 0");
 
-    int globalModFreq = map.attribute("frequency").as_int(-1);
-    if (globalModFreq <0)
-        throw GeneralException("MapNodeXmlParser::ParseNode : Global Frequency must be set");
+    // We mandate via the Unpacker::InitializeDataMask() function that a default "frequency" and "revision" are set or 
+    // that EVERY module has them set and that it is a recognized value. 
+    // That check happens first (Yes this means that we step through the <Map>/<Module> list twice but this is only done once
+    int defaultModFreq = map.attribute("frequency").as_int(-1);
+    string defaultRevision =StringManipulation::StringUpper(map.attribute("revision").as_string("A"));
 
     TreeCorrelator *tree = TreeCorrelator::get();
-
+    vector<int> timingConstants(Pixie16::maximumNumberOfModulesPerCrate * Pixie16::maximumNumberOfCrates,0);
+    vector<int> adcTimingConstants(Pixie16::maximumNumberOfModulesPerCrate * Pixie16::maximumNumberOfCrates,0);
     messenger_.start("Loading channels map");
 
     //These attributes have reserved meaning, all other attributes of [Channel] are treated as tags
-    set<string> reserved = {"number", "type", "subtype", "location", "tags", "firmware", "frequency"};
+    set<string> reserved = {"number", "type", "subtype", "location", "tags", "firmware", "frequency", "revision"};
 
     for (pugi::xml_node module = map.child("Module"); module; module = module.next_sibling("Module")) {
 
+        // We mandate via the Unpacker::InitializeDataMask() function that a default "frequency"and "revision" are set or
+        // that EVERY module has them set and that it is a recognized value. 
+        // That check happens first (Yes this means that we step through the <Map>/<Module> list twice but this is only done once
         int module_number = module.attribute("number").as_int(-1);
-        int module_freq = module.attribute("frequency").as_int(globalModFreq);
-        double module_TdelayNs = module.attribute("TraceDelay").as_double(globalTraceDelay);
+        int module_freq = module.attribute("frequency").as_int(defaultModFreq);
+        string module_rev = StringManipulation::StringUpper(module.attribute("revision").as_string(defaultRevision.c_str()));
+        if (strcmp(module_rev.c_str(),"H") == 0 ){
+            // At this time all of the Rev H share a common low resolution timstamp frequency unlike the RevF
+            timingConstants.at(module_number) = 8;
+            switch (module_freq) {
+                case 125:
+                    adcTimingConstants.at(module_number) = 8;
+                    break;
+                case 250:
+                    adcTimingConstants.at(module_number) = 4;
+                    break;
+                case 500:
+                    adcTimingConstants.at(module_number) = 2;
+                    break;
+                default:
+                    // this is probably redundant since the Unpacker::InitializeDataMask() version of this should catch this case before we get here
+                    throw GeneralException("MapNodeXmlParser::ParseNode(Module) Invalid RevH Module Frequency for Module Number: " + to_string(module_number));
+            }
+        }else if (strcmp(module_rev.c_str(),"F") == 0) {
+            switch (module_freq) {
+                case 100:
+                    timingConstants.at(module_number) = 10;
+                    adcTimingConstants.at(module_number) = 10;
+                    break;
+                case 250:
+                    timingConstants.at(module_number) = 8;
+                    adcTimingConstants.at(module_number) = 4;
+                    break;
+                case 500:
+                    timingConstants.at(module_number) = 10;
+                    adcTimingConstants.at(module_number) = 2;
+                    break;
+                default:
+                    // this is probably redundant since the Unpacker::InitializeDataMask() version of this should catch this case before we get here
+                    throw GeneralException("MapNodeXmlParser::ParseNode(Module) Invalid RevF Module Frequency for Module Number: " + to_string(module_number));
+            }
+        }else if (strcmp(module_rev.c_str(),"D") == 0){
+            timingConstants.at(module_number) = 10;
+            adcTimingConstants.at(module_number) = 10;
+        }else {
+            // this is probably redundant since the Unpacker::InitializeDataMask() version of this should catch this case before we get here
+            throw GeneralException("MapNodeXmlParser::ParseNode(Module) Invalid Module Revision for Module number: " + to_string(module_number));
+        }
+
+        double module_TdelayNs = module.attribute("TraceDelay").as_double(defaultTraceDelay);
 
         if (module_number < 0) {
             sstream_ << "MapNodeXmlParser::ParseNode : User requested illegal module number (" << module_number
-                     << ") in configuration file.";
+                    << ") in configuration file.";
             throw GeneralException(sstream_.str());
         }
 
         sstream_.str("");
-        if (isVerbose){
-            sstream_ << "Module " << module_number << " Trace Delay = " << module_TdelayNs;
-            messenger_.detail(sstream_.str(),1);
-            sstream_.str("");
-
-        }else if (!isVerbose && module_TdelayNs != globalTraceDelay){
-            if (module_number ==0){
-                sstream_ <<"Modules not using the Global Trace Delay value: ("<<globalTraceDelay<<" ns)";
-                messenger_.detail(sstream_.str(),1);
-                sstream_.str("");
-            }
-            sstream_ << "Module " << module_number << " Trace Delay = " << module_TdelayNs<<" ns";
-            messenger_.detail(sstream_.str(),2);
-            sstream_.str("");
-        }
-
         if (isVerbose) {
             sstream_ << "Module " << module_number << ":";
+            messenger_.detail(sstream_.str());
+            sstream_.str("");
+            sstream_ <<"Spec: Rev"<< module_rev << "-"<<module_freq << " ("<< timingConstants.at(module_number) << " ns per FPGA tick & "<< adcTimingConstants.at(module_number) << " ns per ADC tick)";
+            messenger_.detail(sstream_.str(),1);
+            sstream_.str("");
+            sstream_ << "Trace Delay: " << module_TdelayNs << " ns";
+            messenger_.detail(sstream_.str(),1);
+            sstream_.str("");
+        }else { 
+            sstream_ << "Module " << module_number << ": Spec: Rev" << module_rev << "-" << module_freq << " || TraceDelay: " << module_TdelayNs<<" ns";
             messenger_.detail(sstream_.str());
             sstream_.str("");
         }
@@ -80,14 +122,12 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             unsigned int channelNumber = channel.attribute("number").as_uint(Pixie16::maximumNumberOfChannels);
 
             if (channelNumber >= Pixie16::maximumNumberOfChannels) {
-                sstream_ << "MapNodeXmlParser::ParseNode : Illegal channel " << "number (" << channelNumber
-                         << ") in configuration file.";
+                sstream_ << "MapNodeXmlParser::ParseNode : Illegal channel " << "number (" << channelNumber << ") in configuration file.";
                 throw GeneralException(sstream_.str());
             }
 
             if (lib->HasValue(module_number, channelNumber)) {
-                sstream_ << "MapNodeXmlParser::ParseNode : Module " << module_number << ", Channel " << channelNumber
-                         << " is initialized more than once";
+                sstream_ << "MapNodeXmlParser::ParseNode : Module " << module_number << ", Channel " << channelNumber << " is initialized more than once";
                 throw GeneralException(sstream_.str());
             }
 
@@ -97,6 +137,9 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             chanCfg.SetSubtype(channel.attribute("subtype").as_string("ignore"));
             chanCfg.SetGroup(channel.attribute("group").as_string("ignore"));
             chanCfg.SetModFreq(module_freq);
+            chanCfg.SetRevision(module_rev);
+            chanCfg.SetTickToNS(timingConstants.at(module_number));
+            chanCfg.SetAdcTickToNS(adcTimingConstants.at(module_number));
 
             if (channel.attribute("location").as_int(-1) == -1)
                 chanCfg.SetLocation(lib->GetNextLocation(chanCfg.GetType(), chanCfg.GetSubtype()));
