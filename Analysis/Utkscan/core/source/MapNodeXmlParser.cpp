@@ -35,8 +35,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
     string defaultRevision =StringManipulation::StringUpper(map.attribute("revision").as_string("A"));
 
     TreeCorrelator *tree = TreeCorrelator::get();
-    vector<int> timingConstants(Pixie16::maximumNumberOfModulesPerCrate * Pixie16::maximumNumberOfCrates,0);
-    vector<int> adcTimingConstants(Pixie16::maximumNumberOfModulesPerCrate * Pixie16::maximumNumberOfCrates,0);
+    vector<pair<int,int>> timingConstants(Pixie16::maximumNumberOfModulesPerCrate * Pixie16::maximumNumberOfCrates, {0,0});
     messenger_.start("Loading channels map");
 
     //These attributes have reserved meaning, all other attributes of [Channel] are treated as tags
@@ -52,16 +51,15 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
         string module_rev = StringManipulation::StringUpper(module.attribute("revision").as_string(defaultRevision.c_str()));
         if (strcmp(module_rev.c_str(),"H") == 0 ){
             // At this time all of the Rev H share a common low resolution timstamp frequency unlike the RevF
-            timingConstants.at(module_number) = 8;
             switch (module_freq) {
                 case 125:
-                    adcTimingConstants.at(module_number) = 8;
+                    timingConstants.at(module_number) = {8,8};
                     break;
                 case 250:
-                    adcTimingConstants.at(module_number) = 4;
+                    timingConstants.at(module_number) = {4,8};
                     break;
                 case 500:
-                    adcTimingConstants.at(module_number) = 2;
+                    timingConstants.at(module_number) = {2,8};
                     break;
                 default:
                     // this is probably redundant since the Unpacker::InitializeDataMask() version of this should catch this case before we get here
@@ -70,24 +68,20 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
         }else if (strcmp(module_rev.c_str(),"F") == 0) {
             switch (module_freq) {
                 case 100:
-                    timingConstants.at(module_number) = 10;
-                    adcTimingConstants.at(module_number) = 10;
+                    timingConstants.at(module_number) = {10,10};
                     break;
                 case 250:
-                    timingConstants.at(module_number) = 8;
-                    adcTimingConstants.at(module_number) = 4;
+                    timingConstants.at(module_number) = {4,8};
                     break;
                 case 500:
-                    timingConstants.at(module_number) = 10;
-                    adcTimingConstants.at(module_number) = 2;
+                    timingConstants.at(module_number) = {2,10};
                     break;
                 default:
                     // this is probably redundant since the Unpacker::InitializeDataMask() version of this should catch this case before we get here
                     throw GeneralException("MapNodeXmlParser::ParseNode(Module) Invalid RevF Module Frequency for Module Number: " + to_string(module_number));
             }
         }else if (strcmp(module_rev.c_str(),"D") == 0){
-            timingConstants.at(module_number) = 10;
-            adcTimingConstants.at(module_number) = 10;
+            timingConstants.at(module_number) = {10,10};
         }else {
             // this is probably redundant since the Unpacker::InitializeDataMask() version of this should catch this case before we get here
             throw GeneralException("MapNodeXmlParser::ParseNode(Module) Invalid Module Revision for Module number: " + to_string(module_number));
@@ -106,7 +100,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             sstream_ << "Module " << module_number << ":";
             messenger_.detail(sstream_.str());
             sstream_.str("");
-            sstream_ <<"Spec: Rev"<< module_rev << "-"<<module_freq << " ("<< timingConstants.at(module_number) << " ns per FPGA tick & "<< adcTimingConstants.at(module_number) << " ns per ADC tick)";
+            sstream_ <<"Spec: Rev"<< module_rev << "-"<<module_freq << " ("<< timingConstants.at(module_number).second << " ns per FPGA tick & "<< timingConstants.at(module_number).first << " ns per ADC tick)";
             messenger_.detail(sstream_.str(),1);
             sstream_.str("");
             sstream_ << "Trace Delay: " << module_TdelayNs << " ns";
@@ -138,8 +132,8 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             chanCfg.SetGroup(channel.attribute("group").as_string("ignore"));
             chanCfg.SetModFreq(module_freq);
             chanCfg.SetRevision(module_rev);
-            chanCfg.SetTickToNS(timingConstants.at(module_number));
-            chanCfg.SetAdcTickToNS(adcTimingConstants.at(module_number));
+            chanCfg.SetTickToNS(timingConstants.at(module_number).second);
+            chanCfg.SetAdcTickToNS(timingConstants.at(module_number).first);
 
             if (channel.attribute("location").as_int(-1) == -1)
                 chanCfg.SetLocation(lib->GetNextLocation(chanCfg.GetType(), chanCfg.GetSubtype()));

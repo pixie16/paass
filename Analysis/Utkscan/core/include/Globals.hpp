@@ -80,7 +80,7 @@ public:
     bool GetDammPlots() const { return dammPlots_; }
 
     ///@return the event size in seconds
-    double GetEventLengthInSeconds() const { return eventLengthInSeconds_; }
+    double GetEventLengthInNanoSeconds() const { return eventLengthInNanoSeconds_; }
 
     ///@return the event width
     unsigned int GetEventLengthInTicks() const { return eventLengthInTicks_; }
@@ -151,8 +151,8 @@ public:
     void SetDammPlots(const double &a) { dammPlots_ = a; }
 
     ///Sets the event length in seconds that we will use to create events.
-    ///@param[in] a : The parameter that we are going to set
-    void SetEventLengthInSeconds(const double &a) { eventLengthInSeconds_ = a; }
+    ///@param[in] a : The paramter that we are going to set
+    void SetEventLengthInNanoSeconds(const double &a) { eventLengthInNanoSeconds_ = a; }
 
     ///Sets the event length in clock ticks that we will use to create events.
     ///@param[in] a : The parameter that we are going to set
@@ -221,7 +221,7 @@ private:
     double clockInSeconds_;                                      //!< the ACQ clock in seconds
     std::string configFile_;                                     //!< The configuration file
     bool dammPlots_;                                             //!< True if we are filling DAMM plots
-    double eventLengthInSeconds_;                                //!< event width in seconds
+    double eventLengthInNanoSeconds_;                                //!< event width in nanoseconds
     unsigned int eventLengthInTicks_;                            //!< the size of the events
     double filterClockInSeconds_;                                //!< filter clock in seconds
     bool hasRawHistogramsDefined_;                               //!< True if we are plotting Raw Histograms

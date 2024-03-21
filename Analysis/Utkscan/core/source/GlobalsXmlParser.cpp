@@ -72,35 +72,15 @@ string GlobalsXmlParser::ParseDescriptionNode(const pugi::xml_node &node) {
 /// analysis to work properly.
 void GlobalsXmlParser::ParseGlobalNode(const pugi::xml_node &node, Globals *globals) {
     if (!node.child("Revision").empty()) {
-        string revision = node.child("Revision").attribute("version").as_string();
-        globals->SetRevision(revision);
-
-        if (revision == "A" || revision == "D") {
-            globals->SetAdcClockInSeconds(10e-9);
-            globals->SetClockInSeconds(10e-9);
-            globals->SetFilterClockInSeconds(10e-9);
-        } else if (revision == "F") {
-            // Users of mixed crates are expected to pass the correct freq to the Get...Clock() functions
-            // For legacy/ compatibility reasons we will default Rev F to 250 MHz
-            globals->SetAdcClockInSeconds(4e-9);
-            globals->SetClockInSeconds(8e-9);
-            globals->SetFilterClockInSeconds(8e-9);
-
-        } else {
-            throw invalid_argument("GlobalsXmlParser::ParseGlobal - The revision \"" + revision +
-                                           "\", is not known to us. Known revisions are A, D, F");
-        }
-        messenger_.detail("(Deprecatation Warning March12,2024) Revision : " + revision);
-    } else
-        throw invalid_argument(CriticalNodeMessage("Revision"));
+        throw invalid_argument("(Deprecatation Warning March12,2024) GLobals::Revision is not supported anymore. Move to the <Map> node. ");
+    } 
 
     if (!node.child("EventWidth").empty()) {
-        double eventLengthInSeconds = Conversions::ConvertSecondsWithPrefix(
+        double eventLengthInNanoSeconds = Conversions::ConvertSecondsWithPrefix(
                 node.child("EventWidth").attribute("value").as_double(0),
-                node.child("EventWidth").attribute("unit").as_string("None"));
-        globals->SetEventLengthInSeconds(eventLengthInSeconds);
-        globals->SetEventLengthInTicks((unsigned int) (eventLengthInSeconds / globals->GetClockInSeconds()));
-        sstream_ << "Event width: " << eventLengthInSeconds * 1e6 << " us";
+                node.child("EventWidth").attribute("unit").as_string("None")) * 1e9;
+        globals->SetEventLengthInNanoSeconds(eventLengthInNanoSeconds);
+        sstream_ << "Event width: " << eventLengthInNanoSeconds / 1e3 << " us";
         messenger_.detail(sstream_.str());
         sstream_.str("");
     } else

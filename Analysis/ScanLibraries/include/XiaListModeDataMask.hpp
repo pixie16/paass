@@ -139,6 +139,10 @@ public:
     ///@return The current value of the internal frequency_ variable
     unsigned int GetFrequency() const { return frequency_; }
 
+    ///Sets the timing constants of the module that we are working with.
+    ///@param[in] timeConsts : The pair of timing constants for this module <ADC,FPGA>
+    std::pair<int,int> GetTimingConstants() const { return timingConstants_; }
+
     ///Sets the firmware version
     ///@param[in] firmware : The firmware type that we would like to set.
     void SetFirmware(const DataProcessing::FIRMWARE &firmware) {
@@ -157,6 +161,10 @@ public:
     /// are working with.
     void SetFrequency(const unsigned int &freq) { frequency_ = freq; }
 
+    ///Sets the timing constants of the module that we are working with.
+    ///@param[in] timeConsts : The pair of timing constants for this module <ADC,FPGA>
+    void SetTimingConstants(const std::pair<int,int> &timeConsts) { timingConstants_ = timeConsts; }
+
     ///Converts a string to a firmware version this is used to set the
     /// firmware using SetFirmware(string) method.
     ///@param[in] type : A string of the firmware version that we would like.
@@ -169,6 +177,9 @@ private:
     DataProcessing::FIRMWARE firmware_;
     ///The frequency of the module that we want to decode.
     unsigned int frequency_;
+    ///< pair of tick to ns timing constants for this module <ADC,FPGA>
+    ///This is required because we no longer have a unique frequency to tick map now that the revH exist. 
+    std::pair<int,int> timingConstants_;
 
     std::string BadMaskErrorMessage(const std::string &func) const;
 };
