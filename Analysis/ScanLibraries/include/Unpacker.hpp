@@ -109,7 +109,7 @@ protected:
     double eventWidth_; ///< The width of the raw event in pixie clock ticks
     XiaListModeDataMask mask_; ///< Object providing the masks necessary to decode the data.
     std::map<unsigned int, std::pair<std::string, unsigned int> > maskMap_;///< Maps firmware/frequency to module number
-    std::vector<int> modEvtTimeConverts_; //< vector of the low res timestamp to ns for each module in the xml
+    std::vector<std::pair<int,int>> moduleTimeConstants_; //< vector of the timestamp to ns <ADC,FPGA> for each module in the xml
     unsigned int maxModuleNumberInFile_; ///< The maximum module number that we've encountered in the data file.
     std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.
     bool running; ///< True if the scan is running.

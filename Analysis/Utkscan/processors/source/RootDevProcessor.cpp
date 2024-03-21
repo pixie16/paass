@@ -4,17 +4,8 @@
  *  @date 03/30/2019
 */
 
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
 
 #include "DetectorDriver.hpp"
-#include "DetectorLibrary.hpp"
-#include "HelperFunctions.hpp"
 #include "RawEvent.hpp"
 #include "RootDevProcessor.hpp"
 
@@ -41,17 +32,16 @@ bool RootDevProcessor::Process(RawEvent &event) {
     for (auto it = Events.begin(); it != Events.end(); it++) {
         RDstruct.energy = (*it)->GetCalibratedEnergy();
         RDstruct.rawEnergy = (*it)->GetEnergy();
-        if (Rev == "F") {
-            RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
-            RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
-            RDstruct.cfdForcedBit = (*it)->GetCfdForcedTriggerBit();
-            RDstruct.cfdFraction = (*it)->GetCfdFractionalTime();
-            RDstruct.cfdSourceBit = (*it)->GetCfdTriggerSourceBit();
-        } else {
-            RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9;
-            RDstruct.time = (*it)->GetTime() * Globals::get()->GetAdcClockInSeconds() * 1e9;
-        }
+        RDstruct.timeSansCfd = (*it)->GetTimeSansCfd() ;
+        RDstruct.time = (*it)->GetTime() ;
+        RDstruct.timeSansCfdInNs = (*it)->GetTimeSansCfdInNs() ;
+        RDstruct.timeInNs = (*it)->GetTimeInNs() ;
+        RDstruct.cfdForcedBit = (*it)->GetCfdForcedTriggerBit();
+        RDstruct.cfdFraction = (*it)->GetCfdFractionalTime();
+        RDstruct.cfdSourceBit = (*it)->GetCfdTriggerSourceBit();
         RDstruct.detNum = (*it)->GetChanID().GetLocation();
+        RDstruct.channelID= (*it)->GetID();
+        RDstruct.crateNum = (*it)->GetCrateNumber();
         RDstruct.modNum = (*it)->GetModuleNumber();
         RDstruct.chanNum = (*it)->GetChannelNumber();
         RDstruct.subtype = (*it)->GetChanID().GetSubtype();
@@ -73,11 +63,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
             RDstruct.extMaxVal = (*it)->GetTrace().GetExtrapolatedMaxInfo().second;
             RDstruct.tqdc = (*it)->GetTrace().GetQdc();
             RDstruct.highResTime = (*it)->GetHighResTimeInNs();
-            if (Rev == "F") {
-                 RDstruct.phase = (*it)->GetTrace().GetPhase() * Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
-        } else {
-                 RDstruct.phase = (*it)->GetTrace().GetPhase() * Globals::get()->GetAdcClockInSeconds() * 1e9;
-        }
+            RDstruct.phase = (*it)->GetTrace().GetPhase() * (*it)->GetChanID().GetAdcTickToNS();
         }
         if (!(*it)->GetQdc().empty()) {
             RDstruct.qdcSums = (*it)->GetQdc();

@@ -196,14 +196,14 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
             if ((*it)->IsSaturated() || (*it)->IsPileup())
                 continue;
 
-            double time = (*it)->GetTime();
+            double time = (*it)->GetTimeInNs();
             double energy = (*it)->GetCalibratedEnergy();
             int location = (*it)->GetChanID().GetLocation();
 
             EventData data(time, energy, location);
             TreeCorrelator::get()->place(place)->activate(data);
             if (innerEvtCounter == 0) {
-                eventFirstTime_ = (*it)->GetTimeSansCfd(); //sets the time of the first det event in the pixie event
+                eventFirstTime_ = (*it)->GetTimeSansCfdInNs(); //sets the time of the first det event in the pixie event
             }
             if ((*it)->GetChanID().HasTag("ets1")) {
                 pixie_tree_event_.externalTS1 = (*it)->GetExternalTimeStamp();
@@ -220,7 +220,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
         }
         if ( eventNumber_ == 0){
             firstEventTime_ = rawev.GetEventList().front()->GetTimeSansCfd();
-            firstEventTimeinNs_ = firstEventTime_ * Globals::get()->GetClockInSeconds(rawev.GetEventList().front()->GetChanID().GetModFreq()) * 1.e9;
+            firstEventTimeinNs_ = rawev.GetEventList().front()->GetTimeSansCfdInNs();
         }
         //!First round is preprocessing, where process result must be guaranteed
         //!to not to be dependent on results of other Processors.
@@ -380,7 +380,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
     if (chan->GetHighResTimeInNs() == 0.0) {
-        time = chan->GetTime(); //time is in clock ticks
+        time = chan->GetTimeInNs(); //time is in clock ticks
         walk_correction = walk_->GetCorrection(chanCfg, energy);
     } else {
         time = chan->GetHighResTimeInNs(); //time here is in ns

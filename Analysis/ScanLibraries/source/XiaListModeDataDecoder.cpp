@@ -196,8 +196,14 @@ vector<XiaData *> XiaListModeDataDecoder::DecodeBuffer(unsigned int *buf, const 
 
         //We set the time according to the revision and firmware.
         pair<double, double> times = CalculateTimeInSamples(mask, *data);
-        data->SetTimeSansCfd(times.first);
+        
         data->SetTime(times.second);
+        data->SetTimeInNs(times.second * mask.GetTimingConstants().first);
+
+        data->SetTimeSansCfd(times.first);
+        data->SetTimeSansCfdInNs(times.first * mask.GetTimingConstants().second);
+
+
 
         // One last check to ensure event length matches what we think it
         // should be.

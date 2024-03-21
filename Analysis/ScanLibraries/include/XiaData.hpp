@@ -27,7 +27,7 @@ public:
     /// channel (i.e. the ID and Time are identical)
     ///@param[in] rhs : The right hand side of the comparison
     ///@return True if the two XiaData classes are equal.
-    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetTime() == rhs.GetTime(); }
+    bool operator==(const XiaData &rhs) const { return GetId() == rhs.GetId() && GetTimeInNs() == rhs.GetTimeInNs(); }
 
     ///@brief The conjugate of the equality operator
     ///@param[in] rhs : The right hand side for the comparison
@@ -38,7 +38,7 @@ public:
     /// class is less than the time of the comparison class.
     ///@param[in] rhs : The right hand side for the comparison
     ///@return True if this instance arrived earlier than the right hand side.
-    bool operator<(const XiaData &rhs) const { return GetTime() < rhs.GetTime(); }
+    bool operator<(const XiaData &rhs) const { return GetTimeInNs() < rhs.GetTimeInNs(); }
 
     ///@brief The conjugate of the less than operator
     ///@param[in] rhs : The right hand side for the comparison
@@ -52,7 +52,7 @@ public:
     ///@param[in] rhs : A pointer to the right hand side of the comparison
     ///@return True if the time of arrival for right hand side is later than
     /// that of the left hand side.
-    static bool CompareTime(const XiaData *lhs, const XiaData *rhs) { return lhs->GetTime() < rhs->GetTime(); }
+    static bool CompareTime(const XiaData *lhs, const XiaData *rhs) { return lhs->GetTimeInNs() < rhs->GetTimeInNs(); }
 
     ///@brief A method that will compare the unique ID of two XiaData classes
     ///@param[in] lhs : A pointer to the left hand side of the comparison
@@ -92,6 +92,14 @@ public:
     ///@return The arrival time of the signal without any CFD information in
     /// the calculation
     double GetTimeSansCfd() const { return timeSansCfd_; }
+
+    ///@return The time in nanoseconds for the channel including all of the CFD information
+    /// when available.
+    double GetTimeInNs() const { return timeInNs_; }
+
+    ///@return The arrival time in nanoseconds of the signal without any CFD information in
+    /// the calculation
+    double GetTimeSansCfdInNs() const { return timeSansCfdInNs_; }
 
     ///@return The CFD fractional time in clockticks
     unsigned int GetCfdFractionalTime() const { return cfdTime_; }
@@ -215,11 +223,19 @@ public:
     ///@param[in] a : The value to set
     void SetTime(const double &a) { time_ = a; }
 
-    ///@brief Sets the calculated arrival time of the signal sans the CFD
+    ///@brief Sets the calculated arrival time in nanoseconds of the signal sans the CFD
     /// fractional time components.
     ///@param[in] a : The value to set
     void SetTimeSansCfd(const double &a) { timeSansCfd_ = a; }
 
+    ///@brief Sets the calculated arrival time of the signal
+    ///@param[in] a : The value to set
+    void SetTimeInNs(const double &a) { timeInNs_ = a; }
+
+    ///@brief Sets the calculated arrival time in nanoseconds of the signal sans the CFD
+    /// fractional time components.
+    ///@param[in] a : The value to set
+    void SetTimeSansCfdInNs(const double &a) { timeSansCfdInNs_ = a; }
     ///@brief Sets the trace recorded on board
     ///@param[in] a : The value to set
     void SetTrace(const std::vector<unsigned int> &a) { trace_ = a; }
@@ -243,6 +259,9 @@ private:
     double time_; ///< The time of arrival using all parts of the time
     unsigned long long externalTimeStamp_; ///< The time of arrival using all parts of the time
     double timeSansCfd_; ///< The time of arrival of the signal sans CFD time.
+
+    double timeInNs_; ///< The time of arrival using all parts of the time in nanoseconds
+    double timeSansCfdInNs_; ///< The time of arrival of the signal sans CFD time in nanoseconds.
 
     unsigned int cfdTime_; /// CFD trigger time
     unsigned int chanNum_; /// Channel number.

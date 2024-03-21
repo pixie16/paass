@@ -53,7 +53,7 @@ bool Unpacker::BuildRawEvent() {
         // The first event time will be the minimum of these first components.
         if (!GetFirstTime(firstTime))
             return false;
-        std::cout << "BuildRawEvent: First event time is " << firstTime << " clock ticks.\n";
+        std::cout << "BuildRawEvent: First event time is " << firstTime << " ns.\n";
         eventStartTime = firstTime;
     } else {
         // Move the event window forward to the next valid channel fire.
@@ -88,12 +88,12 @@ bool Unpacker::BuildRawEvent() {
                 continue;
             }
 
-            double currtime = current_event->GetTimeSansCfd();
+            double currtime = current_event->GetTimeSansCfdInNs();
 
             // Check for backwards time-skip. This is un-handled currently and needs fixed CRT!!!
             if (currtime < eventStartTime)
                 cout << "BuildRawEvent: Detected backwards time-skip from start=" << eventStartTime << " to "
-                     << current_event->GetTimeSansCfd() << "???\n";
+                     << current_event->GetTimeSansCfdInNs() << "???\n";
 
             // If the time difference between the current and previous event is
             // larger than the event width, finalize the current event, otherwise
@@ -159,7 +159,7 @@ void Unpacker::ClearRawEvent() {
 }
 
 /** Get the minimum channel time from the event list.
-  * \param[out] time The minimum time from the event list in system clock ticks.
+  * \param[out] time The minimum time from the event list in nanoseconds
   * \return True if the event list is not empty and false otherwise. */
 bool Unpacker::GetFirstTime(double &time) {
     if (IsEmpty())
@@ -169,8 +169,8 @@ bool Unpacker::GetFirstTime(double &time) {
     for (std::vector<std::deque<XiaData *> >::iterator iter = eventList.begin(); iter != eventList.end(); iter++) {
         if (iter->empty())
             continue;
-        if (iter->front()->GetTimeSansCfd() < time)
-            time = iter->front()->GetTimeSansCfd();
+        if (iter->front()->GetTimeSansCfdInNs() < time)
+            time = iter->front()->GetTimeSansCfdInNs();
     }
 
     return true;
@@ -204,6 +204,7 @@ int Unpacker::ReadBuffer(unsigned int *buf, const unsigned int &vsn) {
                                    + " in the maskMap. Ensure that it's defined in your configuration file!");
         mask_.SetFirmware((*found).second.first);
         mask_.SetFrequency((*found).second.second);
+        mask_.SetTimingConstants(moduleTimeConstants_.at(vsn));
     }
 
     std::vector<XiaData *> decodedList = decoder.DecodeBuffer(buf, mask_);
@@ -219,7 +220,7 @@ Unpacker::Unpacker() : debug_mode(false), eventWidth_(62), running(true),
                        firstTime(0), eventStartTime(0), realStartTime(0), realStopTime(0) {
 
     for (unsigned int i = 0; i <= MAX_PIXIE_MOD; i++){
-        modEvtTimeConverts_.emplace_back(0);
+        moduleTimeConstants_.emplace_back(make_pair(0,0));
         for (unsigned int j = 0; j <= MAX_PIXIE_CHAN; j++){
             channel_counts[i][j] = 0;
         }
@@ -267,23 +268,35 @@ void Unpacker::InitializeDataMask(const std::string &setupCfg) {
         string module_firmware = it->attribute("firmware").as_string(defaultFirm_.c_str());
         string revision = StringManipulation::StringUpper(it->attribute("revision").as_string(defaultRevision_.c_str()));
         if (strcmp(revision.c_str(),"H") == 0 ){
-            modEvtTimeConverts_.at(module_number) = 8;
+            switch (module_frequency) {
+                case 125:
+                    moduleTimeConstants_.at(module_number) = {8,8};
+                    break;
+                case 250:
+                    moduleTimeConstants_.at(module_number) = {4,8};
+                    break;
+                case 500:
+                    moduleTimeConstants_.at(module_number) = {2,8};
+                    break;
+                default:
+                    throw IOException("Unpacker::InitializeDataMask() Invalid RevH Module Frequency for Module Number: " + to_string(module_number));
+            }
         }else if (strcmp(revision.c_str(),"F") == 0) {
             switch (module_frequency) {
                 case 100:
-                    modEvtTimeConverts_.at(module_number) = 10;
+                    moduleTimeConstants_.at(module_number) = {10,10};
                     break;
                 case 250:
-                    modEvtTimeConverts_.at(module_number) = 8;
+                    moduleTimeConstants_.at(module_number) = {4,8};
                     break;
                 case 500:
-                    modEvtTimeConverts_.at(module_number) = 10;
+                    moduleTimeConstants_.at(module_number) = {2,10};
                     break;
                 default:
                     throw IOException("Unpacker::InitializeDataMask() Invalid RevF Module Frequency for Module Number: " + to_string(module_number));
             }
         }else if (strcmp(revision.c_str(),"D") == 0){
-            modEvtTimeConverts_.at(module_number) = 10;
+            moduleTimeConstants_.at(module_number) = {10,10};
         }else {
             throw IOException("Unpacker::InitializeDataMask() Invalid Module Revision for Module number: " + to_string(module_number));
         }
