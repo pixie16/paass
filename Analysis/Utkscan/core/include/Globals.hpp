@@ -45,34 +45,6 @@ public:
     ///@return The concatenation of the provided string and the Output Path
     std::string AppendOutputPath(const std::string &a) { return outputPath_ + a; }
 
-    ///@return the adc clock in seconds
-    double GetAdcClockInSeconds() const { return adcClockInSeconds_; }
-
-    ///@param[in] freq : The frequency of the module
-    ///@return the correct adc clock conversion factor for the given freq
-    double GetAdcClockInSeconds(const int &freq) const {
-        if (adcClockTickToSeconds_.find(freq) != adcClockTickToSeconds_.end()) {
-            return (adcClockTickToSeconds_.find(freq)->second);
-        } else {
-            std::cout << "ERROR:: Globals::GetAdcClockInSeconds(): Unknown Frequency, using Revision Default" << std::endl;
-            return adcClockInSeconds_;
-        }
-    }
-
-    ///@return the pixie clock in seconds
-    double GetClockInSeconds() const { return clockInSeconds_; }
-
-    ///@param[in] freq : The frequency of the module
-    ///@return the correct clock conversion factor for the given freq
-    double GetClockInSeconds(const int &freq) const {
-        if (clockTickToSeconds_.find(freq) != clockTickToSeconds_.end()) {
-            return (clockTickToSeconds_.find(freq)->second);
-        } else {
-            std::cout << "ERROR:: Globals::GetClockInSeconds(): Unknown Frequency, using Revision Default" << std::endl;
-            return clockInSeconds_;
-        }
-    }
-
     ///@return the configuration file
     std::string GetConfigFileName() const { return configFile_; }
 
@@ -82,31 +54,11 @@ public:
     ///@return the event size in seconds
     double GetEventLengthInNanoSeconds() const { return eventLengthInNanoSeconds_; }
 
-    ///@return the event width
-    unsigned int GetEventLengthInTicks() const { return eventLengthInTicks_; }
-
-    ///@return the filter clock in seconds
-    double GetFilterClockInSeconds() const { return filterClockInSeconds_; }
-
-    ///@param[in] freq : The frequency of the module
-    ///@return the correct filter clock conversion factor for the given freq
-    double GetFilterClockInSeconds(const int &freq) const {
-        if (filterClockTickToSeconds_.find(freq) != filterClockTickToSeconds_.end()) {
-            return (filterClockTickToSeconds_.find(freq)->second);
-        } else {
-            std::cout << "ERROR:: Globals::GetFilterClockInSeconds(): Unknown Frequency, using Revision Default" << std::endl;
-            return filterClockInSeconds_;
-        }
-    }
-
     ///@return returns name of specified output file
     std::string GetOutputFileName() const { return outputFilename_; }
 
     ///@return Path where additional files will be output.
     std::string GetOutputPath() { return outputPath_; }
-
-    ///@return the revision for the data
-    std::string GetPixieRevision() const { return revision_; }
 
     ///@return rejection regions to exclude from scan.
     std::vector<std::pair<unsigned int, unsigned int> > GetRejectionRegions() const { return reject_; }
@@ -138,14 +90,6 @@ public:
     ///@return true if we will define the raw histograms
     bool HasRawHistogramsDefined() const { return hasRawHistogramsDefined_; }
 
-    ///Sets the Pixie-16 ADC clock speed in seconds.
-    ///@param[in] a : The parameter that we are going to set
-    void SetAdcClockInSeconds(const double &a) { adcClockInSeconds_ = a; }
-
-    ///Sets the speed Pixie-16 clock in seconds.
-    ///@param[in] a : The parameter that we are going to set
-    void SetClockInSeconds(const double &a) { clockInSeconds_ = a; }
-
     ///Sets whether or not to actually fill ANY of the various DAMM histos on disk. 
     ///@param[in] a : The parameter that we are going to set
     void SetDammPlots(const double &a) { dammPlots_ = a; }
@@ -153,14 +97,6 @@ public:
     ///Sets the event length in seconds that we will use to create events.
     ///@param[in] a : The paramter that we are going to set
     void SetEventLengthInNanoSeconds(const double &a) { eventLengthInNanoSeconds_ = a; }
-
-    ///Sets the event length in clock ticks that we will use to create events.
-    ///@param[in] a : The parameter that we are going to set
-    void SetEventLengthInTicks(const unsigned int &a) { eventLengthInTicks_ = a; }
-
-    ///Sets the Pixie-16 Filter clock value.
-    ///@param[in] a : The parameter that we are going to set
-    void SetFilterClockInSeconds( const double &a) { filterClockInSeconds_ = a; }
 
     ///Sets a flag that controls if we output the raw histograms to DAMM
     ///@param[in] a : The parameter that we are going to set
@@ -177,12 +113,6 @@ public:
     ///Sets the rejection regions parsed from the config file
     ///@param[in] a : The rejection regions.
     void SetRejectionRegions(const std::vector<std::pair<unsigned int, unsigned int>> &a) { reject_ = a; }
-
-    ///Sets the revision of the pixie modules that we had.
-    ///@param[in] a : The parameter that we are going to set
-    ///@TODO this will eventually be supersceded by information coming
-    /// directly from the Map node.
-    void SetRevision(const std::string &a) { revision_ = a; }
 
     ///Sets the speed of light in a Big VANDLE module.
     ///@param[in] a : The speed of light in units of cm/ns
@@ -214,20 +144,12 @@ private:
     /// they are not set properly due to invalid up configuration files.
     void InitializeMemberVariables(void);
 
-    const std::map<int, double> clockTickToSeconds_ = {{100, 10e-9}, {250, 8e-9}, {500, 10e-9}};        //!< map of frequencies and conversion factors
-    const std::map<int, double> adcClockTickToSeconds_ = {{100, 10e-9}, {250, 4e-9}, {500, 2e-9}};      //!< map of frequencies and conversion factors for Adc Ticks->Seconds
-    const std::map<int, double> filterClockTickToSeconds_ = {{100, 10e-9}, {250, 8e-9}, {500, 10e-9}};  //!< map of frequencies and conversion factors for Dsp Ticks->Seconds
-    double adcClockInSeconds_;                                   //!< adc clock in second
-    double clockInSeconds_;                                      //!< the ACQ clock in seconds
     std::string configFile_;                                     //!< The configuration file
     bool dammPlots_;                                             //!< True if we are filling DAMM plots
-    double eventLengthInNanoSeconds_;                                //!< event width in nanoseconds
-    unsigned int eventLengthInTicks_;                            //!< the size of the events
-    double filterClockInSeconds_;                                //!< filter clock in seconds
+    double eventLengthInNanoSeconds_;                            //!< event width in nanoseconds
     bool hasRawHistogramsDefined_;                               //!< True if we are plotting Raw Histograms
     std::string outputFilename_;                                 //!<Output Filename
     std::string outputPath_;                                     //!< The path to additional configuration files
-    std::string revision_;                                       //!< the pixie revision
     double sysClockFreqInHz_;                                    //!< frequency of the system clock
     std::vector<std::pair<unsigned int, unsigned int>> reject_;  ///< Rejection regions
     double vandleBigSpeedOfLight_;                               //!< speed of light in big VANDLE bars in cm/ns

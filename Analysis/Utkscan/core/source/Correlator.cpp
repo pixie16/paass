@@ -108,7 +108,7 @@ void CorrelationList::PrintDecayList() const {
     str << " " << ctime(&theTime)
         << "    TAC: " << setw(8) << front().tof
         << ",    ts: " << fixed << setprecision(8)
-        << (firstTime * Globals::get()->GetFilterClockInSeconds())
+        << (firstTime * 1.0e-9)
         << ",    cc: " << scientific << setprecision(3)
         << front().clockCount << endl;
     cout << str.str();
@@ -117,12 +117,9 @@ void CorrelationList::PrintDecayList() const {
 #endif
     str.str("");
     for (const_iterator it = begin(); it != end(); it++) {
-        double dt = ((*it).time - firstTime) *
-                    Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
-        double dt2 = ((*it).time - lastTime) *
-                     Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
-        double offt = (*it).offTime *
-                      Globals::get()->GetFilterClockInSeconds() / printTimeResolution;
+        double dt = ((*it).time - firstTime) * 1.0e-9 / printTimeResolution;
+        double dt2 = ((*it).time - lastTime) * 1.0e-9 / printTimeResolution;
+        double offt = (*it).offTime * 1.0e-9 / printTimeResolution;
         if ((*it).flagged) {
             str << " * " << setw(2) << (*it).generation << " E";
         } else {
@@ -183,7 +180,7 @@ void Correlator::Correlate(EventInfo &event, unsigned int fch,
     CorrelationList &theList = decaylist[fch][bch];
 
     double lastTime = NAN;
-    double clockInSeconds = Globals::get()->GetFilterClockInSeconds();
+    double clockInSeconds = 1.0e-9;
 
     switch (event.type) {
         case EventInfo::IMPLANT_EVENT:
@@ -285,7 +282,7 @@ void Correlator::CorrelateAll(EventInfo &event) {
         for (unsigned int bch = 0; bch < arraySize; bch++) {
             if (decaylist[fch][bch].size() == 0)
                 continue;
-            if (event.time - decaylist[fch][bch].back().time < 10e-6 / Globals::get()->GetFilterClockInSeconds())
+            if (event.time - decaylist[fch][bch].back().time < 10e-6 / 1.0e-9)
                 Correlate(event, fch, bch);
         }
     }

@@ -177,7 +177,7 @@ bool CloverFragProcessor::Process(RawEvent &event) {
             Cstruct.cloverHigh = cloverHighGain;
             Cstruct.rawEnergy = (*itClover)->GetEnergy();
             Cstruct.energy = gEnergy;
-            Cstruct.time = (*itClover)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9;  //store ns
+            Cstruct.time = (*itClover)->GetTimeSansCfdInNs();  //store ns
             Cstruct.detNum = (*itClover)->GetChanID().GetLocation();
             Cstruct.cloverNum = cloverNum;
             pixie_tree_event_->clover_vec_.emplace_back(Cstruct);

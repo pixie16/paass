@@ -2,9 +2,6 @@
  * \brief constant parameters used in pixie16 analysis
  * \author K. A. Miernik and S. V. Paulauskas
  */
-#include <iostream>
-#include <limits>
-#include <sstream>
 #include <stdexcept>
 
 #include <unistd.h>
@@ -55,8 +52,6 @@ Globals::Globals(const std::string &file) {
 void Globals::InitializeMemberVariables() {
     sysClockFreqInHz_ = sysconf(_SC_CLK_TCK);
     hasRawHistogramsDefined_ = true;
-    outputFilename_ = outputPath_ = revision_ = "";
-    adcClockInSeconds_ = clockInSeconds_ = eventLengthInNanoSeconds_ =
-    filterClockInSeconds_ = vandleBigSpeedOfLight_ =
-    vandleMediumSpeedOfLight_ = vandleSmallSpeedOfLight_ = 0;
+    outputFilename_ = outputPath_ = "";
+    eventLengthInNanoSeconds_ = vandleBigSpeedOfLight_ = vandleMediumSpeedOfLight_ = vandleSmallSpeedOfLight_ = 0;
 }

@@ -133,8 +133,6 @@ bool BetaScintProcessor::Process(RawEvent &event) {
     static const vector<ChanEvent *> &scintBetaEvents =
             event.GetSummary("beta_scint:beta", true)->GetList();
 
-    double clockInSeconds = Globals::get()->GetClockInSeconds();
-
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove*/
     bool tapeMove = !(TreeCorrelator::get()->place("Cycle")->status());
 
@@ -147,7 +145,7 @@ bool BetaScintProcessor::Process(RawEvent &event) {
     for (vector<ChanEvent *>::const_iterator it = scintBetaEvents.begin(); it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalibratedEnergy();
         int energyBin = int(energy / energyContraction_);
-        double time = (*it)->GetTime();
+        double time = (*it)->GetTimeInNs();
         int location = (*it)->GetChanID().GetLocation();
 
         PlaceOR *betas = dynamic_cast<PlaceOR *>(TreeCorrelator::get()->place("Beta"));
@@ -168,11 +166,11 @@ bool BetaScintProcessor::Process(RawEvent &event) {
         if (energyBin < 1)
             continue;
 
-        double decayTime = (time - cycleTime) * clockInSeconds;
+        double decayTime = time - cycleTime;
         int decayTimeBin = int(decayTime / timeSpectraTimeResolution);
 
         EventData bestGamma = BestGammaForBeta(time);
-        double gb_dtime = (time - bestGamma.time) * clockInSeconds;
+        double gb_dtime = time - bestGamma.time ;
 
         if (GoodGammaBeta(gb_dtime)) {
             plot(D_ENERGY_BETA_GAMMA_GATED, energyBin);

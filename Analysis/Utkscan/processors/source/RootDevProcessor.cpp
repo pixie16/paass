@@ -13,7 +13,6 @@ using namespace std;
 
 RootDevProcessor::RootDevProcessor() : EventProcessor() {
     associatedTypes.insert("RD");
-    Rev = Globals::get()->GetPixieRevision();
 }
 
 bool RootDevProcessor::PreProcess(RawEvent &event) {

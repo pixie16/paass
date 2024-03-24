@@ -307,12 +307,9 @@ bool Anl1471Processor::Process(RawEvent &event) {
             ge_energy = (*itGe)->GetCalibratedEnergy();
             ge_id = (*itGe)->GetChanID().GetLocation();
             ge_time = (*itGe)->GetWalkCorrectedTime();
-            ge_time *= (Globals::get()->GetClockInSeconds() * 1.e9);//in ns now
 
             if (TreeCorrelator::get()->place("Cycle")->status()) {
                 gcyc_time = TreeCorrelator::get()->place("Cycle")->last().time;
-                gcyc_time *= (Globals::get()->GetClockInSeconds() *
-                              1.e9);//in ns now
                 grow_decay_time =
                         (ge_time - gcyc_time) * 1e-9 * 1e2;//in seconds, then ms
                 //cout << ge_energy << endl << grow_decay_time << endl << endl;
@@ -330,8 +327,6 @@ bool Anl1471Processor::Process(RawEvent &event) {
                     gb_time_R = gb_start.GetRightSide().GetHighResTimeInNs();
                     //GetTimeAverage()??
                     gb_time = (gb_time_L + gb_time_R) / 2;
-                    gb_time *= (Globals::get()->GetClockInSeconds() *
-                                1.e9);//in ns now
                 }
             } else {
                 gb_startLoc = -9999;

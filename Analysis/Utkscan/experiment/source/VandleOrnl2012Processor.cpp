@@ -181,7 +181,6 @@ bool VandleOrnl2012Processor::Process(RawEvent &event) {
 
             double cycleTime = TreeCorrelator::get()->place(
                     "Cycle")->last().time;
-            cycleTime *= (Globals::get()->GetClockInSeconds() * 1.e9);
 
             double decayTime = (bar.GetTimeAverage() - cycleTime) / 0.01;
 

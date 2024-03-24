@@ -119,17 +119,17 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     vector<vector<double>> anode_H_positionMatrixQDC(8, vector<double>(8, 0.0));  //! make a vector of vectors initialized to 0 (note the "stacked" vector constructor)
     
     double dyh_max=0;
-    double dyh_qdc_max=0;
+    /* double dyh_qdc_max=0; */
     double dyl_max =0;
-    double dyl_qdc_max =0;
+    /* double dyl_qdc_max =0; */
     
     if (!Dynode_H.empty()){
         dyh_max = event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetCalibratedEnergy() ;
-        dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc());
+        /* dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc()); */
     }
      if (!Dynode_L.empty()){
         dyl_max = event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetCalibratedEnergy() ;
-        dyl_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetTrace().GetQdc());
+        /* dyl_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_l")->GetMaxEvent()->GetTrace().GetQdc()); */
      }
     //!#########################################
     //!       DYNODE LOW GAIN
@@ -359,7 +359,7 @@ void MtasImplantSipmProcessor::FillRootStruct(ChanEvent *evt, double &onboardqdc
     /*         mtasImplStruct.hasValidWaveform = true; */
     /*     } */
     /* } */
-    mtasImplStruct.timesans = evt->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(evt->GetChanID().GetModFreq());
+    mtasImplStruct.timesans = evt->GetTimeSansCfdInNs();
     mtasImplStruct.sipmloc = evt->GetChanID().GetLocation();
     mtasImplStruct.xpixel= positions.first;
     mtasImplStruct.ypixel = positions.second;

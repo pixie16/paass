@@ -77,7 +77,6 @@ bool BatoProcessor::PreProcess(RawEvent &event) {
             onBoardQdc = (*it)->GetQdc();
             pQDC= OnBoardQDC_to_WaveFormQDC(onBoardQdc);
         } 
-        double Tick_ns = Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
        
         plot(DD_BATO_ENERGY, (*it)->GetCalibratedEnergy(), batoNum);
         plot(DD_BATO_QDC, pQDC, batoNum);
@@ -86,7 +85,7 @@ bool BatoProcessor::PreProcess(RawEvent &event) {
             //Fill root struct and push back on to vector
             BatoStruct.detNum = batoNum;
             BatoStruct.energy = (*it)->GetCalibratedEnergy();
-            BatoStruct.time = (*it)->GetTimeSansCfd() * Tick_ns;
+            BatoStruct.time = (*it)->GetTimeSansCfdInNs();
             BatoStruct.qdc = pQDC;
             BatoStruct.pQDCsums = vector<double>(onBoardQdc.begin(), onBoardQdc.end());
             pixie_tree_event_->bato_vec_.emplace_back(BatoStruct);

@@ -57,8 +57,7 @@ public:
 
     /** \return The current value of phase_ in nanoseconds*/
     double GetPhaseInNs() const {
-        return GetTrace().GetPhase() *
-               Globals::get()->GetAdcClockInSeconds() * 1e9;
+        return GetTrace().GetPhase() * GetChanID().GetAdcTickToNS()* 1e9;
     }
 
     /** \return The current value of stdDevBaseline_  */

@@ -66,9 +66,9 @@ bool IonChamberProcessor::Process(RawEvent &event) {
     if (!EventProcessor::Process(event))
         return false;
 
-    static const double minTime = 18.0e-6 / Globals::get()->GetClockInSeconds();
+    const double minTime = 18000.0; //18us
 
-    static const vector<ChanEvent *> &icEvents =
+    const vector<ChanEvent *> &icEvents =
             sumMap["ion_chamber"]->GetList();
 
     double esum = 0.; // all
@@ -136,7 +136,7 @@ bool IonChamberProcessor::Process(RawEvent &event) {
 
         }
         if (lastTime[loc] != -1) {
-            double dtime = (*it)->GetTime() - lastTime[loc];
+            double dtime = (*it)->GetTimeInNs() - lastTime[loc];
             plot(D_DTIME_DETX + loc, dtime / 10);
 
             if (dtime > minTime)
@@ -159,11 +159,11 @@ bool IonChamberProcessor::Process(RawEvent &event) {
                 }
                 double mean = double(sum / count);
                 plot(D_RATE_DETX + loc,
-                     (double) (1 / mean / Globals::get()->GetClockInSeconds()));
+                     (double) (1 / mean / 1.0e-9));
             }
 
         }
-        lastTime[loc] = (*it)->GetTime();
+        lastTime[loc] = (*it)->GetTimeInNs();
     }
     EndProcess(); // update the processing time
     return true;

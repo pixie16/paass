@@ -103,7 +103,7 @@ bool Hen3Processor::PreProcess(RawEvent &event) {
     for (vector<ChanEvent *>::const_iterator it =
             hen3Summary->GetList().begin();
          it != hen3Summary->GetList().end(); it++) {
-        double time = (*it)->GetTime();
+        double time = (*it)->GetTimeInNs();
         double energy = (*it)->GetEnergy();
         int location = (*it)->GetChanID().GetLocation();
 
@@ -127,7 +127,7 @@ bool Hen3Processor::Process(RawEvent &event) {
     int neutron_count = dynamic_cast<PlaceCounter *>(
             TreeCorrelator::get()->place("Neutrons"))->getCounter();
 
-    double clockInSeconds = Globals::get()->GetClockInSeconds();
+    double clockInSeconds = 1.0e-9; // convert ns to seconds
     /** Place Cycle is activated by BeamOn event and deactivated by TapeMove*/
     bool tapeMove = !(TreeCorrelator::get()->place("Cycle")->status());
     /** Cycle time is measured from the beginning of the last BeamON event */
@@ -152,7 +152,7 @@ bool Hen3Processor::Process(RawEvent &event) {
         ChanEvent *chan = *it;
         int location = chan->GetChanID().GetLocation();
         double energy = chan->GetEnergy();
-        double time = chan->GetTime();
+        double time = chan->GetTimeInNs();
 
         plot(D_ENERGY_HEN3, energy);
 

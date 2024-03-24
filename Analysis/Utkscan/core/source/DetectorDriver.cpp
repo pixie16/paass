@@ -187,7 +187,7 @@ void DetectorDriver::ProcessEvent(RawEvent &rawev) {
 
             //internal TS for the FDSi experiment (Xu)
             if ((*it)->GetChanID().HasTag("its")) {
-                pixie_tree_event_.internalTS = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
+                pixie_tree_event_.internalTS = (*it)->GetTimeSansCfdInNs();
             }
             string place = (*it)->GetChanID().GetPlaceName();
             if (place == "__9999")
@@ -300,8 +300,6 @@ void DetectorDriver::DeclarePlots() {
                 DeclareHistogram1D(D_RAW_ENERGY + i, SE, ("RawE " + idstr.str()).c_str());
                 DeclareHistogram1D(D_FILTER_ENERGY + i, SE, ("FilterE " + idstr.str()).c_str());
                 DeclareHistogram1D(D_SCALAR + i, SE, ("Scalar " + idstr.str()).c_str());
-                if (Globals::get()->GetPixieRevision() == "A")
-                    DeclareHistogram1D(D_TIME + i, SE, ("Time " + idstr.str()).c_str());
                 DeclareHistogram1D(D_CAL_ENERGY + i, SE, ("CalE " + idstr.str()).c_str());
             }
         }
@@ -365,8 +363,10 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         }
 
         //Saves the time in nanoseconds
-        chan->SetHighResTime((trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() +
-                chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds()) * 1e9);
+        chan->SetHighResTime(trace.GetPhase() * chan->GetChanID().GetAdcTickToNS() + chan->GetTimeSansCfdInNs());
+
+        /* chan->SetHighResTime((trace.GetPhase() * Globals::get()->GetAdcClockInSeconds() + */
+        /*         chan->GetTimeSansCfd() * Globals::get()->GetFilterClockInSeconds()) * 1e9); */
 
         //Plot max Value in trace post trace analysis
         plot(DD_TRACE_MAX,trace.GetMaxInfo().second / 10,id);
@@ -380,7 +380,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
     /** Calibrate energy and apply the walk correction. */
     double time, walk_correction;
     if (chan->GetHighResTimeInNs() == 0.0) {
-        time = chan->GetTimeInNs(); //time is in clock ticks
+        time = chan->GetTimeInNs(); //time is in ns
         walk_correction = walk_->GetCorrection(chanCfg, energy);
     } else {
         time = chan->GetHighResTimeInNs(); //time here is in ns
@@ -430,33 +430,31 @@ std::set<std::string> DetectorDriver::GetProcessorList() {
 }
 
 void DetectorDriver::FillLogicStruc() { //This should be called away from the event loops. (near where it fills the filenames)
-//TODO We need to make this sensative to running on something other than a 250MHz, also in the logic processor plotting its self
-    double convertTimeNS = Globals::get()->GetClockInSeconds() * 1.0e9; // converstion factor from DSP TICKs to NS
-   
+
     if(TreeCorrelator::get()->checkPlace("Beam")){
         LogStruc.beamStatus = TreeCorrelator::get()->place("Beam")->status();
         if (TreeCorrelator::get()->place("Beam")->status()){
-            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->last().time* convertTimeNS;
-            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->secondlast().time * convertTimeNS;
+            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->last().time;
+            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->secondlast().time ;
         } else {
-            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->secondlast().time* convertTimeNS;
-            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->last().time * convertTimeNS;
+            LogStruc.lastBeamOnTime = TreeCorrelator::get()->place("Beam")->secondlast().time;
+            LogStruc.lastBeamOffTime = TreeCorrelator::get()->place("Beam")->last().time ;
         }
     }
 
     if(TreeCorrelator::get()->checkPlace("TapeMove")){
         LogStruc.tapeMoving =  TreeCorrelator::get()->place("TapeMove")->status();
         if (TreeCorrelator::get()->place("TapeMove")->status()){
-            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->last().time* convertTimeNS;
+            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->last().time;
         } else {
-            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->secondlast().time* convertTimeNS;
+            LogStruc.lastTapeMoveStartTime = TreeCorrelator::get()->place("TapeMove")->secondlast().time;
         }
     }
 
     if(TreeCorrelator::get()->checkPlace("Cycle")){
         LogStruc.tapeCycleStatus = TreeCorrelator::get()->place("Cycle")->status();
         if (TreeCorrelator::get()->place("Cycle")->status()){
-            double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time* convertTimeNS;
+            double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time;
             if (currentTime_ != lastCycleTime_){
                 lastCycleTime_ = currentTime_;
                 tapeCycleNum_++;
@@ -464,20 +462,20 @@ void DetectorDriver::FillLogicStruc() { //This should be called away from the ev
             LogStruc.lastTapeCycleStartTime = currentTime_;
             LogStruc.cycleNum = tapeCycleNum_;
         } else {
-            LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time* convertTimeNS;
+            LogStruc.lastTapeCycleStartTime = TreeCorrelator::get()->place("Cycle")->secondlast().time;
             LogStruc.cycleNum = tapeCycleNum_;
         }
     }
     
     if(TreeCorrelator::get()->checkPlace("Protons") && TreeCorrelator::get()->place("Protons")->status()){
-        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("Protons")->last().time*convertTimeNS;
+        LogStruc.lastProtonPulseTime = TreeCorrelator::get()->place("Protons")->last().time;
     }
     
     if (TreeCorrelator::get()->checkPlace("Supercycle") ){
         if (TreeCorrelator::get()->place("Supercycle")->status()){
-            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time* convertTimeNS;
+            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->last().time;
         } else {
-            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->secondlast().time* convertTimeNS;
+            LogStruc.lastSuperCycleTime = TreeCorrelator::get()->place("Supercycle")->secondlast().time;
         }
     }
     //fill the vector

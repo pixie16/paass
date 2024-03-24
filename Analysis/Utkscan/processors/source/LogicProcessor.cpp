@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "DammPlotIds.hpp"
-#include "Globals.hpp"
 #include "RawEvent.hpp"
 #include "LogicProcessor.hpp"
 
@@ -116,8 +115,8 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
     if (!EventProcessor::PreProcess(event))
         return false;
 
-    static double clockInSeconds = Globals::get()->GetClockInSeconds(); //!< clock in seconds
-    const double logicPlotResolution = 10e-6 / Globals::get()->GetClockInSeconds(); //!<Resolution for Logic Plots
+    static double clockInSeconds = 1.0-9; //!< clock in seconds
+    const double logicPlotResolution = 10e-6 / clockInSeconds; //!<Resolution for Logic Plots
     const double mtcPlotResolution = 10e-3 / clockInSeconds; //!<Res. for MTC Plots
 
     static const vector<ChanEvent *> &events = sumMap["logic"]->GetList();
@@ -128,7 +127,7 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
         string place = (*it)->GetChanID().GetPlaceName();
         string subtype = chan->GetChanID().GetSubtype();
         unsigned int loc = chan->GetChanID().GetLocation();
-        double time = chan->GetTimeSansCfd();
+        double time = chan->GetTimeSansCfdInNs();
 
         static double t0 = time;
 
@@ -238,13 +237,11 @@ bool LogicProcessor::PreProcess(RawEvent &event) {
 
             // If beam was stopped, activate place and plot stop length
             if (!TreeCorrelator::get()->place("Beam")->status()) {
-                double clockInSeconds = Globals::get()->GetClockInSeconds();
-                double resolution = 1.0 / clockInSeconds;
 
-                plot(D_TIME_STOP_LENGTH, dt_beam_stop / resolution);
+                plot(D_TIME_STOP_LENGTH, dt_beam_stop * clockInSeconds);
 
                 TreeCorrelator::get()->place("Beam")->activate(time);
-                m.run_message("Beam started after: " + to_string(dt_beam_stop / resolution) + " s ");
+                m.run_message("Beam started after: " + to_string(dt_beam_stop * clockInSeconds ) + " s ");
             } else {
                 TreeCorrelator::get()->place("Beam")->deactivate(time);
                 m.run_message("Beam stopped");
@@ -286,7 +283,7 @@ bool LogicProcessor::NiftyGraph(RawEvent &event) {
 
         unsigned int loc = chan->GetChanID().GetLocation();
 
-        int timeBin = int(chan->GetTime() / logicPlotResolution);
+        int timeBin = int(chan->GetTimeInNs() / logicPlotResolution);
         int startTimeBin = 0;
 
         if(!std::isnan(lastStartTime.at(loc))) {
@@ -309,7 +306,7 @@ bool LogicProcessor::NiftyGraph(RawEvent &event) {
     }
     for(vector<ChanEvent*>::const_iterator it = triggers.begin();
         it != triggers.end(); it++) {
-        int timeBin = int((*it)->GetTime() / logicPlotResolution);
+        int timeBin = int((*it)->GetTimeInNs() / logicPlotResolution);
         timeBin -= firstTimeBin;
         if(timeBin >= maxBin || timeBin < 0)
             continue;

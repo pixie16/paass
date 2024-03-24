@@ -149,7 +149,6 @@ void MtasProcessor::DeclarePlots(void){
 
 MtasProcessor::MtasProcessor() : EventProcessor(OFFSET, RANGE, "MtasProcessor") {
 	associatedTypes.insert("mtas");
-	PixieRevision = Globals::get()->GetPixieRevision();
 }
 
 bool MtasProcessor::PreProcess(RawEvent &event) {
@@ -211,12 +210,10 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
 					MtasSegVec.at(GlobalMtasSegID).RingSegNum_ = segmentNum;
                     if (isFront && MtasSegVec.at(GlobalMtasSegID).GetSegFront() == nullptr) {
                         MtasSegVec.at(GlobalMtasSegID).SetSegFront((*chanEvtIter));
-                        MtasSegVec.at(GlobalMtasSegID).SetPixieRev(PixieRevision);
                     }
                     //! Thomas Ruland Gets a gold star
                     else if (isBack && MtasSegVec.at(GlobalMtasSegID).GetSegBack() == nullptr) {
                         MtasSegVec.at(GlobalMtasSegID).SetSegBack((*chanEvtIter));
-                        MtasSegVec.at(GlobalMtasSegID).SetPixieRev(PixieRevision);
                     }
                 }
         }  //! end loop over chanEvents.

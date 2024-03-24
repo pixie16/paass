@@ -48,7 +48,7 @@ public:
     ///@return true if the module number, channel number, and time are identical
     bool operator==(const ChanEvent &rhs) const {
         return GetModuleNumber() == rhs.GetModuleNumber() && GetChannelNumber() == rhs.GetChannelNumber() &&
-                GetTime() == rhs.GetTime();
+                GetTimeInNs() == rhs.GetTimeInNs();
     }
 
     ///Not - Equality operator for ChanEvent
@@ -61,7 +61,7 @@ public:
     ///@return true if the type, subtype, or location are less than those in rhs
     bool operator<(const ChanEvent &rhs) const {
         if(GetWalkCorrectedTime() == 0)
-            return GetTime() < rhs.GetTime();
+            return GetTimeInNs() < rhs.GetTimeInNs();
         return GetWalkCorrectedTime() < rhs.GetWalkCorrectedTime();
     }
 
