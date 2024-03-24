@@ -33,14 +33,6 @@ class SegmentDetector {
 			segBack_ = a;
 		};
 
-		virtual void SetPixieRev(string &a) {
-			PixieRev = a;
-		};
-
-		virtual string GetPixieRev() noexcept{
-			return PixieRev;
-		};
-
 		virtual bool IsValidSegment() const  noexcept{ 
 			return segBack_ != nullptr and segFront_ != nullptr;
 		};
@@ -78,14 +70,7 @@ class SegmentDetector {
 			if (not IsValidSegment()) {
 				throw "Unable to get SegmentDetector time average. Not valid SegmentDetector";
 			}
-			double clockInSeconds;
-			if (PixieRev == "F") {
-				clockInSeconds = Globals::get()->GetClockInSeconds(segFront_->GetChanID().GetModFreq());
-			} else {
-				clockInSeconds = Globals::get()->GetClockInSeconds();
-			}
-
-			return ( ((segFront_->GetTimeSansCfd() + segBack_->GetTimeSansCfd()) / 2.0)  * clockInSeconds * 1.0e9);
+			return ((segFront_->GetTimeSansCfdInNs() + segBack_->GetTimeSansCfdInNs()) / 2.0) ;
 		}
 
 		virtual double GetSegPosition() const {
@@ -98,14 +83,7 @@ class SegmentDetector {
 
 		virtual double GetSegTdiffInNs() const {
 			if( IsValidSegment() ){
-				double clockInSeconds;
-				if (PixieRev == "F") {
-					clockInSeconds = Globals::get()->GetClockInSeconds(segFront_->GetChanID().GetModFreq());
-				} else {
-					clockInSeconds = Globals::get()->GetClockInSeconds();
-				}
-
-				return (segFront_->GetTimeSansCfd() - segBack_->GetTimeSansCfd()) * clockInSeconds * 1.0e9;
+				return (segFront_->GetTimeSansCfdInNs() - segBack_->GetTimeSansCfdInNs());
 			}else{
 				return -1.0e12;
 			}
@@ -130,6 +108,5 @@ class SegmentDetector {
 	protected:
 		ChanEvent* segFront_;
 		ChanEvent* segBack_;
-		string PixieRev;
 };
 #endif

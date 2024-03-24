@@ -165,7 +165,7 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
          itx != xEvents.end();
          ++itx) {
         StripEvent ev((*itx)->GetCalEnergy(),
-                      (*itx)->GetTime(),
+                      (*itx)->GetTimeInNs(),
                       (*itx)->GetChanID().GetLocation(),
                       (*itx)->IsSaturated());
         pair<StripEvent, bool> match(ev, false);
@@ -218,7 +218,7 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
          ity != yEvents.end();
          ++ity) {
         StripEvent ev((*ity)->GetCalEnergy(),
-                      (*ity)->GetTime(),
+                      (*ity)->GetTimeInNs(),
                       (*ity)->GetChanID().GetLocation(),
                       (*ity)->IsSaturated());
         pair<StripEvent, bool> match(ev, false);
@@ -357,11 +357,11 @@ bool Dssd4SHEProcessor::PreProcess(RawEvent &event) {
         ChanEvent *maxBack =
                 event.GetSummary("dssd_front:dssd_front")->GetMaxEvent(true);
         StripEvent evf(maxFront->GetCalEnergy(),
-                       maxFront->GetTime(),
+                       maxFront->GetTimeInNs(),
                        maxFront->GetChanID().GetLocation(),
                        maxFront->IsSaturated());
         StripEvent evb(maxBack->GetCalEnergy(),
-                       maxBack->GetTime(),
+                       maxBack->GetTimeInNs(),
                        maxBack->GetChanID().GetLocation(),
                        maxBack->IsSaturated());
         xyEventsEMatch_.push_back(pair<StripEvent, StripEvent>(evf, evb));
@@ -424,7 +424,7 @@ bool Dssd4SHEProcessor::Process(RawEvent &event) {
         for (vector<ChanEvent *>::iterator itm = mwpcEvents.begin();
              itm != mwpcEvents.end();
              ++itm) {
-            double dt = abs(time - (*itm)->GetTime()) *
+            double dt = abs(time - (*itm)->GetTimeInNs()) *
                         Globals::get()->clockInSeconds();
             if (dt < mwpcTime) {
                 mwpcTime = dt;
@@ -454,7 +454,7 @@ bool Dssd4SHEProcessor::Process(RawEvent &event) {
         for (vector<ChanEvent *>::iterator its = sideEvents.begin();
              its != sideEvents.end();
              ++its) {
-            double dt = abs(time - (*its)->GetTime()) *
+            double dt = abs(time - (*its)->GetTimeInNs()) *
                         Globals::get()->clockInSeconds();
             if (dt < bestSiTime) {
                 bestSiTime = dt;

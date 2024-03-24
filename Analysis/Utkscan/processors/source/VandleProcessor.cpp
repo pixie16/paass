@@ -231,13 +231,7 @@ void VandleProcessor::AnalyzeStarts(const BarDetector &bar, unsigned int &barLoc
             unsigned int startLoc = (*itStart).first.first;
             HighResTimingData start = (*itStart).second;
             
-            double startTime;
-            //! Set the start time in ns. needed because WalkCorTime without fitting is in GetTime() Ticks
-            if ((*itStart).second.GetChanID().HasTag("ocfd")){
-                startTime = start.GetWalkCorrectedTime() * Globals::get()->GetAdcClockInSeconds(((*itStart).second.GetChanID().GetModFreq()));
-            } else {
-                startTime = start.GetWalkCorrectedTime(); //! with Fitting the HRTimeInNs() is used so no need to convert
-            }
+            double startTime = start.GetWalkCorrectedTime(); 
 
             bool caled = ( bar.GetCalibration().GetZ0() != 0 );
             double tof = bar.GetCorTimeAve() - startTime + bar.GetCalibration().GetTofOffset(startLoc);

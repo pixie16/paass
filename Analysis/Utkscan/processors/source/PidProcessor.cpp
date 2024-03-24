@@ -238,12 +238,6 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    // Function that compares energies in two ChanEvent objects
    auto compare_energy = [](ChanEvent *x1, ChanEvent *x2) { return x1->GetCalibratedEnergy() < x2->GetCalibratedEnergy(); };
 
-   // Function that returns time in ns
-   // Note: this function returns time WITHOUT Pixie onboard CFD
-   auto get_time_in_ns = [](ChanEvent *x) {
-      return x->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(x->GetChanID().GetModFreq()) * 1e9;
-   };
-
    //* Tof between rfq and beamline FocalPlane */
 
    double tof0 = 0, tof1 = 0, tof2 = 0, tof3 = 0, pin0_energy = 0, pin1_energy = 0,tac0_energy = 0, tac1_energy = 0, tac2_energy=0, tac3_energy=0;
@@ -258,21 +252,18 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    
    if(!imageL_vec.empty() ){
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
       if((*imageL))
-         pid_struct.image_scint_L_logic_time = (*imageL)->GetTime() * internalTAC_Convert_Tick_adc;
+         pid_struct.image_scint_L_logic_time = (*imageL)->GetTimeInNs();
    }
    if(!pinLogic_vec.empty() ){
       auto pinLogic = std::max_element(pinLogic_vec.begin(), pinLogic_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*pinLogic)->GetChanID().GetModFreq()) * 1e9;
       if((*pinLogic))
-        pid_struct.cross_pin_0_logic_time = (*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc;
+        pid_struct.cross_pin_0_logic_time = (*pinLogic)->GetTimeInNs() ;
    }
    if(!b2Logic_vec.empty() ){
       auto b2Logic = std::max_element(b2Logic_vec.begin(), b2Logic_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*b2Logic)->GetChanID().GetModFreq()) * 1e9;
       if((*b2Logic))
-        pid_struct.cross_scint_b2_logic_time = (*b2Logic)->GetTime() * internalTAC_Convert_Tick_adc;
+        pid_struct.cross_scint_b2_logic_time = (*b2Logic)->GetTimeInNs();
    }
    //std::cout<<"come to line 251"<<std::endl;
    if (!cross_pin0_vec.empty() ) {
@@ -320,16 +311,14 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!imageL_vec.empty() && !pinLogic_vec.empty()) {
       // Get elements with the largest energy in this event for image L
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for pinLogic
       auto pinLogic = std::max_element(pinLogic_vec.begin(), pinLogic_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_pinLogic = Globals::get()->GetAdcClockInSeconds((*pinLogic)->GetChanID().GetModFreq()) * 1e9;
       // Check for nullptr
       if ((*imageL) && (*pinLogic)) {
          // Calculate tof
-         tof0 = ((*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc_pinLogic) - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
-         tof0_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - ((*pinLogic)->GetTime() * internalTAC_Convert_Tick_adc_pinLogic);
+         tof0 = (*pinLogic)->GetTimeInNs() - (*imageL)->GetTimeInNs();
+         tof0_flip = (*imageL)->GetTimeInNs() - (*pinLogic)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
@@ -343,16 +332,14 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!imageL_vec.empty() && !cross_pin0_vec.empty()) {
       // Get elements with the largest energy in this event for image L
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
-
       // Get elements with the largest energy in this event for pinLogic
       auto pin = std::max_element(cross_pin0_vec.begin(), cross_pin0_vec.end(), compare_energy);
 
       // Check for nullptr
       if ((*imageL) && (*pin)) {
          // Calculate tof
-         tof1 = (*pin)->GetHighResTimeInNs() - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
-         tof1_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - (*pin)->GetHighResTimeInNs();
+         tof1 = (*pin)->GetHighResTimeInNs() - (*imageL)->GetTimeInNs();
+         tof1_flip = (*imageL)->GetTimeInNs() - (*pin)->GetHighResTimeInNs();
 
          // ROOT outputs
          if (root_output) {
@@ -366,16 +353,14 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!imageL_vec.empty() && !b2Logic_vec.empty()) {
       // Get elements with the largest energy in this event for image L
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for pinLogic
       auto b2Logic = std::max_element(b2Logic_vec.begin(), b2Logic_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_b2Logic = Globals::get()->GetAdcClockInSeconds((*b2Logic)->GetChanID().GetModFreq()) * 1e9;
       // Check for nullptr
       if ((*imageL) && (*b2Logic)) {
          // Calculate tof
-         tof2 = ((*b2Logic)->GetTime() * internalTAC_Convert_Tick_adc_b2Logic) - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
-         tof2_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - ((*b2Logic)->GetTime() * internalTAC_Convert_Tick_adc_b2Logic);
+         tof2 = (*b2Logic)->GetTimeInNs() - (*imageL)->GetTimeInNs();
+         tof2_flip = (*imageL)->GetTimeInNs() - (*b2Logic)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
@@ -389,15 +374,14 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!imageL_vec.empty() && !cross_scint_b1_vec.empty()) {
       // Get elements with the largest energy in this event for image L
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for pinLogic
       auto cross_scint_b1 = std::max_element(cross_scint_b1_vec.begin(), cross_scint_b1_vec.end(), compare_energy);
       // Check for nullptr
       if ((*imageL) && (*cross_scint_b1)) {
          // Calculate tof
-         tof3 = (*cross_scint_b1)->GetHighResTimeInNs() - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
-         tof3_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - (*cross_scint_b1)->GetHighResTimeInNs();
+         tof3 = (*cross_scint_b1)->GetHighResTimeInNs() - (*imageL)->GetTimeInNs();
+         tof3_flip = (*imageL)->GetTimeInNs() - (*cross_scint_b1)->GetHighResTimeInNs();
 
          // ROOT outputs
          if (root_output) {
@@ -412,19 +396,18 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!dispL_vec.empty() && !dispR_vec.empty()) {
       // Get elements with the largest energy in this event for dispL
       auto dispL = std::max_element(dispL_vec.begin(), dispL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*dispL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for dispR
       auto dispR = std::max_element(dispR_vec.begin(), dispR_vec.end(), compare_energy);
       // Check for nullptr
       if ((*dispL) && (*dispR)) {
          // Calculate LR
-         disp_LR = ((*dispL)->GetTime() * internalTAC_Convert_Tick_adc) - ((*dispR)->GetTime() * internalTAC_Convert_Tick_adc);
+         disp_LR = (*dispL)->GetTimeInNs() - (*dispR)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
-            pid_struct.disp_L_logic_time = (*dispL)->GetTime() * internalTAC_Convert_Tick_adc;
-            pid_struct.disp_R_logic_time = (*dispR)->GetTime() * internalTAC_Convert_Tick_adc;
+            pid_struct.disp_L_logic_time = (*dispL)->GetTimeInNs();
+            pid_struct.disp_R_logic_time = (*dispR)->GetTimeInNs();
             pid_struct.disp_LR = disp_LR;
          }
       }
@@ -436,7 +419,6 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!imageL_vec.empty() && !cross_pin2_vec.empty()) {
       // Get elements with the largest energy in this event for image L
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for pinLogic
       auto pin = std::max_element(cross_pin2_vec.begin(), cross_pin2_vec.end(), compare_energy);
@@ -444,8 +426,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       // Check for nullptr
       if ((*imageL) && (*pin)) {
          // Calculate tof
-         tof4 = (*pin)->GetHighResTimeInNs() - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
-         //tof4_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - (*pin)->GetHighResTimeInNs();
+         tof4 = (*pin)->GetHighResTimeInNs() - (*imageL)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
@@ -460,15 +441,13 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!imageL_vec.empty() && !cross_scint_v1_vec.empty()) {
       // Get elements with the largest energy in this event for image L
       auto imageL = std::max_element(imageL_vec.begin(), imageL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc_imageL = Globals::get()->GetAdcClockInSeconds((*imageL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for pinLogic
       auto cross_scint_v1 = std::max_element(cross_scint_v1_vec.begin(), cross_scint_v1_vec.end(), compare_energy);
       // Check for nullptr
       if ((*imageL) && (*cross_scint_v1)) {
          // Calculate tof
-         tof5 = (*cross_scint_v1)->GetHighResTimeInNs() - ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL);
-         //tof5_flip = ((*imageL)->GetTime() * internalTAC_Convert_Tick_adc_imageL) - (*cross_scint_v1)->GetHighResTimeInNs();
+         tof5 = (*cross_scint_v1)->GetHighResTimeInNs() - (*imageL)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
@@ -483,19 +462,18 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!dispL_vec.empty() && !dispR_vec.empty()) {
       // Get elements with the largest energy in this event for dispL
       auto dispL = std::max_element(dispL_vec.begin(), dispL_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*dispL)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for dispR
       auto dispR = std::max_element(dispR_vec.begin(), dispR_vec.end(), compare_energy);
       // Check for nullptr
       if ((*dispL) && (*dispR)) {
          // Calculate LR
-         disp_LR = ((*dispL)->GetTime() * internalTAC_Convert_Tick_adc) - ((*dispR)->GetTime() * internalTAC_Convert_Tick_adc);
+         disp_LR = (*dispL)->GetTimeInNs() - (*dispR)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
-            pid_struct.disp_L_logic_time = (*dispL)->GetTime() * internalTAC_Convert_Tick_adc;
-            pid_struct.disp_R_logic_time = (*dispR)->GetTime() * internalTAC_Convert_Tick_adc;
+            pid_struct.disp_L_logic_time = (*dispL)->GetTimeInNs();
+            pid_struct.disp_R_logic_time = (*dispR)->GetTimeInNs();
             pid_struct.disp_LR = disp_LR;
          }
       }
@@ -504,19 +482,18 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (!dispU_vec.empty() && !dispD_vec.empty()) {
       // Get elements with the largest energy in this event for dispU
       auto dispU = std::max_element(dispU_vec.begin(), dispU_vec.end(), compare_energy);
-      double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*dispU)->GetChanID().GetModFreq()) * 1e9;
 
       // Get elements with the largest energy in this event for dispD
       auto dispD = std::max_element(dispD_vec.begin(), dispD_vec.end(), compare_energy);
       // Check for nullptr
       if ((*dispU) && (*dispD)) {
          // Calculate UD
-         disp_UD = ((*dispU)->GetTime() * internalTAC_Convert_Tick_adc) - ((*dispD)->GetTime() * internalTAC_Convert_Tick_adc);
+         disp_UD = (*dispU)->GetTimeInNs() - (*dispD)->GetTimeInNs();
 
          // ROOT outputs
          if (root_output) {
-            pid_struct.disp_U_logic_time = (*dispU)->GetTime() * internalTAC_Convert_Tick_adc;
-            pid_struct.disp_D_logic_time = (*dispD)->GetTime() * internalTAC_Convert_Tick_adc;
+            pid_struct.disp_U_logic_time = (*dispU)->GetTimeInNs();
+            pid_struct.disp_D_logic_time = (*dispD)->GetTimeInNs();
             pid_struct.disp_UD = disp_UD;
          }
       }

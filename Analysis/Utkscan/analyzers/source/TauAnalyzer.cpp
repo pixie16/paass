@@ -3,13 +3,11 @@
  * @author D. Miller
  */
 #include <algorithm>
-#include <iostream>
 #include <iterator>
 #include <string>
 
 #include <cmath>
 
-#include "Globals.hpp"
 #include "TauAnalyzer.hpp"
 
 using namespace std;
@@ -56,7 +54,7 @@ void TauAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
         sum2 += double(*it) * (i * n * n - 3 * i * i * n + 2 * i * i * i);
         i += 1.;
     }
-    double tau = 1 / log(sum1 / sum2) * Globals::get()->GetClockInSeconds();
+    double tau = 1 / log(sum1 / sum2) * 1.0e-9;
     trace.SetTau(tau);
 
     EndAnalyze();

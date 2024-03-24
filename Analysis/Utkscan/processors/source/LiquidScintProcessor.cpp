@@ -136,13 +136,7 @@ bool LiquidScintProcessor::Process(RawEvent &event) {
                 const int resOffset = 1000;
 
                 if (start.GetIsValid() || (*itStart)->GetChanID().HasTag("ocfd")) {
-                    double startTime;
-                    //! Set the start time in ns. needed because WalkCorTime without fitting is in GetTime() Ticks
-                    if ((*itStart)->GetChanID().HasTag("ocfd")){
-                        startTime = start.GetWalkCorrectedTime() * Globals::get()->GetAdcClockInSeconds((*itStart)->GetChanID().GetModFreq());
-                    } else {
-                        startTime = start.GetWalkCorrectedTime(); //! with Fitting the HRTimeInNs() is used so no need to convert
-                    }
+                    double startTime = start.GetWalkCorrectedTime() ;
                     double TOF = liquid.GetHighResTimeInNs() - startTime - cal.GetTofOffset(startLoc);;
                     
                     plot(DD_TOFLIQUID, TOF * resMult + resOffset, histLoc);

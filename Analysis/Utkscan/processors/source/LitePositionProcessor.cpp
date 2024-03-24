@@ -393,7 +393,7 @@ ChanEvent *LitePositionProcessor::FindMatchingEdge(ChanEvent *match, vector<Chan
 
     for (; begin < end; begin++) {
         if ((*begin)->GetChanID().GetLocation() == match->GetChanID().GetLocation() &&
-                abs((*begin)->GetTime() - match->GetTime()) < timeCut) {
+                abs((*begin)->GetTimeInNs() - match->GetTimeInNs()) < timeCut) {
             return *begin;
         }
     }

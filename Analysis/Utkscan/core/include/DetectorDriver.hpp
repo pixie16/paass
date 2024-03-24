@@ -163,8 +163,7 @@ public:
      * \param [in] d : the pixie time to convert to wall time */
     time_t GetWallTime(double d) const {
         return (time_t) ((d - pixieToWallClock.first) *
-                         Globals::get()->GetClockInSeconds() +
-                         pixieToWallClock.second);
+                         1.0e-9 + pixieToWallClock.second);
     }
 
     /** \return the list of the Event Processors in the analysis */

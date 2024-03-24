@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cmath>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -23,9 +22,7 @@
 #include "Exceptions.hpp"
 #include "CloverProcessor.hpp"
 #include "Messenger.hpp"
-#include "Notebook.hpp"
 #include "Plots.hpp"
-#include "PlotsRegister.hpp"
 #include "RawEvent.hpp"
 
 using namespace std;
@@ -437,16 +434,16 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
 
     /** guarantee the first event will be greater than
      * the subevent window delayed from reference
-     * We need the ref time to be in TICKS and subEvent to be in seconds
+     * We need the ref time and subEvent to be in nanoseconds  
      * (look at the dtime calculation)
      */
-    double refTime = -2.0 * (subEventWindow_/Globals::get()->GetClockInSeconds());
+    double refTime = -2.0 * (subEventWindow_);
 
     for (vector<ChanEvent *>::iterator it = geEvents_.begin();
          it != geEvents_.end(); it++) {
         ChanEvent *chan = *it;
         double energy = chan->GetCalibratedEnergy();
-        double time = chan->GetWalkCorrectedTime();
+        double time = chan->GetWalkCorrectedTime(); // this is in ns
         int clover = leafToClover[chan->GetChanID().GetLocation()];
 
         /**
@@ -459,18 +456,18 @@ bool CloverProcessor::PreProcess(RawEvent &event) {
         // entries in map are sorted by time
         // if event time is outside of subEventWindow, we start new
         //   events for all clovers and "tas"
-        double dtime =  abs(time - refTime) * Globals::get()->GetClockInSeconds();
+        double dtime =  abs(time - refTime) ;
         if (dtime > subEventWindow_) {
             for (unsigned i = 0; i < numClovers; ++i) {
                 addbackEvents_[i].push_back(AddBackEvent());
-                addbackEvents_[i].back().time = time* Globals::get()->GetClockInSeconds()*1.e9;
+                addbackEvents_[i].back().time = time ;
             }
             tas_.push_back(AddBackEvent());
         }
         // Total addback energy
         addbackEvents_[clover].back().energy += energy;
         // We store latest time only
-        addbackEvents_[clover].back().time = time * Globals::get()->GetClockInSeconds()*1.e9;
+        addbackEvents_[clover].back().time = time ;
         addbackEvents_[clover].back().multiplicity += 1;
         tas_.back().energy += energy;
         tas_.back().time = time;
@@ -486,8 +483,6 @@ bool CloverProcessor::Process(RawEvent &event) {
 
     if (!EventProcessor::Process(event))
         return false;
-
-    double clockInSeconds = Globals::get()->GetClockInSeconds();
 
     /** Cycle time is measured from the begining of the last BeamON event */
     double cycleTime = 0;
@@ -525,7 +520,7 @@ bool CloverProcessor::Process(RawEvent &event) {
             continue;
         if (hasBeta) {
             plot(betaGated::D_NONCYCGATEDENERGY, gEnergy);
-            double gTime = itC->GetTimeSansCfd();
+            double gTime = itC->GetTimeSansCfdInNs();
             EventData bestBeta = BestBetaForGamma(gTime);
         }
 
@@ -534,7 +529,7 @@ bool CloverProcessor::Process(RawEvent &event) {
         if (DetectorDriver::get()->GetSysRootOutput()){
             Cstruct.rawEnergy = itC->GetEnergy();
             Cstruct.energy = itC->GetCalibratedEnergy();
-            Cstruct.time = itC->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1e9; //store ns
+            Cstruct.time = itC->GetTimeSansCfdInNs(); //store ns
             Cstruct.detNum = itC->GetChanID().GetLocation();
             Cstruct.cloverNum = leafToClover[itC->GetChanID().GetLocation()];
             pixie_tree_event_->clover_vec_.emplace_back(Cstruct);
@@ -575,7 +570,7 @@ bool CloverProcessor::Process(RawEvent &event) {
             continue;
 
         double gTime = chan->GetWalkCorrectedTime();
-        double decayTime = (gTime - cycleTime) * clockInSeconds;
+        double decayTime = (gTime - cycleTime) ;
         int det = leafToClover[chan->GetChanID().GetLocation()];
 
         plot(D_ENERGY, gEnergy);
@@ -585,11 +580,11 @@ bool CloverProcessor::Process(RawEvent &event) {
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
+            gb_dtime = (gTime - bestBeta.time) ;
             double betaEnergy = bestBeta.energy;
             int betaLocation = bestBeta.location;
 
-            double plotResolution = clockInSeconds;
+            double plotResolution = 1.0e6; // plot in ms 
             plot(betaGated::DD_TDIFF__GAMMA_ENERGY,
                  (int) (gb_dtime / plotResolution + 100), gEnergy);
             plot(betaGated::DD_TDIFF__BETA_ENERGY,
@@ -610,9 +605,7 @@ bool CloverProcessor::Process(RawEvent &event) {
                     * (t = 0 is time beam went off)
                     */
                     double decayTimeOff = (gTime -
-                                           TreeCorrelator::get()->place(
-                                                   "Beam")->last().time) *
-                                          clockInSeconds;
+                                           TreeCorrelator::get()->place("Beam")->last().time); // TreeCorrelator uses ns now
                     granploty(betaGated::DD_ENERGY__TIMEX_DECAY,
                               gEnergy, decayTimeOff, timeResolution);
                 }
@@ -639,12 +632,12 @@ bool CloverProcessor::Process(RawEvent &event) {
             if (gEnergy2 < gammaThreshold_)
                 continue;
 
-            double gg_dtime = (gTime2 - gTime) * clockInSeconds;
+            double gg_dtime = (gTime2 - gTime) ;
 
             /** Plot timediff between events in the same clover
              * to monitor addback subevent gates. */
             if (det == det2) {
-                double plotResolution = clockInSeconds;
+                double plotResolution = 1.0e6; // plot in ms
                 plot(DD_TDIFF__GAMMA_GAMMA_ENERGY,
                      (int) (gg_dtime / plotResolution + 100),
                      gEnergy);
@@ -771,7 +764,7 @@ bool CloverProcessor::Process(RawEvent &event) {
         double gb_dtime = numeric_limits<double>::max();
         if (hasBeta) {
             EventData bestBeta = BestBetaForGamma(gTime);
-            gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
+            gb_dtime = (gTime - bestBeta.time) ;
         }
 
         plot(D_ADD_ENERGY_TOTAL, gEnergy);
@@ -793,7 +786,7 @@ bool CloverProcessor::Process(RawEvent &event) {
 
             double gTime = addbackEvents_[det][ev].time;
             double gMulti = addbackEvents_[det][ev].multiplicity;
-            double decayTime = (gTime - cycleTime) * clockInSeconds;
+            double decayTime = (gTime - cycleTime) ;
 
             plot(D_ADD_ENERGY, gEnergy);
             plot(D_ADD_ENERGY_CLOVERX + det, gEnergy);
@@ -804,7 +797,7 @@ bool CloverProcessor::Process(RawEvent &event) {
             double gb_dtime = numeric_limits<double>::max();
             if (hasBeta) {
                 EventData bestBeta = BestBetaForGamma(gTime);
-                gb_dtime = (gTime - bestBeta.time) * clockInSeconds;
+                gb_dtime = (gTime - bestBeta.time);
 
                 plot(betaGated::D_ADD_ENERGY, gEnergy);
                 if (gMulti == 1)
@@ -827,7 +820,7 @@ bool CloverProcessor::Process(RawEvent &event) {
 
                 double gTime2 = addbackEvents_[det2][ev].time;
                 double gMulti2 = addbackEvents_[det2][ev].multiplicity;
-                double gg_dtime = (gTime2 - gTime) * clockInSeconds;
+                double gg_dtime = (gTime2 - gTime);
                 if (abs(gg_dtime) > gammaGammaLimit_)
                     continue;
 

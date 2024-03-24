@@ -88,7 +88,7 @@ bool DssdProcessor::Process(RawEvent &event) {
         const ChanEvent *ch = frontSummary->GetMaxEvent();
         frontPos = ch->GetChanID().GetLocation();
         frontEnergy = ch->GetCalibratedEnergy();
-        frontTime = ch->GetTime();
+        frontTime = ch->GetTimeInNs();
     } else
         frontEnergy = 0.;
 
@@ -146,7 +146,7 @@ bool DssdProcessor::Process(RawEvent &event) {
             const double timeResolution[NumGranularities] = {10e-9, 100e-9, 400e-9, 1e-6, 100e-6, 1e-3, 10e-3, 100e-3};
 
             for (unsigned int i = 0; i < NumGranularities; i++) {
-                int timeBin = int(corr.GetDecayTime() * Globals::get()->GetFilterClockInSeconds() / timeResolution[i]);
+                int timeBin = int(corr.GetDecayTime() *1.0e-9 / timeResolution[i]);
 
                 plot(DD_ENERGY__DECAY_TIME_GRANX + i, frontEnergy, timeBin);
             }

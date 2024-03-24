@@ -157,7 +157,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
     static bool firstTime = true;
     static LogicProcessor *logProc = NULL;
 
-    static Correlator corr;
+    static  Correlator corr;
     static const DetectorSummary *tacSummary = event.GetSummary("generic:tac", true);
     static DetectorSummary *impSummary = event.GetSummary("ssd:sum", true);
     static const DetectorSummary *mcpSummary = event.GetSummary("logic:mcp", true);
@@ -191,7 +191,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
         info.position = ch->GetTrace().GetTriggerPositions()[0];
     } // else it defaults to nan
 
-    info.time = ch->GetTime();
+    info.time = ch->GetTimeInNs();
     info.beamOn = true;
 
     // recect noise events
@@ -227,7 +227,7 @@ bool ImplantSsdProcessor::Process(RawEvent &event) {
 
         for (vector<ChanEvent *>::iterator it = mcpEvents.begin();
              it != mcpEvents.end(); it++) {
-            double dt = info.time - (*it)->GetTime();
+            double dt = info.time - (*it)->GetTimeInNs();
 
             plot(D_TDIFF_FOIL_IMPLANT, 500 + dt);
             if (mcpEvents.size() == 1) {
@@ -445,7 +445,7 @@ void ImplantSsdProcessor::PlotType(EventInfo &info, int loc,
     const double timeResolution[numGranularities] =
             {10e-9, 100e-9, 400e-9, 1e-6, 10e-6, 100e-6, 1e-3, 10e-3, 100e-3};
 
-    double clockInSeconds = Globals::get()->GetFilterClockInSeconds();
+    double clockInSeconds = 1.0e-9; // ns to seconds
 
     static double prevVeto = 0;
 

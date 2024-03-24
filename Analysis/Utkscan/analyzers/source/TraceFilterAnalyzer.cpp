@@ -41,14 +41,13 @@ void TraceFilterAnalyzer::DeclarePlots(void) {
 
 void TraceFilterAnalyzer::Analyze(Trace &trace, const ChannelConfiguration &cfg) {
     TraceAnalyzer::Analyze(trace, cfg);
-    Globals *globs = Globals::get();
     static int numTrigFilters = 0;
     static int numRejected = 0;
     static int numPileup = 0;
     static unsigned short numTraces = S7;
 
     //Want to put filter clock units of ns/Sample
-    TraceFilter filter(globs->GetFilterClockInSeconds() * 1e9, cfg.GetTriggerFilterParameters(),
+    TraceFilter filter(cfg.GetTickToNS(), cfg.GetTriggerFilterParameters(),
                        cfg.GetEnergyFilterParameters(), analyzePileup_);
     unsigned int retval = filter.CalcFilters(&trace);
 

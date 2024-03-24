@@ -163,7 +163,7 @@ bool Beta4Hen3Processor::Process(RawEvent &event) {
          it != scintBetaEvents.end(); it++) {
         double energy = (*it)->GetCalEnergy();
         int energyBin = int(energy / energyContraction_);
-        double time = (*it)->GetTime();
+        double time = (*it)->GetTimeInNs();
 
         //Skip the energy-time spectra for zero energy events
         if (energyBin < 1)

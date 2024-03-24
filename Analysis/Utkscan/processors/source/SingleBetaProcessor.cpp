@@ -45,9 +45,6 @@ bool SingleBetaProcessor::PreProcess(RawEvent &event) {
             SBstruc.energy = (*itE)->GetCalibratedEnergy();
             SBstruc.rawEnergy = (*itE)->GetEnergy();
         }
-        double hrtTick2Ns = Globals::get()->GetAdcClockInSeconds((*itE)->GetChanID().GetModFreq()) * 1e9;
-
-        double evtTick2Ns = Globals::get()->GetClockInSeconds((*itE)->GetChanID().GetModFreq()) * 1e9;
 
         if ((*itE)->GetChanID().HasTag("start") && (*itE)->GetTrace().HasValidTimingAnalysis()) {
             plot(DD_QDC, (*itE)->GetTrace().GetQdc(), (*itE)->GetChanID().GetLocation());
@@ -65,7 +62,7 @@ bool SingleBetaProcessor::PreProcess(RawEvent &event) {
 
             if (DetectorDriver::get()->GetSysRootOutput()) {
                 SBstruc.isHighResBeta = true;
-                SBstruc.time = (*itE)->GetTime() * hrtTick2Ns;
+                SBstruc.time = (*itE)->GetTimeInNs();
                 if ((*itE)->GetTrace().HasValidWaveformAnalysis()){
                     SBstruc.qdc = (*itE)->GetTrace().GetQdc();
                 }
@@ -75,7 +72,7 @@ bool SingleBetaProcessor::PreProcess(RawEvent &event) {
             plot(DD_LOWEN, (*itE)->GetCalibratedEnergy(), (*itE)->GetChanID().GetLocation());
             if (DetectorDriver::get()->GetSysRootOutput()) {
                 SBstruc.isLowResBeta = true;
-                SBstruc.time = (*itE)->GetTimeSansCfd() * evtTick2Ns;
+                SBstruc.time = (*itE)->GetTimeSansCfdInNs();
             }
         }
         if(DetectorDriver::get()->GetSysRootOutput()){

@@ -137,7 +137,6 @@ bool GammaScintFragProcessor::Process(RawEvent &event) {
     if (ISOL_) {
         if (TreeCorrelator::get()->place("Cycle")->status()) {
             double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time;
-            currentTime_ *= Globals::get()->GetClockInSeconds(GSEvents_.front()->GetChanID().GetModFreq()) * 1.e9;
             if (currentTime_ != bunchLast_) {
                 double tdiff = (currentTime_ - bunchLast_) / 1.e6;
                 if (bunchNum_ == 0) {
@@ -156,7 +155,7 @@ bool GammaScintFragProcessor::Process(RawEvent &event) {
             }
         }
     } else {
-        double currentTime_ = GSEvents_.front()->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(GSEvents_.front()->GetChanID().GetModFreq()) * 1.e9;
+        double currentTime_ = GSEvents_.front()->GetTimeSansCfdInNs();
         double tdiff = (currentTime_ - bunchLast_);
         if (firstGSEvent_)
             cout << "First Bunch. Current Bunch Size is " << bunchingTime_ << " seconds." << endl;
@@ -183,14 +182,11 @@ bool GammaScintFragProcessor::Process(RawEvent &event) {
 
     //start actual event loop
     for (auto it = GSEvents_.begin(); it != GSEvents_.end(); it++) {
-        double currentModFreq = (*it)->GetChanID().GetModFreq();
         string subType = (*it)->GetChanID().GetSubtype();
         unsigned int subTypeOffset = ReturnOffset(subType);
         double Genergy = (*it)->GetCalibratedEnergy();
-        //double Gtime = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds(currentModFreq) * 1.e9;
         //modify by Xu to use onboard cfd timing
-        double internalTAC_Convert_Tick_adc = Globals::get()->GetAdcClockInSeconds((*it)->GetChanID().GetModFreq()) * 1e9;
-        double Gtime = (*it)->GetTime() * internalTAC_Convert_Tick_adc;
+        double Gtime = (*it)->GetTimeInNs();
 
         if (!((*it)->GetChanID().HasTag("dy"))) {
             plot(D_ENERGY + subTypeOffset, Genergy);

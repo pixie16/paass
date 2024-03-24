@@ -471,7 +471,7 @@ ChanEvent *PositionProcessor::FindMatchingEdge(ChanEvent *match,
     for (; begin < end; ++begin) {
         if ((*begin)->GetChanID().GetLocation() ==
             match->GetChanID().GetLocation() &&
-            abs((*begin)->GetTime() - match->GetTime()) < matchingTimeCut) {
+            abs((*begin)->GetTimeInNs() - match->GetTimeInNs()) < matchingTimeCut) {
             return *begin;
         }
     }
@@ -484,7 +484,7 @@ ChanEvent *PositionProcessor::FindMatchingEdge(ChanEvent *match,
     for (; begin < end; ++begin) {
         if ((*begin)->GetChanID().GetLocation() ==
             match->GetChanID().GetLocation() &&
-            abs((*begin)->GetTime() - match->GetTime()) < matchingTimeCut) {
+            abs((*begin)->GetTimeInNs() - match->GetTimeInNs()) < matchingTimeCut) {
             return *begin;
         }
     }

@@ -159,7 +159,7 @@ GammaScintProcessor::GammaScintProcessor(const std::map<std::string,std::string>
         timeScales_.emplace_back(10e-3);
     }
     MRBetaWindow_.second = GSArgs.find("MRBWin")->second;
-    MRBetaWindow_.first=strtod(MRBetaWindow_.second.c_str(), nullptr)*Globals::get()->GetClockInSeconds() *1.e9;
+    MRBetaWindow_.first=strtod(MRBetaWindow_.second.c_str(), nullptr);
 
     //Loads addback thresholds and Sub Event Windows (parsed in DetectorDriverXmlParser, with defaults)
     // initializing  Addback Parameter maps
@@ -168,11 +168,11 @@ GammaScintProcessor::GammaScintProcessor(const std::map<std::string,std::string>
     // ref times need to be in ns because the Gtime is in ns
 
     double NgammaThreshold_ =  strtod(GSArgs.find("NaI_Thresh")->second.c_str(), nullptr);
-    double NsubEventWin_ =  strtod(GSArgs.find("NaI_SubWin")->second.c_str(), nullptr)/(Globals::get()->GetClockInSeconds());
+    double NsubEventWin_ =  strtod(GSArgs.find("NaI_SubWin")->second.c_str(), nullptr);
     double LHgammaThreshold_ =  strtod(GSArgs.find("LH_Thresh")->second.c_str(), nullptr);
-    double LHsubEventWin_ =  strtod(GSArgs.find("LH_SubWin")->second.c_str(), nullptr)/(Globals::get()->GetClockInSeconds());
+    double LHsubEventWin_ =  strtod(GSArgs.find("LH_SubWin")->second.c_str(), nullptr);
     double BHgammaThreshold_ =  strtod(GSArgs.find("BH_Thresh")->second.c_str(), nullptr);
-    double BHsubEventWin_ =  strtod(GSArgs.find("BH_SubWin")->second.c_str(), nullptr)/(Globals::get()->GetClockInSeconds());
+    double BHsubEventWin_ =  strtod(GSArgs.find("BH_SubWin")->second.c_str(), nullptr);
 
     std::map <std::string,double > paraData ;
     paraData.insert(make_pair("thresh",NgammaThreshold_));
@@ -257,7 +257,6 @@ bool GammaScintProcessor::Process(RawEvent &event) {
     if (ISOL_) {
         if (TreeCorrelator::get()->place("Cycle")->status()) {
             double currentTime_ = TreeCorrelator::get()->place("Cycle")->last().time;
-            currentTime_ *= Globals::get()->GetClockInSeconds() * 1.e9;
             if (currentTime_ != bunchLast_) {
                 double tdiff = (currentTime_ - bunchLast_) / 1.e6;
                 if (bunchNum_ == 0) {
@@ -273,7 +272,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             }
         }
     } else {
-        double currentTime_ = GSEvents_.back()->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1.e9;
+        double currentTime_ = GSEvents_.back()->GetTimeSansCfdInNs();
         double tdiff = (currentTime_ - bunchLast_);
         //cout <<"bunchLast_ = "<<bunchLast_<<endl<<"Tdiff from First to current = " << currentTime_ - firstEventTime_<<endl;
         if (firstGSEvent_)
@@ -304,7 +303,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
         string subType = (*it)->GetChanID().GetSubtype();
         unsigned int subTypeOffset = ReturnOffset(subType);
         double Genergy = (*it)->GetCalibratedEnergy();
-        double Gtime = (*it)->GetTimeSansCfd() * Globals::get()->GetClockInSeconds() * 1.e9;
+        double Gtime = (*it)->GetTimeSansCfdInNs();
         double decayTime = (Gtime - bunchLast_) / 1.0e9;
 
         if (hasLowResBeta_) {
@@ -313,7 +312,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
             //the possiblity of a future need.
 
             for (auto itB = BetaList.begin(); itB != BetaList.end(); itB++) {
-                double BetaTime =(*itB).first * Globals::get()->GetClockInSeconds() * 1.e9;
+                double BetaTime =(*itB).first ;
                 double MRBtDiff = Gtime - BetaTime ;
                 if (MRBtDiff < 0)
                     continue;
@@ -366,7 +365,7 @@ bool GammaScintProcessor::Process(RawEvent &event) {
         continue;
     }
     //double abTdiff = abs(Gtime - (GetAddbackPara(subType, "refTime")));
-    double abTdiff = abs((*it)->GetTimeSansCfd()-GetAddbackPara(subType,"refTime"));
+    double abTdiff = abs((*it)->GetTimeSansCfdInNs() - GetAddbackPara(subType,"refTime"));
 
     if (abTdiff > (GetAddbackPara(subType, "subEvtWin"))) {
         //if we are outside of the sub event window for a given subtype
@@ -384,14 +383,14 @@ bool GammaScintProcessor::Process(RawEvent &event) {
     if (GetAddbackStruct(subType)->multiplicity == 0) {
         //only count as "beta gated" if the first addback event has a beta. (a catch incase the addback event
             //crosses pixie events, which it shouldn't because process is closed at an event boundary )
-        GetAddbackStruct(subType)->ftime = (*it)->GetTimeSansCfd();
+        GetAddbackStruct(subType)->ftime = (*it)->GetTimeSansCfdInNs();
     }
         //Gets last entry in the addback vector for the correct subtype, and increments it with the current values
         GetAddbackStruct(subType)->energy += (*it)->GetCalibratedEnergy();
-        GetAddbackStruct(subType)->time = (*it)->GetTimeSansCfd();
+        GetAddbackStruct(subType)->time = (*it)->GetTimeSansCfdInNs();
         GetAddbackStruct(subType)->multiplicity += 1;
 
-        SetAddbackRefTime(subType, (*it)->GetTimeSansCfd());
+        SetAddbackRefTime(subType, (*it)->GetTimeSansCfdInNs());
     } //End GSEvents for loop
 
     //now that we have processed every det event in the Pixie Event list. We wait for the DD to ask for the vector

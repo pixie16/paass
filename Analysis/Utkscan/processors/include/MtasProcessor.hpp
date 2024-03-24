@@ -38,21 +38,20 @@ class MtasProcessor : public EventProcessor {
 
    private:
     processor_struct::MTAS Mtasstruct;  //!<Root Struct
-    std::string PixieRevision;               //! pixie revision
 };
 
 class MtasSegment : public SegmentDetector {
-   public:
-    MtasSegment() : SegmentDetector() {
-        gMtasSegID_ = -1;
-        RingSegNum_ = -1;  // ! per ring SegmentDetector number (1-6)
-    };
+public:
+   MtasSegment() : SegmentDetector() {
+      gMtasSegID_ = -1;
+      RingSegNum_ = -1;  // ! per ring SegmentDetector number (1-6)
+   };
 
-    ~MtasSegment() = default;
-    
-	int gMtasSegID_;
-    int RingSegNum_;
-    string segRing_;
+   ~MtasSegment() = default;
+
+   int gMtasSegID_;
+   int RingSegNum_;
+   std::string segRing_;
 };
 
 #endif  //PAASS_MtasProcessor_H

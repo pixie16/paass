@@ -140,7 +140,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
     ///Obtain some useful logic statuses
     bool isTapeMoving = TreeCorrelator::get()->place("TapeMove")->status();
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
-    double clockInSeconds = Globals::get()->GetClockInSeconds();
+    double clockInSeconds = 1.0-9;
 
     ///Begin loop over template events
     for (vector<ChanEvent *>::iterator tit = tEvts.begin();
@@ -166,7 +166,7 @@ bool TemplateExpProcessor::Process(RawEvent &event) {
 #ifdef useroot
             ptvsge_->Fill((*tit)->GetEnergy(), gEnergy);
             tEnergy = (*tit)->GetEnergy();
-            tof_ = (*tit)->GetTime() - gTime;
+            tof_ = (*tit)->GetTimeInNs() - gTime;
             proottree_->Fill();
             tEnergy = tof_ = -9999;
 #endif

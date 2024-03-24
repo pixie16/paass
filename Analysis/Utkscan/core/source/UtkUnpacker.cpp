@@ -12,7 +12,6 @@
 #include "DammPlotIds.hpp"
 #include "Places.hpp"
 #include "TreeCorrelator.hpp"
-#include "UtkScanInterface.hpp"
 #include "UtkUnpacker.hpp"
 
 using namespace std;
@@ -54,7 +53,7 @@ void UtkUnpacker::ProcessRawEvent() {
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
 
     if (Globals::get()->HasRejectionRegion()) {
-        double eventTime = (GetEventStartTime() - GetFirstTime()) * Globals::get()->GetClockInSeconds();
+        double eventTime = (GetEventStartTime() - GetFirstTime()) * 1.0-9;
         vector <pair<unsigned int, unsigned int>> rejectRegions = Globals::get()->GetRejectionRegions();
 
         for (vector<pair<unsigned int, unsigned int> >::iterator region = rejectRegions.begin();
@@ -63,9 +62,9 @@ void UtkUnpacker::ProcessRawEvent() {
                 return;
     }
 
-    driver->plot(D_EVENT_GAP, (GetRealStopTime() - lastTimeOfPreviousEvent) * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() * Globals::get()->GetClockInSeconds() * 1e9);
-    driver->plot(D_EVENT_LENGTH, (GetRealStopTime() - GetRealStartTime()) * Globals::get()->GetClockInSeconds() * 1e9);
+    driver->plot(D_EVENT_GAP, GetRealStopTime() - lastTimeOfPreviousEvent) ;
+    driver->plot(D_BUFFER_END_TIME, GetRealStopTime() );
+    driver->plot(D_EVENT_LENGTH, GetRealStopTime() - GetRealStartTime());
     driver->plot(D_EVENT_MULTIPLICITY, rawEvent.size());
 
     //loop over the list of channels that fired in this event

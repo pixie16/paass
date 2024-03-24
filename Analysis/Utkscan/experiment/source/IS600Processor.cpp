@@ -267,12 +267,12 @@ bool IS600Processor::Process(RawEvent &event) {
          it++)
         plot(DD_PROTONBETA2TDIFF_VS_BETA2EN, it->second.second,
              (it->second.first - lastProtonTime) /
-             (10e-3 / Globals::get()->GetClockInSeconds()));
+             (10e-3 / 1.0e-9));
 
 
     //----------------- GE Processing -------------------
     bool hasBeta = TreeCorrelator::get()->place("Beta")->status();
-    double clockInSeconds = Globals::get()->GetClockInSeconds();
+    double clockInSeconds = 1.0e-9;
     // plot with 10 ms bins
     const double plotResolution = 10e-3 / clockInSeconds;
 
