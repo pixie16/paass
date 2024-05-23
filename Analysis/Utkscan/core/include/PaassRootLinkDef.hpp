@@ -37,6 +37,9 @@
 #pragma link C++ struct processor_struct::PSPMT+;
 #pragma link C++ class std::vector<processor_struct::PSPMT>+;
 
+#pragma link C++ struct processor_struct::PSPMTSUMMARY+;
+#pragma link C++ class std::vector<processor_struct::PSPMTSUMMARY>+;
+
 #pragma link C++ struct processor_struct::ROOTDEV+;
 #pragma link C++ class std::vector<processor_struct::ROOTDEV>+;
 

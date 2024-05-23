@@ -132,6 +132,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
    if (DetectorDriver::get()->GetSysRootOutput())
    {
       PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+      SUMstruct = processor_struct::PSPMTSUMMARY_DEFAULT_STRUCT;
    }
 
    bool Pin_Implant = false;
@@ -540,6 +541,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if ((*it)->GetTrace().GetQdc() > Highest_dynL_qdc)
          {
             Highest_dynL_qdc = (*it)->GetTrace().GetQdc();
+            if(DetectorDriver::get()->GetSysRootOutput()){
+              SUMstruct.dynQdclow = Highest_dynL_qdc;
+              SUMstruct.dynEnergylow = (*it)->GetCalibratedEnergy();
+              SUMstruct.timelow = (*it)->GetTime();
+            }
          }
          plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc() / 100, 0);
       }
@@ -548,6 +554,14 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (DetectorDriver::get()->GetSysRootOutput())
          {
             FillPSPMTStruc(*(*it));
+         }
+         if(DetectorDriver::get()->GetSysRootOutput()){
+            if ((*it)->GetTrace().GetQdc() > SUMstruct.dynQdchigh)
+            {
+               SUMstruct.dynQdchigh = (*it)->GetTrace().GetQdc();
+               SUMstruct.dynEnergyhigh = (*it)->GetCalibratedEnergy();
+               SUMstruct.timehigh = (*it)->GetTime();
+            }
          }
          plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc() / 100, 1);
       }
@@ -579,6 +593,10 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (!(*it)->GetQdc().empty())
          {
             energy_oqdc = (*it)->GetQdc().at(0) - (*it)->GetQdc().at(2);
+         }
+         else if(!(*it)->GetTrace().empty())
+         {
+            energy_oqdc = (*it)->GetTrace().GetQdc();
          }
          int anode_low_detNum = (*it)->GetChanID().GetLocation();
          // check signals energy vs threshold
@@ -684,8 +702,6 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          std::pair<double, double> qdc_based_POS = CalculatePosition(xa_l_qdc, xb_l_qdc, ya_l_qdc, yb_l_qdc, vdtype_, rotation_, xflip_);
          position_low = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_, xflip_);
 
-         /* position_low.first = qdc_based_POS.first; */
-         /* position_low.second = qdc_based_POS.second; */
 
          if (Highest_dynL_qdc > 20000 || true)
          {
@@ -700,6 +716,19 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
             plot(DD_POS_LOW_PINGATED, position_low.first * positionScale_ + positionOffset_,
                  position_low.second * positionScale_ + positionOffset_);
          }
+         if(DetectorDriver::get()->GetSysRootOutput()){
+            SUMstruct.validPoslow = true;
+            SUMstruct.ansumQdclow = xa_l_qdc+xb_l_qdc+ya_l_qdc+yb_l_qdc;
+            SUMstruct.ansumEnergylow = xa_l+xb_l+ya_l+yb_l;
+            if(qdc_based_POS.first<-800 && qdc_based_POS.second<-800){
+              SUMstruct.posXlow = qdc_based_POS.first; 
+              SUMstruct.posYlow = qdc_based_POS.second; 
+            }
+            else{
+              SUMstruct.posXlow = position_low.first; 
+              SUMstruct.posYlow = position_low.second; 
+            }
+         }
       }
 
       if ((xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0) || (xa_h_qdc > 0 && xb_h_qdc > 0 && ya_h_qdc > 0 && yb_h_qdc > 0))
@@ -712,6 +741,20 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
               position_high.second * positionScale_ + positionOffset_);
          plot(DD_POS_HIGH_QDC, qdc_based_POS.first * positionScale_ + positionOffset_,
               qdc_based_POS.second * positionScale_ + positionOffset_);
+
+         if(DetectorDriver::get()->GetSysRootOutput()){
+            SUMstruct.validPoshigh = true;
+            SUMstruct.ansumQdchigh = xa_h_qdc+xb_h_qdc+ya_h_qdc+yb_h_qdc;
+            SUMstruct.ansumEnergyhigh = xa_h+xb_h+ya_h+yb_h;
+            if(qdc_based_POS.first<-800 && qdc_based_POS.second<-800){
+              SUMstruct.posXhigh = qdc_based_POS.first; 
+              SUMstruct.posYhigh = qdc_based_POS.second; 
+            }
+            else{
+              SUMstruct.posXhigh = position_high.first; 
+              SUMstruct.posYhigh = position_high.second; 
+            }
+         }
       }
 
       ////---------------VETO LOOP------------------------------------------------
@@ -896,6 +939,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
 
       if (!hiDynode.empty())
          plot(DD_DY_SUM_HG, hiDynode.front()->GetCalibratedEnergy(), highAnodeSum);
+
+      if(DetectorDriver::get()->GetSysRootOutput()){
+         pixie_tree_event_->pspmtsum_vec_.emplace_back(SUMstruct);
+         SUMstruct = processor_struct::PSPMTSUMMARY_DEFAULT_STRUCT;
+      }
    }
    EndProcess();
    return (true);
@@ -905,6 +953,8 @@ pair<double, double> PspmtProcessor::CalculatePosition(const double &xa, const d
 {
    double x = 0, y = 0, x_tmp = 0, y_tmp = 0, center = 0;
 
+   if(xa+xb+ya+yb==0)
+     return make_pair(-888.,-888.);
    switch (vdtype)
    {
    case corners:
@@ -932,6 +982,9 @@ pair<double, double> PspmtProcessor::CalculatePosition(const double &xa, const d
    }
    x = (x_tmp - center) * cos(rot) - (y_tmp - center) * sin(rot) + center; // rotate positions about center of image by angle rot
    y = (x_tmp - center) * sin(rot) + (y_tmp - center) * cos(rot) + center;
+   if(x!=x || y!=y){
+      std::cout<<"Position NAN!! x="<<x<<", y="<<y<<", x_tmp="<<x_tmp<<", y_tmp="<<y_tmp<<", center="<<center<<", rot="<<rot<<", xa="<<xa<<", xb="<<xb<<", ya="<<ya<<", yb="<<yb<<std::endl;
+   }
    return make_pair(x, y);
 }
 

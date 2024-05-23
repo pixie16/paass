@@ -100,6 +100,7 @@ private:
     double pin0_CalEn_prev;
 
     processor_struct::PSPMT PSstruct; //!< PSPMT root Struct
+    processor_struct::PSPMTSUMMARY SUMstruct; //!< PSPMTSUMMARY root Struct
 
     std::string VDtypeStr; //!< VD Type as a string
     std::string ThreshStr; //!< Threshold as a string
