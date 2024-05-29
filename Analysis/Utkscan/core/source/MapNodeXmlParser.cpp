@@ -103,7 +103,7 @@ void MapNodeXmlParser::ParseNode(DetectorLibrary *lib) {
             sstream_ <<"Spec: Rev"<< module_rev << "-"<<module_freq << " ("<< timingConstants.at(module_number).second << " ns per FPGA tick & "<< timingConstants.at(module_number).first << " ns per ADC tick)";
             messenger_.detail(sstream_.str(),1);
             sstream_.str("");
-            sstream_ << "Trace Delay: " << module_TdelayNs << " ns";
+            sstream_ << "Trace Delay: " << module_TdelayNs << " ns (" << module_TdelayNs/timingConstants.at(module_number).first << " samples)" ;
             messenger_.detail(sstream_.str(),1);
             sstream_.str("");
         }else { 
