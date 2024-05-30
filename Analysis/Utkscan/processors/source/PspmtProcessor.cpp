@@ -132,6 +132,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
    if (DetectorDriver::get()->GetSysRootOutput())
    {
       PSstruct = processor_struct::PSPMT_DEFAULT_STRUCT;
+      PSsummary = processor_struct::PSPMTSUMMARY_DEFAULT_STRUCT;
    }
 
    bool Pin_Implant = false;
@@ -328,9 +329,6 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          std::pair<double, double> qdc_based_POS = CalculatePosition(xa_l_qdc, xb_l_qdc, ya_l_qdc, yb_l_qdc, vdtype_, rotation_, xflip_);
          position_low = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_, xflip_);
 
-         /* position_low.first = qdc_based_POS.first; */
-         /* position_low.second = qdc_based_POS.second; */
-
          plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
               position_low.second * positionScale_ + positionOffset_);
 
@@ -348,10 +346,9 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          std::pair<double, double> qdc_based_POS = CalculatePosition(xa_h_qdc, xb_h_qdc, ya_h_qdc, yb_h_qdc, vdtype_, rotation_, xflip_);
          position_high = CalculatePosition(xa_h, xb_h, ya_h, yb_h, vdtype_, rotation_, xflip_);
 
-         plot(DD_POS_HIGH, position_high.first * positionScale_ + positionOffset_,
-              position_high.second * positionScale_ + positionOffset_);
-         plot(DD_POS_HIGH_QDC, qdc_based_POS.first * positionScale_ + positionOffset_,
-              qdc_based_POS.second * positionScale_ + positionOffset_);
+         plot(DD_POS_HIGH, position_high.first * positionScale_ + positionOffset_, position_high.second * positionScale_ + positionOffset_);
+         plot(DD_POS_HIGH_QDC, qdc_based_POS.first * positionScale_ + positionOffset_,qdc_based_POS.second * positionScale_ + positionOffset_);
+
       }
 
       ////---------------VETO LOOP------------------------------------------------
@@ -445,6 +442,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if ((*it)->GetTrace().GetQdc() > Highest_dynL_qdc)
          {
             Highest_dynL_qdc = (*it)->GetTrace().GetQdc();
+            if (DetectorDriver::get()->GetSysRootOutput()){
+               PSsummary.dynQdclow = Highest_dynL_qdc;
+               PSsummary.dynEnergylow = (*it)->GetCalibratedEnergy();
+               PSsummary.timelow = (*it)->GetTimeSansCfdInNs();
+            }
          }
          plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc() / 100, 0);
       }
@@ -453,6 +455,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (DetectorDriver::get()->GetSysRootOutput())
          {
             FillPSPMTStruc(*(*it));
+         }
+         if ((*it)->GetTrace().GetQdc() > PSsummary.dynQdchigh){
+               PSsummary.dynQdchigh = (*it)->GetTrace().GetQdc();
+               PSsummary.dynEnergyhigh = (*it)->GetCalibratedEnergy();
+               PSsummary.timehigh = (*it)->GetTimeSansCfdInNs();
          }
          plot(DD_DYNODE_QDC, (*it)->GetTrace().GetQdc() / 100, 1);
       }
@@ -594,6 +601,19 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
             plot(DD_POS_LOW_PINGATED, position_low.first * positionScale_ + positionOffset_,
                  position_low.second * positionScale_ + positionOffset_);
          }
+         if(DetectorDriver::get()->GetSysRootOutput()){
+            PSsummary.validPoslow = true;
+            PSsummary.ansumQdclow = xa_l_qdc+xb_l_qdc+ya_l_qdc+yb_l_qdc;
+            PSsummary.ansumEnergylow = xa_l+xb_l+ya_l+yb_l;
+            if(qdc_based_POS.first<-800 && qdc_based_POS.second<-800){
+              PSsummary.posXlow = qdc_based_POS.first; 
+              PSsummary.posYlow = qdc_based_POS.second; 
+            }
+            else{
+              PSsummary.posXlow = position_low.first; 
+              PSsummary.posYlow = position_low.second; 
+            }
+         }
       }
 
       if ((xa_h > 0 && xb_h > 0 && ya_h > 0 && yb_h > 0) || (xa_h_qdc > 0 && xb_h_qdc > 0 && ya_h_qdc > 0 && yb_h_qdc > 0))
@@ -605,12 +625,26 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
               position_high.second * positionScale_ + positionOffset_);
          plot(DD_POS_HIGH_QDC, qdc_based_POS.first * positionScale_ + positionOffset_,
               qdc_based_POS.second * positionScale_ + positionOffset_);
+      if(DetectorDriver::get()->GetSysRootOutput()){
+            PSsummary.validPoshigh = true;
+            PSsummary.ansumQdchigh = xa_h_qdc+xb_h_qdc+ya_h_qdc+yb_h_qdc;
+            PSsummary.ansumEnergyhigh = xa_h+xb_h+ya_h+yb_h;
+            if(qdc_based_POS.first<-800 && qdc_based_POS.second<-800){
+              PSsummary.posXhigh = qdc_based_POS.first; 
+              PSsummary.posYhigh = qdc_based_POS.second; 
+            }
+            else{
+              PSsummary.posXhigh = position_high.first; 
+              PSsummary.posYhigh = position_high.second; 
+            }
+         }
       }
 
       //---------------VETO LOOP------------------------------------------------
       int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
       if( veto.size() > 0 )
       // std::cout<<"veto "<<veto.size()<<std::endl;//numOfVetoChans<<std::endl;
+            // hlsearch)ý
       for (auto it = veto.begin(); it != veto.end(); it++)
       {
 	//  std::cout<<"Here 1"<<std::endl;
@@ -684,6 +718,10 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       if (!hiDynode.empty())
          plot(DD_DY_SUM_HG, hiDynode.front()->GetCalibratedEnergy(), highAnodeSum);
    }
+   if(DetectorDriver::get()->GetSysRootOutput()){
+      pixie_tree_event_->pspmtsum_vec_.emplace_back(PSsummary);
+      PSsummary = processor_struct::PSPMTSUMMARY_DEFAULT_STRUCT;
+   }
    EndProcess();
    return (true);
 }
@@ -691,6 +729,10 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
 pair<double, double> PspmtProcessor::CalculatePosition(const double &xa, const double &xb, const double &ya, const double &yb, const VDTYPES &vdtype, const double &rot, const bool &xflip) const
 {
    double x = 0, y = 0, x_tmp = 0, y_tmp = 0, center = 0;
+
+   if (xa+xb+ya+yb==0){
+      return make_pair(-888.0,-888.0);
+   }
 
    switch (vdtype)
    {
