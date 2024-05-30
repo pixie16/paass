@@ -207,6 +207,27 @@ struct PSPMT {
 };
 static const PSPMT PSPMT_DEFAULT_STRUCT;
 
+struct PSPMTSUMMARY {
+    double posXlow = -999.;
+    double posYlow = -999.;
+    double dynEnergylow = -999;
+    double dynQdclow = -999;
+    double ansumQdclow = -999;
+    double ansumEnergylow = -999;
+    double timelow = -999;
+    bool validPoslow = false;
+
+    double posXhigh = -999.;
+    double posYhigh = -999.;
+    double dynEnergyhigh = -999;
+    double dynQdchigh = -999;
+    double ansumQdchigh = -999;
+    double ansumEnergyhigh = -999;
+    double timehigh = -999;
+    bool validPoshigh = false;
+};
+static const PSPMTSUMMARY PSPMTSUMMARY_DEFAULT_STRUCT;
+
 struct ROOTDEV {
     double energy = -999;
     double rawEnergy = -999;
@@ -300,6 +321,7 @@ class PixTreeEvent : public TObject {
         next_vec_ = obj.next_vec_;
         pid_vec_ = obj.pid_vec_;
         pspmt_vec_ = obj.pspmt_vec_;
+        pspmtsum_vec_ = obj.pspmtsum_vec_;
         rootdev_vec_ = obj.rootdev_vec_;
         singlebeta_vec_ = obj.singlebeta_vec_;
         vandle_vec_ = obj.vandle_vec_;
@@ -325,6 +347,7 @@ class PixTreeEvent : public TObject {
         next_vec_.clear();
         pid_vec_.clear();
         pspmt_vec_.clear();
+        pspmtsum_vec_.clear();
         rootdev_vec_.clear();
         singlebeta_vec_.clear();
         vandle_vec_.clear();
@@ -347,6 +370,7 @@ class PixTreeEvent : public TObject {
     std::vector<processor_struct::NEXT> next_vec_;
     std::vector<processor_struct::PID> pid_vec_;
     std::vector<processor_struct::PSPMT> pspmt_vec_;
+    std::vector<processor_struct::PSPMTSUMMARY> pspmtsum_vec_;
     std::vector<processor_struct::ROOTDEV> rootdev_vec_;
     std::vector<processor_struct::SINGLEBETA> singlebeta_vec_;
     std::vector<processor_struct::VANDLE> vandle_vec_;
