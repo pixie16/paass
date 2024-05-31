@@ -605,7 +605,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
             PSsummary.validPoslow = true;
             PSsummary.ansumQdclow = xa_l_qdc+xb_l_qdc+ya_l_qdc+yb_l_qdc;
             PSsummary.ansumEnergylow = xa_l+xb_l+ya_l+yb_l;
-            if(qdc_based_POS.first<-800 && qdc_based_POS.second<-800){
+            if(qdc_based_POS.first>-800 && qdc_based_POS.second>-800){
               PSsummary.posXlow = qdc_based_POS.first; 
               PSsummary.posYlow = qdc_based_POS.second; 
             }
@@ -629,7 +629,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
             PSsummary.validPoshigh = true;
             PSsummary.ansumQdchigh = xa_h_qdc+xb_h_qdc+ya_h_qdc+yb_h_qdc;
             PSsummary.ansumEnergyhigh = xa_h+xb_h+ya_h+yb_h;
-            if(qdc_based_POS.first<-800 && qdc_based_POS.second<-800){
+            if(qdc_based_POS.first>-800 && qdc_based_POS.second>-800){
               PSsummary.posXhigh = qdc_based_POS.first; 
               PSsummary.posYhigh = qdc_based_POS.second; 
             }
