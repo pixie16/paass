@@ -82,7 +82,7 @@ std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FOR
 
 const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
                                                            "startacq", "startvme", "stopacq", "stopvme", "timedrun", "acq", "shm", "spill",
-                                                           "hup", "prefix", "fdir", "title", "runnum", "oform", "close", "reboot", "stats",
+                                                           "hup", "prefix", "fdir", "title", "htit", "runnum", "oform", "close", "reboot", "stats",
                                                            "mca"});
 
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread",
@@ -638,7 +638,7 @@ void Poll::help(){
         std::cout << "   spill (hup)         - Force dump of current spill\n";
         std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
         std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
-        std::cout << "   title [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
+        std::cout << "   title (htit) [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
         std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
         std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
         std::cout << "   reboot              - Reboot PIXIE crate\n";
@@ -1615,7 +1615,7 @@ void Poll::CommandControl(){
                     std::cout << sys_message_head << "Next file will be '" << output_file.GetNextFileName(next_run_num,filename_prefix, output_directory) << "'.\n";
                 }
             }
-            else if(cmd == "title"){ // Change the title of the output file
+            else if(cmd == "title" || cmd == "htit" ){ // Change the title of the output file
                 if (arg == "") { std::cout << sys_message_head << "Using output file title '" << output_title << "'.\n"; }
                 else if (file_open) {
                     std::cout << sys_message_head << Display::WarningStr("Warning:") << " Run title cannot be changed while a file is open!\n";
