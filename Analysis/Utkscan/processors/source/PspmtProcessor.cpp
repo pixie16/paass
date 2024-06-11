@@ -500,7 +500,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          }
          plot(DD_ANODE_QDC, energy_oqdc * energy_oqdc_scaler, anode_low_detNum);
 
-         if (energy_oqdc < threshold_ || false)
+         if ( ( !(*it)->GetQdc().empty() && energy_oqdc < threshold_) || ((*it)->GetQdc().empty() && energy < threshold_))
             continue;
          // parcel out position signals by tag
          if ((*it)->GetChanID().GetGroup() == "xa" && xa_l == 0)
@@ -587,7 +587,6 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       {
          std::pair<double, double> qdc_based_POS = CalculatePosition(xa_l_qdc, xb_l_qdc, ya_l_qdc, yb_l_qdc, vdtype_, rotation_, xflip_);
          position_low = CalculatePosition(xa_l, xb_l, ya_l, yb_l, vdtype_, rotation_, xflip_);
-
          if (Highest_dynL_qdc > 20000 || true)
          {
             plot(DD_POS_LOW, position_low.first * positionScale_ + positionOffset_,
