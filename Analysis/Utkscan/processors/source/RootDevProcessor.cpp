@@ -64,6 +64,7 @@ bool RootDevProcessor::Process(RawEvent &event) {
             RDstruct.revision = (*it)->GetChanID().GetRevision();
             RDstruct.tickToNS = (*it)->GetChanID().GetTickToNS();
             RDstruct.adcTickToNS = (*it)->GetChanID().GetAdcTickToNS();
+            RDstruct.extTS = (*it)->GetExternalTimeStamp();
 
             if ((*it)->GetTrace().size() > 0) {
                 RDstruct.hasValidTimingAnalysis = (*it)->GetTrace().HasValidTimingAnalysis();
