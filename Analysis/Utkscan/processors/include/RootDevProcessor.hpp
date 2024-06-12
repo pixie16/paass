@@ -6,6 +6,9 @@
 #ifndef PAASS_RootDevProcessor_H
 #define PAASS_RootDevProcessor_H
 
+#include <string>
+#include <vector>
+
 #include "EventProcessor.hpp"
 #include "PaassRootStruct.hpp"
 #include "RawEvent.hpp"
@@ -13,7 +16,7 @@
 class RootDevProcessor : public EventProcessor {
    public:
     /**Constructor */
-    RootDevProcessor();
+    RootDevProcessor(std::string);
 
     /** Deconstructor */
     ~RootDevProcessor() = default;
@@ -32,6 +35,7 @@ class RootDevProcessor : public EventProcessor {
 
    private:
     processor_struct::ROOTDEV RDstruct;  //!<Root Struct
+   std::vector<std::string> typesToRead;
     std::string Rev;
 };
 

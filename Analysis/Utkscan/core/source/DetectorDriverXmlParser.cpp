@@ -252,7 +252,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "SingleBetaProcessor") {
             vecProcess.push_back(new SingleBetaProcessor());
         } else if (name == "RootDevProcessor") {
-            vecProcess.push_back(new RootDevProcessor());
+            vecProcess.push_back(new RootDevProcessor(processor.attribute("include").as_string("")));
         } else if (name == "TeenyVandleProcessor") {
             vecProcess.push_back(new TeenyVandleProcessor());
         } else if (name == "TemplateProcessor") {
