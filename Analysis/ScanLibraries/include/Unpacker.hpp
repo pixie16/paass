@@ -103,6 +103,8 @@ public:
       */
     void Run() { running = true; }
 
+    void SetPrintFrequency(const int& f) { print_frequency = f; }
+
 protected:
     bool debug_mode; ///< True if debug mode is set.
     std::vector<std::deque<XiaData *>> eventList; ///< The list of all events in a spill.
@@ -113,6 +115,8 @@ protected:
     unsigned int maxModuleNumberInFile_; ///< The maximum module number that we've encountered in the data file.
     std::deque<XiaData *> rawEvent; ///< The list of all events in the event window.
     bool running; ///< True if the scan is running.
+    
+    int print_frequency;
 
     /** Process all events in the event list.
       * \param[in]  addr_ Pointer to a ScanInterface object. Unused by default.

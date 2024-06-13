@@ -422,7 +422,8 @@ ScanInterface::ScanInterface() {
                       "Specifies the name of the output file. Default is \"out\""),
             optionExt("quiet", no_argument, NULL, 'q', "", "Toggle off verbosity flag"),
             optionExt("shm", no_argument, NULL, 's', "", "Enable shared memory readout"),
-            optionExt("version", no_argument, NULL, 'v', "", "Display version information")
+            optionExt("version", no_argument, NULL, 'v', "", "Display version information"),
+	    optionExt("print_count",required_argument,NULL,'p',"<count>","Number of events before printing so that spewage is suppressed")
     };
 
     knownArgumentMap_.insert(make_pair("debug", "Toggle debug mode flag (default=false)"));
@@ -437,7 +438,7 @@ ScanInterface::ScanInterface() {
             "requested number of words"));
     knownArgumentMap_.insert(make_pair("sync", "Wait for the current run to finish"));
 
-    optstr = "bc:f:hi:o:qsv";
+    optstr = "bc:f:hi:o:qsvp:";
 
     progName = "ScanInterface";
     msgHeader = progName + ": ";
@@ -1096,6 +1097,7 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
     dry_run_mode = false;
     shm_mode = false;
     num_spills_recvd = 0;
+    int spew_count = 5000;
     unsigned int samplingFrequency = 0;
     string firmware = "";
     string input_filename = "";
@@ -1128,6 +1130,8 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
         if (retval == 0x0) { // Long option
             if (strcmp("config", longOpts[idx].name) == 0) {
                 setup_filename = optarg;
+            } else if (strcmp("print", longOpts[idx].name) == 0) {
+		    spew_count = stoi(optarg);
             } else if (strcmp("counts", longOpts[idx].name) == 0) {
                 write_counts = true;
             } else if (strcmp("debug", longOpts[idx].name) == 0) {
@@ -1160,6 +1164,9 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
                     break;
                 case 'c' :
                     setup_filename = optarg;
+                    break;
+                case 'p' :
+		    spew_count = stoi(optarg);
                     break;
                 case 'f' :
                     firmware = optarg;
@@ -1216,6 +1223,8 @@ bool ScanInterface::Setup(int argc, char *argv[], Unpacker *unpacker/*=NULL*/) {
     else
         throw invalid_argument("ScanInterface::Setup - Firmware/Frequency Flags or Config file are not set properly. "
                                        "Cannot Initialize Data Mask.");
+
+    unpacker_->SetPrintFrequency(spew_count);
 
     #ifndef NDEBUG
     if (debug_mode)

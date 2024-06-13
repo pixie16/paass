@@ -49,7 +49,7 @@ void UtkUnpacker::ProcessRawEvent() {
 
     if (eventCounter == 0)
         InitializeDriver(driver, detectorLibrary, rawev, systemStartTime);
-    else if (eventCounter % 5000 == 0 || eventCounter == 1)
+    else if (eventCounter % print_frequency == 0 || eventCounter == 1)
         PrintProcessingTimeInformation(systemStartTime, times(&systemTimes), GetEventStartTime(), eventCounter);
 
     if (Globals::get()->HasRejectionRegion()) {
