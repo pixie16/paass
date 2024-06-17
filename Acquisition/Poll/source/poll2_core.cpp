@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <ios>
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -26,6 +27,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <ctime>
+#include <chrono>
 
 #include <cmath>
 
@@ -175,10 +177,11 @@ Poll::Poll() :
         force_spill(false), // Force poll2 to dump the current data spill
         acq_running(false), // Set to true when run_command is recieving data from PIXIE
         run_ctrl_exit(false), // Set to true when run_command exits
-        had_error(false), //Set to true when aborting due to an error.
-        file_open(false), //Set to true when a file is opened.
-        raw_time(0),
-        do_MCA_run(false), // Set to true when the "mca" command is received
+        do_auto_elog_post(false), //Set to true when aborting due to an error.
+        had_error(false), //Set to true when a file is opened.
+        file_open(false),
+        raw_time(0), // Set to true when the "mca" command is received
+        do_MCA_run(false), // Set to true when automatically posting to elog
         // Run control variables
         boot_fast(false),
         insert_wall_clock(true),
@@ -629,20 +632,21 @@ void Poll::broadcast_pac_data(){
 void Poll::help(){
     std::cout << "  Help:\n";
     if(!pac_mode){
-        std::cout << "   run                 - Start data acquisition and start recording data to disk\n";
-        std::cout << "   stop                - Stop data acqusition and stop recording data to disk\n";
-        std::cout << "   startacq (startvme) - Start data acquisition\n";
-        std::cout << "   stopacq (stopvme)   - Stop data acquisition\n";
-        std::cout << "   timedrun <seconds>  - Run for the specified number of seconds\n";
-        std::cout << "   acq (shm)           - Run in \"shared-memory\" mode\n";
-        std::cout << "   spill (hup)         - Force dump of current spill\n";
-        std::cout << "   prefix [name]       - Set the output filename prefix (default='run_#.ldf')\n";
-        std::cout << "   fdir [path]         - Set the output file directory (default='./')\n";
+        std::cout << "   run                        - Start data acquisition and start recording data to disk\n";
+        std::cout << "   stop                       - Stop data acqusition and stop recording data to disk\n";
+        std::cout << "   startacq (startvme)        - Start data acquisition\n";
+        std::cout << "   stopacq (stopvme)          - Stop data acquisition\n";
+        std::cout << "   timedrun <seconds>         - Run for the specified number of seconds\n";
+        std::cout << "   acq (shm)                  - Run in \"shared-memory\" mode\n";
+        std::cout << "   spill (hup)                - Force dump of current spill\n";
+        std::cout << "   prefix [name]              - Set the output filename prefix (default='run_#.ldf')\n";
+        std::cout << "   fdir [path]                - Set the output file directory (default='./')\n";
         std::cout << "   title (htit) [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
-        std::cout << "   runnum [number]     - Set the number of the current run (default=0)\n";
-        std::cout << "   oform [0|1|2]       - Set the format of the output file (default=0)\n";
-        std::cout << "   reboot              - Reboot PIXIE crate\n";
-        std::cout << "   stats [time]        - Set the time delay between statistics dumps (default=-1)\n";
+        std::cout << "   runnum [number]            - Set the number of the current run (default=0)\n";
+        std::cout << "   oform [0|1|2]              - Set the format of the output file (default=0)\n";
+        std::cout << "   reboot                     - Reboot PIXIE crate\n";
+        std::cout << "   stats [time]               - Set the time delay between statistics dumps (default=-1)\n";
+        std::cout << "   elog  [yes,on,1/no,off,0]  - Toggle automatic elog posting\n";
     }
     std::cout << "   mca [damm|root] [time] [filename]     - Use MCA to record data for debugging purposes\n";
     std::cout << "   pread <mod> <chan> <param>            - Read parameters from individual PIXIE channels\n";
@@ -711,8 +715,12 @@ bool Poll::start_run(const bool &record_/*=true*/, const double &time_/*=-1.0*/)
 
     if(runTime > 0.0)
         std::cout << sys_message_head << "Running for approximately " << runTime << " seconds.\n";
-
     record_data = record_;
+
+    //!! TOBY
+    /* if (do_auto_elog_post && record_data) { */
+    /*     CallElog(true); */
+    /* } */
 
     //Start the acquistion
     do_start_acq = true;
@@ -742,6 +750,10 @@ bool Poll::stop_run() {
 
     }
 
+    if(do_auto_elog_post && record_data) {
+        CallElog(0);
+    }
+
     record_data = false;
 
     return true;
@@ -759,6 +771,7 @@ void Poll::show_status(){
         std::cout << "   Rebooting       - " << yesno(do_reboot) << std::endl;
         std::cout << "   Force Spill     - " << yesno(force_spill) << std::endl;
         std::cout << "   Do MCA run      - " << yesno(do_MCA_run) << std::endl;
+        std::cout << "   Post to Elog    - " << yesno(do_auto_elog_post) << std::endl;
     }
     else{ std::cout << "   Pacman mode     - " << yesno(pac_mode) << std::endl; }
     std::cout << "   Run ctrl Exited - " << yesno(run_ctrl_exit) << std::endl;
@@ -1470,6 +1483,28 @@ void Poll::CommandControl(){
                 std::cout << sys_message_head << " -SYNTAX- get_traces <mod> <chan> [threshold]\n";
             }
         }
+        else if(cmd == "elog"){ // Toggle elog posting
+            if (arg.size() == 0  || arg =="?" ) {
+                std::cout << sys_message_head << "Send Elog?: " << std::boolalpha << do_auto_elog_post << std::noboolalpha<< "'\n";
+            }else {
+                if (arg == "yes" || arg == "on" || arg == "1" || arg == "true" ) {
+                    if(do_auto_elog_post){
+                        std::cout << sys_message_head << "ELOG already enabled\n";
+                    }else {
+                        std::cout << sys_message_head << "Toggling elog posting ON\n";
+                        do_auto_elog_post = true;
+                    }
+                }
+                else if (arg == "no" || arg == "off" || arg == "0" || arg == "false") {
+                    if(do_auto_elog_post){
+                        std::cout << sys_message_head << "Toggling elog posting OFF\n";
+                        do_auto_elog_post = false;
+                    }else {
+                        std::cout << sys_message_head << "ELOG already disabled\n";
+                    }
+                }
+            }
+        }
         else if(cmd == "quiet"){ // Toggle quiet mode
             if(is_quiet){
                 std::cout << sys_message_head << "Toggling quiet mode OFF\n";
@@ -1758,6 +1793,9 @@ void Poll::RunControl(){
                         continue;
                     }
                 }
+                if (do_auto_elog_post && record_data) {
+                    CallElog(true);
+                }
 
                 //Start list mode
                 if(pif->StartListModeRun(LIST_MODE_RUN, NEW_RUN)) {
@@ -1890,6 +1928,7 @@ void Poll::UpdateStatus() {
         //Add file size to status
         status << " " << humanReadable(output_file.GetFilesize());
         status << " " << output_file.GetCurrentFilename();
+        /* status << " Run Start Time: " << start */
         if (acq_running && !record_data) status << TermColors::Reset;
     }
 
@@ -2169,6 +2208,33 @@ std::string pad_string(const std::string &input_, unsigned int length_){
 std::string yesno(bool value_){
     if(value_){ return "Yes"; }
     return "No";
+}
+
+void Poll::CallElog(const bool &startRun) {
+
+    const std::time_t tm = std::time(nullptr);
+    /* const std::time_t tm = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()); */
+    /* oss << std::experimental::put_time(std::localtime(&tm), "%Y-%m-%d %H:%M:%S"); */
+
+    /* strftime output for comparison: */
+    char buf[64];
+    strftime(buf, sizeof buf, "%Y-%m-%d %H:%M:%S", std::localtime(&tm));
+    std::string curTime = buf; 
+
+    std::string postnote_tmp = "Calling post as \"";
+    std::string elogCMD = "send_elog poll2 " + filename_prefix;// output_file.GetCurrentFilename() ;
+    std::string elogMSG = "File Title = \""+std::string(output_file.GetHEADbuffer()->GetRunTitle()) + "\"\nFull current filename with path is \""+ output_file.GetCurrentFilename() + "\"\n ";
+    if (startRun){
+        elogMSG += "Run Started at " + curTime; 
+        elogCMD= elogCMD + " \""+  std::to_string(output_file.GetRunNumber()) + "\" RunStart \"" + elogMSG + "\"";
+    } else {
+        elogMSG += "Run Stopped at " + curTime + " : With a total of " + std::to_string(output_file.GetFileSuffix()+1) + " " ; 
+        
+        elogCMD= elogCMD + " \""+  std::to_string(output_file.GetRunNumber()) + "\" RunStop \"" + elogMSG + "\"";
+    }
+
+    /* std::cout << sys_message_head << postnote_tmp << elogCMD<<"\n"; */
+    system(elogCMD.c_str());
 }
 
 void Poll::CallAlarm() {

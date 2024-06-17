@@ -334,6 +334,7 @@ private:
     EOF_buffer eofBuff;
     unsigned int max_spill_size;
     unsigned int current_file_num;
+    unsigned int current_file_suffix;
     unsigned int output_format;
     unsigned int number_spills;
     unsigned int run_num;
@@ -370,6 +371,9 @@ public:
     /// Get the name of the current output file
     std::string GetCurrentFilename() { return current_filename; }
 
+    /// Get the output file suffix (ONLY FOR TRACKING)
+    unsigned int GetFileSuffix() {return current_file_suffix;};
+
     /// Return the total number of spills written since the current file was opened
     unsigned int GetNumberSpills() { return number_spills; }
 
@@ -399,6 +403,9 @@ public:
 
     /// Set the output filename prefix
     void SetFilenamePrefix(std::string filename_);
+    
+    /// Set the output file suffix (ONLY FOR TRACKING)
+    void SetFileSuffix(unsigned int cur_file_suffix_) { current_file_suffix = cur_file_suffix_;};
 
     /// Return true if an output file is open and writable and false otherwise
     bool IsOpen() { return (output_file.is_open() && output_file.good()); }

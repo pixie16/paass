@@ -126,6 +126,7 @@ private:
     bool force_spill; /// Force poll2 to dump the current data spill
     bool acq_running; /// Set to true when run_command is recieving data from PIXIE
     bool run_ctrl_exit; /// Set to true when run_command exits
+    bool do_auto_elog_post; /// Set to true when automatic run start/stop elog posts are enabled
     bool had_error;
     bool file_open;
     time_t raw_time;
@@ -331,6 +332,9 @@ public:
 
     /// Calls the Alarm script to alert the bosses incase of errors
     void CallAlarm();
+
+    /// Calls the Elog Posting script 
+    void CallElog(const bool &startRun);
 };
 
 /** IsNumeric: Check if an input string is strictly numeric.

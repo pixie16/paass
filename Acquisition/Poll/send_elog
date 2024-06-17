@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# Author T. T. King
+# Script for poll2 to use to post to an elog when starting and stopping runs
+#
+
+if [[ "$#" -eq 0 ]]; then
+  echo "ERROR:: NEED MORE ARGUMENTS"
+  exit 1
+elif [[ "$#" -ne 5 ]];then 
+  echo "not right number of args. Got \"$#\"\n"
+  exit 2
+fi
+
+# Iterate through each argument and check if it is an empty string
+for arg in "$@"; do
+  # echo $arg 
+  if [ -z "$arg" ]; then
+    echo "Error: One or more arguments are empty strings.\n"
+    exit 1
+  fi
+done
+source ~/.POLL2_ELOG_SETTINGS
+
+Author=${1} 
+CurrentFileName=${2}  #this is hopefully prefix but will need to check
+RunNumber=${3}
+Subject=${4}
+MSG=${5}
+
+## Run actual elog post
+
+## LOCAL to DAQ only
+echo "${MSG}" | elog -h "${ELOG_HOST}" -p "${ELOG_PORT}" -l "${ELOG_LOGBOOK}"  -u "${ELOG_USERNAME}" "${ELOG_PASSWORD}"  -x -a Author="${Author}" -a Subject="${Subject}" -a FileName="${CurrentFileName}" -a RunNumber="${RunNumber}" -a Type="Auto Post"  > /dev/null 2>&1 &
+
+## SSL elogd version
+# echo "${MSG}" | elog -h "${ELOG_HOST}" -p "${ELOG_PORT}" -l "${ELOG_LOGBOOK}" -s -u "${ELOG_USERNAME}" "${ELOG_PASSWORD}" -x -a Author="${Author}" -a Subject="${Subject}" -a FileName="${CurrentFileName}" -a RunNumber="${RunNumber}" #& > /dev/null 2>&1
+
+
