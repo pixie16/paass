@@ -26,7 +26,7 @@ public:
 	 * @param pin0 : channel location id of pin0
 	 * @param pin1 : channel location id of pin1
 	*/
-	PidProcessor(const double &YSO_Implant_thresh,const double &FIT_thresh, const double &RIT_thresh);
+	PidProcessor(const double &YSO_Implant_thresh,const double &FIT_thresh, const double &RIT_thresh, const bool &tofflip);
 
 	///Default Destructor
 	~PidProcessor() = default;
@@ -44,6 +44,9 @@ public:
 	///return true if successful
 	virtual bool Process(RawEvent &event);
 
+	
+	///Calculate the position in the FDSi Cross Scints
+	std::pair<double, double> GetCrossScintPosition(double qdc1, double qdc2, double qdc3, double qdc4);
 private:
 
 	///Functions for converting raw measurements into PID info
@@ -56,6 +59,7 @@ private:
 	double yso_threshold_; //threshold for yso implant gating
 	double fit_threshold_; //threshold for fit implant gating
 	double rit_threshold_; //threshold for rit implant gating
+    bool tofflip_; //flip tof in the PID plots (DAMM)
 
     //some tests
     double yso_energy_prev;
