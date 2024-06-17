@@ -278,6 +278,12 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
             vecProcess.push_back(new VandleOrnl2012Processor());
         } else if (name == "RootProcessor") {  //Must be the last for silly reasons.
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
+        } else if (name == "RikenPidProcessor") {
+            vecProcess.push_back(new PidProcessor(
+                processor.attribute("yso_thresh").as_double(10.0),
+                processor.attribute("fit_thresh").as_double(10.0),
+                processor.attribute("rit_thresh").as_double(10.0),
+                processor.attribute("tofflip").as_bool(false)));
         }
 #endif
         else {
