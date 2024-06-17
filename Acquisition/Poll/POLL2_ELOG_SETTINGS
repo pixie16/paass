@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+##
+# File to set the elog host, and port. (password eventually too)
+##
+# export ELOG_HOST="https://ribf-exp.riken.jp/elog"
+# export ELOG_PORT="443"
+# export ELOG_LOGBOOK="RIBF168 2024"
+# export ELOG_USERNAME="ribf168"
+# export ELOG_PASSWORD="xxxx"
+
+ export ELOG_HOST="localhost"
+ export ELOG_PORT="8080"
+ export ELOG_LOGBOOK="RIBF168"
+ export ELOG_USERNAME="poll2"
+ export ELOG_PASSWORD="xxxx"

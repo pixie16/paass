@@ -1163,6 +1163,7 @@ void PollOutputFile::initialize() {
     current_filename = "unknown";
     current_full_filename = "unknown";
     debug_mode = false;
+    current_file_suffix = 0;
 
     // Get the current working directory
     // current_directory DOES NOT include a trailing '/'
@@ -1414,6 +1415,7 @@ PollOutputFile::GetNextFileName(unsigned int &run_num_, std::string prefix,
         dummy_file.open(filename.str().c_str());
     }
     dummy_file.close();
+    SetFileSuffix(suffix);
     return filename.str();
 }
 
