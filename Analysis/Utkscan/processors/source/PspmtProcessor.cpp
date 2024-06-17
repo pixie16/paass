@@ -155,15 +155,15 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       // std::cout<<"CalEn = "<<pin0_CalEn<<std::endl;
    }
    // read in anode & dynode signals
-   static const vector<ChanEvent *> &hiDynode = event.GetSummary("pspmt:dynode_high")->GetList();
-   static const vector<ChanEvent *> &lowDynode = event.GetSummary("pspmt:dynode_low")->GetList();
-   static const vector<ChanEvent *> &hiAnode = event.GetSummary("pspmt:anode_high")->GetList();
-   static const vector<ChanEvent *> &lowAnode = event.GetSummary("pspmt:anode_low")->GetList();
+   const vector<ChanEvent *> &hiDynode = event.GetSummary("pspmt:dynode_high")->GetList();
+   const vector<ChanEvent *> &lowDynode = event.GetSummary("pspmt:dynode_low")->GetList();
+   const vector<ChanEvent *> &hiAnode = event.GetSummary("pspmt:anode_high")->GetList();
+   const vector<ChanEvent *> &lowAnode = event.GetSummary("pspmt:anode_low")->GetList();
 
-   static const vector<ChanEvent *> &veto = event.GetSummary("pspmt:RIT")->GetList();
-   static const vector<ChanEvent *> &ionTrig = event.GetSummary("pspmt:FIT")->GetList();
-   static const vector<ChanEvent *> &desi = event.GetSummary("pspmt:desi")->GetList();
-   static const vector<ChanEvent *> &separatorScint = event.GetSummary("pspmt:f11")->GetList();
+   const vector<ChanEvent *> &veto = event.GetSummary("pspmt:RIT")->GetList();
+   const vector<ChanEvent *> &ionTrig = event.GetSummary("pspmt:FIT")->GetList();
+   const vector<ChanEvent *> &desi = event.GetSummary("pspmt:desi")->GetList();
+   const vector<ChanEvent *> &separatorScint = event.GetSummary("pspmt:f11")->GetList();
 
    double energy_oqdc_scaler = 1.0 / 1000.0;
 
@@ -641,24 +641,27 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
 
       //---------------VETO LOOP------------------------------------------------
       int numOfVetoChans = (int)(DetectorLibrary::get()->GetLocations("pspmt", "RIT")).size();
-      if( veto.size() > 0 )
-      // std::cout<<"veto "<<veto.size()<<std::endl;//numOfVetoChans<<std::endl;
-            // hlsearch)ý
-      for (auto it = veto.begin(); it != veto.end(); it++)
-      {
-	//  std::cout<<"Here 1"<<std::endl;
+      double Highest_RIT_energy = 0;
+      double Highest_RIT_time = 0;
+      for (auto it = veto.begin(); it != veto.end(); it++) {
          int loc = (*it)->GetChanID().GetLocation();
          plot(DD_PLASTIC_EN, (*it)->GetCalibratedEnergy(), loc);
 	 if ((*it)->GetTrace().size()>0 && (*it)->GetChanID().HasTag("stilbene") && (*it)->GetTrace().HasValidWaveformAnalysis()){
 		double qdcRit = (*it)->GetTrace().GetQdc();
-		if(qdcRit==0){ cout<<"Come here: 750"<<std::endl;continue;}
 		double psd = TraceFunctions::CalculateTailRatio((*it)->GetTrace().GetTraceSansBaseline(),(*it)->GetChanID().GetWaveformBoundsInSamples(),qdcRit);	
-		// std::cout<<"Here: "<<psd<<std::endl;
 		plot(DD_RIT_PSD, qdcRit/10., psd*SA/2 + SA/2);
 	 }
          if (DetectorDriver::get()->GetSysRootOutput())
          {
             FillPSPMTStruc(*(*it));
+         }
+         if ((*it)->GetCalibratedEnergy() > Highest_RIT_energy){
+            Highest_RIT_energy = (*it)->GetCalibratedEnergy();
+            Highest_RIT_time = (*it)->GetTimeSansCfdInNs();
+            if (DetectorDriver::get()->GetSysRootOutput()){
+               PSsummary.ritEnergy = Highest_RIT_energy;
+               PSsummary.ritTime = Highest_RIT_time;
+            }
          }
       }
 
@@ -666,6 +669,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       //------------Positions from ion scintillator---------------------------------
       // using top - bottom and left - right computation scheme
       double Highest_FIT_energy = 0;
+      double Highest_FIT_time = 0;
       for (auto it = ionTrig.begin(); it != ionTrig.end(); it++)
       {
          // check signals energy vs threshold
@@ -681,7 +685,13 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if ((*it)->GetCalibratedEnergy() > Highest_FIT_energy)
          {
             Highest_FIT_energy = (*it)->GetCalibratedEnergy();
+            Highest_FIT_time = (*it)->GetTimeInNs();
+            if (DetectorDriver::get()->GetSysRootOutput()){
+               PSsummary.fitEnergy = Highest_FIT_energy;
+               PSsummary.fitTime = Highest_FIT_time;
+            }
          }
+         
 
          // damm plotting of energies
          int loc = (*it)->GetChanID().GetLocation();

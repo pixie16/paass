@@ -225,6 +225,13 @@ struct PSPMTSUMMARY {
     double ansumEnergyhigh = -999;
     double timehigh = -999;
     bool validPoshigh = false;
+
+    double fitEnergy = -999;
+    double fitTime = -999;
+    double ritEnergy = -999;
+    double ritTime = -999;
+
+
 };
 static const PSPMTSUMMARY PSPMTSUMMARY_DEFAULT_STRUCT;
 
