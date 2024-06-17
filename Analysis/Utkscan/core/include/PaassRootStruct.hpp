@@ -145,12 +145,16 @@ struct PID {
     double cross_scint_t1_time = -999;
     double cross_scint_v1_energy = -999;
     double cross_scint_v1_time = -999;
+    double cross_scint_v1_qdc = -999;
     double cross_scint_v2_energy = -999;
     double cross_scint_v2_time = -999;
+    double cross_scint_v2_qdc = -999;
     double cross_scint_v3_energy = -999;
     double cross_scint_v3_time = -999;
+    double cross_scint_v3_qdc = -999;
     double cross_scint_v4_energy = -999;
     double cross_scint_v4_time = -999;
+    double cross_scint_v4_qdc = -999;
     double cross_pin_0_energy = -999;
     double cross_pin_0_tracemax = -999;
     double cross_pin_0_traceqdc = -999;
@@ -167,17 +171,18 @@ struct PID {
     double cross_pin_3_tracemax = -999;
     double cross_pin_3_traceqdc = -999;
     double cross_pin_3_time = -999;
-    double tac_0 = -999; //image scintL - Cross MSX40
-    double tac_1 = -999; //image scintL - Cross scint
-    double tac_2 = -999; //dispersive L - R
-    double tac_3 = -999; //dispersive U - D
     double disp_L_logic_time = -999;
     double disp_R_logic_time = -999;
     double disp_U_logic_time = -999;
     double disp_D_logic_time = -999;
     double cross_pin_0_logic_time = -999;
+    double db3_ppac_logic_up_time = -999;    
+    double db3_ppac_logic_down_time = -999;    
+    double db5_ppac_L_logic_time = -999;
+    double db5_ppac_R_logic_time = -999;
     double cross_scint_b2_logic_time = -999;
     double image_scint_L_logic_time = -999;
+    double image_scint_R_logic_time = -999;
     double tof0 = -999; //tof between image scint L and cross pin0 onboard cfd
     double tof1 = -999; //tof between image scint L and cross pin0 highrestime
     double tof2 = -999; //tof between image scint L and cross scint onboard cfd
@@ -186,10 +191,30 @@ struct PID {
     double tof5 = -999; //tof between image scint L and cross2 scint highrestime
     double disp_LR = -999; //time difference between dispersive left and right
     double disp_UD = -999; //time difference between dispersive up and down
+    double db5_ppac_LR = -999;
     double fit_energy = -999;
     double yso_energy = -999;
     double rit_energy = -999;
     TString stop_in = "";
+
+    //RIBF168
+    double up_scint_L_logic_time = -999;
+    double up_scint_R_logic_time = -999;
+    double down_scint_L_logic_time = -999;
+    double down_scint_R_logic_time = -999;
+    double ic0_time = -999;
+    double ic0_energy = -999;
+    double ic1_time = -999;
+    double ic1_energy = -999;
+    double ic2_time = -999;
+    double ic2_energy = -999;
+    double ic3_time = -999;
+    double ic3_energy = -999;
+    double ic4_time = -999;
+    double ic4_energy = -999;
+    double ic5_time = -999;
+    double ic5_energy = -999;
+    double ic_avg_energy = -999;
 };
 static const PID PID_DEFAULT_STRUCT;
 
