@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include "DammPlotIds.hpp"
 
 #include "DetectorDriver.hpp"
 
@@ -74,7 +73,7 @@ bool RikenPidProcessor::PreProcess(RawEvent &event) {
 
    //Following are added for the RIBF2024 PID
    //up and down stream plastic (L+R) for tof
-   const vector<ChanEvent *> &up_scintL_vec = event.GetSummary("pid:up_scit_L_logic", true)->GetList();
+   const vector<ChanEvent *> &up_scintL_vec = event.GetSummary("pid:up_scint_L_logic", true)->GetList();
    const vector<ChanEvent *> &up_scintR_vec = event.GetSummary("pid:up_scint_R_logic", true)->GetList();
    const vector<ChanEvent *> &down_scintL_vec = event.GetSummary("pid:down_scint_L_logic", true)->GetList();
    const vector<ChanEvent *> &down_scintR_vec = event.GetSummary("pid:down_scint_R_logic", true)->GetList();
