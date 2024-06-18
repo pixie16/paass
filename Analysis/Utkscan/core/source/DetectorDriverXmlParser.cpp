@@ -48,6 +48,7 @@
 #include "PositionProcessor.hpp"
 #include "PspmtProcessor.hpp"
 #include "RootDevProcessor.hpp"
+#include "RikenPidProcessor.hpp"
 #include "SingleBetaProcessor.hpp"
 #include "TeenyVandleProcessor.hpp"
 #include "TemplateProcessor.hpp"
@@ -279,7 +280,7 @@ vector<EventProcessor *> DetectorDriverXmlParser::ParseProcessors(const pugi::xm
         } else if (name == "RootProcessor") {  //Must be the last for silly reasons.
             vecProcess.push_back(new RootProcessor("tree.root", "tree"));
         } else if (name == "RikenPidProcessor") {
-            vecProcess.push_back(new PidProcessor(
+            vecProcess.push_back(new RikenPidProcessor(
                 processor.attribute("yso_thresh").as_double(10.0),
                 processor.attribute("fit_thresh").as_double(10.0),
                 processor.attribute("rit_thresh").as_double(10.0),
