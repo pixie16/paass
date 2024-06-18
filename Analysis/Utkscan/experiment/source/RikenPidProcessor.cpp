@@ -1,190 +1,39 @@
 ///@file RikenPidProcessor.cpp
 ///@A dedicated processor for constructing PID information
-///@author A. Keeler, R. Yokoyama
-///@date July 29, 2019
-// Updated for E19044 experiment.
+///@author T.T. King, I. Cox, A. Keeler, R. Yokoyama
+///@date June 18, 2024
+// Updated for RIBF168 experiment.
 
 #include "RikenPidProcessor.hpp"
 
-#include <limits.h>
-#include <signal.h>
 
 #include <algorithm>
 #include <cmath>
-#include <iomanip>
 #include <iostream>
-#include <limits>
-#include <sstream>
-#include <stdexcept>
-
 #include "DammPlotIds.hpp"
-#include "DetectorDriver.hpp"
-#include "Globals.hpp"
-#include "HelperFunctions.hpp"
-#include "Messenger.hpp"
 
-using namespace std;
-using namespace dammIds::pid;
+#include "DetectorDriver.hpp"
+
 
 namespace dammIds {
    namespace pid {
 
-      const int D_IMAGEL_MULT = 0;    //! Multiplicity of the image plastic L
-      const int D_DISPL_MULT = 1;     //! Multiplicity of the dispersive PPAC L
-      const int DD_TACS_MULT = 2;  //! Multiplicities of the TACs
-      const int DD_TACS = 3;       //! TAC energies
-      const int DD_PINS_DE = 4;    //! Energy deposits in the PINs
-      const int DD_PINS_MULT = 5;  //! Multiplicities of the Pins
-      const int DD_PIN0_1 = 6;     //! Pin0 vs Pin1 dE
-      const int D_DISPLR = 7;                //! Time difference between dispersive left and right
-      const int D_DISPUD = 8;                //! Time difference between dispersive up and down
-      const int DD_DISP_PLANE = 9;                //! 2-D image of dipersive up-down vs left-right
-
-      const int DD_TAC0_PIN0 = 10;            //! TAC0 vs Pin0 dE
-      const int DD_TAC0_PIN0_GATED_FIT = 11;  //! GATED TAC0 vs Pin0 dE
-      const int DD_TAC0_PIN0_GATED_YSO = 12;  //! GATED TAC0 vs Pin0 dE
-      const int DD_TAC0_PIN0_GATED_RIT = 13;  //! GATED TAC0 vs Pin0 dE
-      const int DD_TOF2_PIN1 = 14;            //! TAC0 vs Pin1 dE
-      const int DD_TOF2_PIN1_GATED_FIT = 15;  //! GATED TAC0 vs Pin1 dE
-      const int DD_TOF2_PIN1_GATED_YSO = 16;  //! GATED TAC0 vs Pin1 dE
-      const int DD_TOF2_PIN1_GATED_RIT = 17;  //! GATED TAC0 vs Pin1 dE
-
-      const int DD_TAC1_PIN0 = 20;            //! TAC0 vs Pin0 dE
-      const int DD_TAC1_PIN0_GATED_FIT = 21;  //! GATED TAC1 vs Pin0 dE
-      const int DD_TAC1_PIN0_GATED_YSO = 22;  //! YSO gated TAC0 vs Pin0 dE
-      const int DD_TAC1_PIN0_GATED_RIT = 23;  //! GATED TAC1 vs Pin0 dE
-      const int DD_TOF3_PIN1 = 24;            //! TAC1 vs Pin1 dE
-      const int DD_TOF3_PIN1_GATED_FIT = 25;  //! GATED TAC1 vs Pin1 dE
-      const int DD_TOF3_PIN1_GATED_YSO = 26;  //! GATED TAC1 vs Pin1 dE
-      const int DD_TOF3_PIN1_GATED_RIT = 27;  //! GATED TAC1 vs Pin1 dE
 
       const int DD_TOF0_PIN0 = 30;             //! ToF vs Pin0 dE
       const int DD_TOF0_PIN0_GATED_FIT = 31;  //! GATED ToF vs Pin0 dE
       const int DD_TOF0_PIN0_GATED_YSO = 32;   //! GATED ToF vs Pin0 dE
       const int DD_TOF0_PIN0_GATED_RIT = 33;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF0_PIN0_FLIP = 34;            //! ToF vs Pin1 dE flipped
-      const int DD_TOF0_PIN0_GATED_FIT_FLIP = 35;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF0_PIN0_GATED_YSO_FLIP = 36;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF0_PIN0_GATED_RIT_FLIP = 37;  //! GATED ToF vs Pin1 dE flipped
-
-      const int DD_TOF1_PIN0 = 40;            //! ToF vs Pin0 dE
-      const int DD_TOF1_PIN0_GATED_FIT = 41;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF1_PIN0_GATED_YSO = 42;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF1_PIN0_GATED_RIT = 43;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF1_PIN0_FLIP = 44;            //! ToF vs Pin1 dE flipped
-      const int DD_TOF1_PIN0_GATED_FIT_FLIP = 45;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF1_PIN0_GATED_YSO_FLIP = 46;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF1_PIN0_GATED_RIT_FLIP = 47;  //! GATED ToF vs Pin1 dE flipped
-
-      const int DD_TOF2_PIN0 = 50;            //! ToF vs Pin0 dE
-      const int DD_TOF2_PIN0_GATED_FIT = 51;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF2_PIN0_GATED_YSO = 52;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF2_PIN0_GATED_RIT = 53;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF2_PIN0_FLIP = 54;            //! ToF vs Pin1 dE flipped
-      const int DD_TOF2_PIN0_GATED_FIT_FLIP = 55;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF2_PIN0_GATED_YSO_FLIP = 56;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF2_PIN0_GATED_RIT_FLIP = 57;  //! GATED ToF vs Pin1 dE flipped
-
-      const int DD_TOF3_PIN0 = 60;            //! ToF vs Pin0 dE
-      const int DD_TOF3_PIN0_GATED_FIT = 61;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF3_PIN0_GATED_YSO = 62;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF3_PIN0_GATED_RIT = 63;  //! GATED ToF vs Pin0 dE
-      const int DD_TOF3_PIN0_FLIP = 64;            //! ToF vs Pin1 dE flipped
-      const int DD_TOF3_PIN0_GATED_FIT_FLIP = 65;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF3_PIN0_GATED_YSO_FLIP = 66;  //! GATED ToF vs Pin1 dE flipped
-      const int DD_TOF3_PIN0_GATED_RIT_FLIP = 67;  //! GATED ToF vs Pin1 dE flipped
 
       const int D_RANGE = 70; //implantation range gated by PID (right now hard coded)
 
-      const int DD_PIN2_3 = 71;     //! Pin2 vs Pin3 dE
-      const int DD_PIN0_2 = 72;     //! Pin0 vs Pin2 dE
-      const int DD_PIN1_3 = 73;     //! Pin1 vs Pin3 dE
-      const int DD_TOF4_PIN2 = 74;            //! ToF4 vs Pin2 dE
-      const int DD_TOF5_PIN2 = 75;            //! ToF5 vs Pin2 dE
-      const int DD_TOF4_PIN3 = 76;            //! ToF4 vs Pin3 dE
-      const int DD_TOF5_PIN3 = 77;            //! ToF5 vs Pin3 dE
 
    }  // namespace pid
 }  // namespace dammIds
 
-void RikenPidProcessor::DeclarePlots(void) {
-   /* DeclareHistogram1D(D_IMAGEL_MULT, S5, "Multiplicity of image L"); */
-   /* DeclareHistogram1D(D_DISPL_MULT, S5, "Multiplicity of dispersive PPAC L"); */
-   /* DeclareHistogram2D(DD_TACS_MULT, S2, S5, "TAC multiplicity "); */
-   /* DeclareHistogram2D(DD_TACS, S2, SD, "TAC energy "); */
-   /* DeclareHistogram2D(DD_PINS_DE, S2, SD, "Pin dE"); */
-   /* DeclareHistogram2D(DD_PINS_MULT, S2, S5, "Pins Multiplicity"); */
-   /* DeclareHistogram2D(DD_PIN0_1, SC, SC, "Pin0 vs Pin1 dE "); */
-   /* DeclareHistogram1D(D_DISPLR, SD, "Dispersive L - R"); */
-   /* DeclareHistogram1D(D_DISPUD, SD, "Dispersive U - D"); */
-   /* DeclareHistogram2D(DD_DISP_PLANE, SB, SB, "Disp U_D vs Disp L_R"); */
 
-   /* DeclareHistogram2D(DD_TAC0_PIN0, SD, SD, "TAC0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TAC0_PIN0_GATED_FIT, SD, SD, "FIT: TAC0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TAC0_PIN0_GATED_YSO, SD, SD, "YSO: TAC0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TAC0_PIN0_GATED_RIT, SD, SD, "RIT: TAC0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN1, SB, SD, "TOF2 vs Pin1 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN1_GATED_FIT, SB, SD, "FIT: TOF2 vs Pin1 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN1_GATED_YSO, SB, SD, "YSO: TOF2 vs Pin1 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN1_GATED_RIT, SB, SD, "RIT: TOF2 vs Pin1 dE "); */
-
-   /* DeclareHistogram2D(DD_TAC1_PIN0, SD, SD, "TAC1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TAC1_PIN0_GATED_FIT, SD, SD, "FIT: TAC1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TAC1_PIN0_GATED_YSO, SD, SD, "YSO: TAC1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TAC1_PIN0_GATED_RIT, SD, SD, "RIT: TAC1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN1, SB, SD, "TOF3 vs Pin1 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN1_GATED_FIT, SB, SD, "FIT: TOF3 vs Pin1 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN1_GATED_YSO, SB, SD, "YSO: TOF3 vs Pin1 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN1_GATED_RIT, SB, SD, "RIT: TOF3 vs Pin1 dE "); */
-
-   /* DeclareHistogram2D(DD_TOF0_PIN0, SB, SD, "Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_GATED_FIT, SB, SD, "FIT: Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_GATED_YSO, SB, SD, "YSO: Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_GATED_RIT, SB, SD, "RIT: Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_FLIP, SB, SD, "Flipped Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_GATED_FIT_FLIP, SB, SD, "YSO: Flipped Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_GATED_YSO_FLIP, SB, SD, "YSO: Flipped Tof0 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF0_PIN0_GATED_RIT_FLIP, SB, SD, "YSO: Flipped Tof0 vs Pin0 dE "); */
-
-   /* DeclareHistogram2D(DD_TOF1_PIN0, SB, SD, "Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_GATED_FIT, SB, SD, "FIT: Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_GATED_YSO, SB, SD, "YSO: Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_GATED_RIT, SB, SD, "RIT: Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_FLIP, SB, SD, "Flipped Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_GATED_FIT_FLIP, SB, SD, "FIT: Flipped Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_GATED_YSO_FLIP, SB, SD, "YSO: Flipped Tof1 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF1_PIN0_GATED_RIT_FLIP, SB, SD, "RIT: Flipped Tof1 vs Pin0 dE "); */
-
-   /* DeclareHistogram2D(DD_TOF2_PIN0, SB, SD, "Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_GATED_FIT, SB, SD, "FIT: Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_GATED_YSO, SB, SD, "YSO: Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_GATED_RIT, SB, SD, "RIT: Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_FLIP, SB, SD, "Flipped Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_GATED_FIT_FLIP, SB, SD, "FIT: Flipped Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_GATED_YSO_FLIP, SB, SD, "YSO: Flipped Tof2 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF2_PIN0_GATED_RIT_FLIP, SB, SD, "RIT: Flipped Tof2 vs Pin0 dE "); */
-
-   /* DeclareHistogram2D(DD_TOF3_PIN0, SB, SD, "Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_GATED_FIT, SB, SD, "FIT: Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_GATED_YSO, SB, SD, "YSO: Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_GATED_RIT, SB, SD, "RIT: Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_FLIP, SB, SD, "Flipped Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_GATED_FIT_FLIP, SB, SD, "FIT: Flipped Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_GATED_YSO_FLIP, SB, SD, "YSO: Flipped Tof3 vs Pin0 dE "); */
-   /* DeclareHistogram2D(DD_TOF3_PIN0_GATED_RIT_FLIP, SB, SD, "RIT: Flipped Tof3 vs Pin0 dE "); */
-
-   /* DeclareHistogram1D(D_RANGE, S3, "Range distribution with PID gate"); */
-
-   /* DeclareHistogram2D(DD_PIN2_3, SC, SC, "Pin2 vs Pin3 dE "); */
-   /* DeclareHistogram2D(DD_PIN0_2, SC, SC, "Pin0 vs Pin2 dE "); */
-   /* DeclareHistogram2D(DD_PIN1_3, SC, SC, "Pin1 vs Pin3 dE "); */
-   /* DeclareHistogram2D(DD_TOF4_PIN2, SB, SD, "Tof4 vs Pin2 dE "); */
-   /* DeclareHistogram2D(DD_TOF5_PIN2, SB, SD, "Tof5 vs Pin2 dE "); */
-   /* DeclareHistogram2D(DD_TOF4_PIN3, SB, SD, "Tof4 vs Pin3 dE "); */
-   /* DeclareHistogram2D(DD_TOF5_PIN3, SB, SD, "Tof5 vs Pin3 dE "); */
-}  // Declare plots
-
-RikenPidProcessor::RikenPidProcessor(const double &YSO_Implant_thresh, const double &FIT_thresh, const double &RIT_thresh, const bool &TOFflip) : EventProcessor(OFFSET, RANGE, "RikenPidProcessor") {
+using namespace std;
+using namespace dammIds::pid;
+RikenPidProcessor::RikenPidProcessor(const double &YSO_Implant_thresh, const double &FIT_thresh, const double &RIT_thresh, const bool &TOFflip) : EventProcessor(dammIds::pid::OFFSET, dammIds::pid::RANGE, "RikenPidProcessor") {
    associatedTypes.insert("pid");
    associatedTypes.insert("pin");
 
@@ -198,12 +47,24 @@ RikenPidProcessor::RikenPidProcessor(const double &YSO_Implant_thresh, const dou
 
    tofflip_ = TOFflip;
 
-   root_output = DetectorDriver::get()->GetSysRootOutput();
 }
+void RikenPidProcessor::DeclarePlots(void) {
+
+   DeclareHistogram2D(DD_TOF0_PIN0, SB, SD, "Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_GATED_FIT, SB, SD, "FIT: Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_GATED_YSO, SB, SD, "YSO: Tof0 vs Pin0 dE ");
+   DeclareHistogram2D(DD_TOF0_PIN0_GATED_RIT, SB, SD, "RIT: Tof0 vs Pin0 dE ");
+
+   DeclareHistogram1D(D_RANGE, S3, "Range distribution with PID gate");
+
+}  // Declare plots
+
 
 bool RikenPidProcessor::PreProcess(RawEvent &event) {
    if (!EventProcessor::PreProcess(event))
       return false;
+
+   root_output = DetectorDriver::get()->GetSysRootOutput();
 
    // A flag for ROOT output
    if (root_output) {
