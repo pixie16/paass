@@ -4,15 +4,13 @@
 ///type experiments
 ///
 ///@author I. Cox, T.T. King, A. Keeler, R. Yokoyama
-///@date 29 July 2019
+///@date June 18, 2024
 ///@details Updated for RIBF168 experiment
 
 #ifndef __RIKENPIDPROCESSOR_HPP_
 #define __RIKENPIDPROCESSOR_HPP_
 
-#include <set>
 
-#include "DammPlotIds.hpp"
 
 #include "EventProcessor.hpp"
 #include "RawEvent.hpp"
@@ -23,8 +21,6 @@ class RikenPidProcessor : public EventProcessor {
 public:
 	/**
 	 * @brief Constructor
-	 * @param pin0 : channel location id of pin0
-	 * @param pin1 : channel location id of pin1
 	*/
 	RikenPidProcessor(const double &YSO_Implant_thresh,const double &FIT_thresh, const double &RIT_thresh, const bool &tofflip);
 
