@@ -226,6 +226,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (!(*it)->GetQdc().empty())
          {
             energy_oqdc = (*it)->GetQdc().at(0) - (*it)->GetQdc().at(2);
+         } else if (!(*it)->GetTrace().empty()){
+            energy_oqdc = (*it)->GetTrace().GetQdc();
          }
          int anode_low_detNum = (*it)->GetChanID().GetLocation();
          // check signals energy vs threshold
@@ -282,6 +284,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (!(*it)->GetQdc().empty())
          {
             energy_oqdc = (*it)->GetQdc().at(0) - (*it)->GetQdc().at(2);
+         } else if (!(*it)->GetTrace().empty()){
+            energy_oqdc = (*it)->GetTrace().GetQdc();
          }
 
          plot(DD_ANODE_QDC, energy_oqdc * energy_oqdc_scaler, (*it)->GetChanID().GetLocation() + 4);
@@ -468,7 +472,7 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
       position_low.first = 0, position_low.second = 0;
       position_high.first = 0, position_high.second = 0;
       // initalized all the things
-      double energy = 0, energy_oqdc = 0;
+      double energy = 0.0, energy_oqdc = 0.0;
       double xa_l = 0, ya_l = 0, xb_l = 0, yb_l = 0;
       double xa_h = 0, ya_h = 0, xb_h = 0, yb_h = 0;
 
@@ -489,6 +493,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (!(*it)->GetQdc().empty())
          {
             energy_oqdc = (*it)->GetQdc().at(0) - (*it)->GetQdc().at(2);
+         } else if (!(*it)->GetTrace().empty()){
+            energy_oqdc = (*it)->GetTrace().GetQdc();
          }
          int anode_low_detNum = (*it)->GetChanID().GetLocation();
          // check signals energy vs threshold
@@ -540,6 +546,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          if (!(*it)->GetQdc().empty())
          {
             energy_oqdc = (*it)->GetQdc().at(0) - (*it)->GetQdc().at(2);
+         } else if (!(*it)->GetTrace().empty()){
+            energy_oqdc = (*it)->GetTrace().GetQdc();
          }
 
          plot(DD_ANODE_QDC, energy_oqdc * energy_oqdc_scaler, (*it)->GetChanID().GetLocation() + 4);
@@ -605,13 +613,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
             PSsummary.ansumQdclow = xa_l_qdc+xb_l_qdc+ya_l_qdc+yb_l_qdc;
             PSsummary.ansumEnergylow = xa_l+xb_l+ya_l+yb_l;
             if(qdc_based_POS.first>-800 && qdc_based_POS.second>-800){
-              PSsummary.posXlow = qdc_based_POS.first; 
-              PSsummary.posYlow = qdc_based_POS.second; 
+              PSsummary.posXlowQDC = qdc_based_POS.first; 
+              PSsummary.posYlowQDC = qdc_based_POS.second; 
             }
-            else{
-              PSsummary.posXlow = position_low.first; 
-              PSsummary.posYlow = position_low.second; 
-            }
+            PSsummary.posXlow = position_low.first; 
+            PSsummary.posYlow = position_low.second; 
          }
       }
 
@@ -629,13 +635,11 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
             PSsummary.ansumQdchigh = xa_h_qdc+xb_h_qdc+ya_h_qdc+yb_h_qdc;
             PSsummary.ansumEnergyhigh = xa_h+xb_h+ya_h+yb_h;
             if(qdc_based_POS.first>-800 && qdc_based_POS.second>-800){
-              PSsummary.posXhigh = qdc_based_POS.first; 
-              PSsummary.posYhigh = qdc_based_POS.second; 
+               PSsummary.posXhighQDC = qdc_based_POS.first; 
+               PSsummary.posYhighQDC = qdc_based_POS.second; 
             }
-            else{
-              PSsummary.posXhigh = position_high.first; 
-              PSsummary.posYhigh = position_high.second; 
-            }
+            PSsummary.posXhigh = position_high.first; 
+            PSsummary.posYhigh = position_high.second; 
          }
       }
 
