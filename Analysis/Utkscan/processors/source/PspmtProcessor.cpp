@@ -553,17 +553,8 @@ bool PspmtProcessor::PreProcess(RawEvent &event)
          plot(DD_ANODE_QDC, energy_oqdc * energy_oqdc_scaler, (*it)->GetChanID().GetLocation() + 4);
 
          // check signals energy vs threshold
-         // energy = (*it)->GetTrace().GetMaxInfo().second;
          energy = (*it)->GetCalibratedEnergy();
-         // if (!(*it)->GetTrace().empty()) {
-         //     if (energy < threshold_ || energy > 63000)
-         //         continue;
-         // } else if (!(*it)->GetQdc().empty()) {
-
-         // if (energy_oqdc < 10 || energy_oqdc > 325 * 1000)
-         //{
-         //    continue;
-         // }
+         
          //  parcel out position signals by tag
          if ((*it)->GetChanID().GetGroup() == "xa" && xa_h == 0)
          {
