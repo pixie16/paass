@@ -235,6 +235,8 @@ static const PSPMT PSPMT_DEFAULT_STRUCT;
 struct PSPMTSUMMARY {
     double posXlow = -999.;
     double posYlow = -999.;
+    double posXlowQDC = -999.;
+    double posYlowQDC = -999.;
     double dynEnergylow = -999;
     double dynQdclow = -999;
     double ansumQdclow = -999;
@@ -244,6 +246,8 @@ struct PSPMTSUMMARY {
 
     double posXhigh = -999.;
     double posYhigh = -999.;
+    double posXhighQDC = -999.;
+    double posYhighQDC = -999.;
     double dynEnergyhigh = -999;
     double dynQdchigh = -999;
     double ansumQdchigh = -999;
