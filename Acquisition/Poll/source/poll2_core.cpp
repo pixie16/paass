@@ -84,7 +84,7 @@ std::vector<std::string> mod_params = {"MODULE_CSRA", "MODULE_CSRB", "MODULE_FOR
 
 const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
                                                            "startacq", "startvme", "stopacq", "stopvme", "timedrun", "acq", "shm", "spill",
-                                                           "hup", "prefix", "fdir", "title", "htit", "runnum", "oform", "close", "reboot", "stats",
+                                                           "hup", "prefix", "ouf", "fdir", "title", "htit", "runnum", "oform", "close", "reboot", "stats",
                                                            "mca"});
 
 const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread",
@@ -639,7 +639,7 @@ void Poll::help(){
         std::cout << "   timedrun <seconds>         - Run for the specified number of seconds\n";
         std::cout << "   acq (shm)                  - Run in \"shared-memory\" mode\n";
         std::cout << "   spill (hup)                - Force dump of current spill\n";
-        std::cout << "   prefix [name]              - Set the output filename prefix (default='run_#.ldf')\n";
+        std::cout << "   prefix (ouf) [name]        - Set the output filename prefix (default='run_#.ldf')\n";
         std::cout << "   fdir [path]                - Set the output file directory (default='./')\n";
         std::cout << "   title (htit) [runTitle]    - Set the title of the current run (default='PIXIE Data File)\n";
         std::cout << "   runnum [number]            - Set the number of the current run (default=0)\n";
@@ -1629,7 +1629,7 @@ void Poll::CommandControl(){
                     std::cout << sys_message_head << "Next file will be '" << filename << "'.\n";
                 }
             }
-            else if (cmd == "prefix") {
+            else if (cmd == "prefix" || cmd == "ouf") {
                 if (arg == "") {
                     std::cout << sys_message_head << "Using output filename prefix '" << filename_prefix << "'.\n";
                 }
