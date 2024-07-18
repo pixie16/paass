@@ -61,11 +61,11 @@ public:
     /// hand side.
     static bool CompareId(const XiaData *lhs, const XiaData *rhs) { return (lhs->GetId() < rhs->GetId()); }
 
-    ///@return The status of the CFD Forced Trigger Bit
+    ///@return The status of the CFD Forced Trigger Bit(s)
     bool GetCfdForcedTriggerBit() const { return cfdForceTrig_; }
 
-    ///@return The status of the CFD Trigger bit.
-    bool GetCfdTriggerSourceBit() const { return cfdTrigSource_; }
+    ///@return The status of the CFD Trigger bit(s).
+    int GetCfdTriggerSourceBit() const { return cfdTrigSource_; }
 
     ///@return True if we had a pileup detected on the module
     bool IsPileup() const { return isPileup_; }
@@ -164,7 +164,7 @@ public:
 
     ///@brief Sets the CFD trigger source
     ///@param[in] a : The value to set
-    void SetCfdTriggerSourceBit(const bool &a) { cfdTrigSource_ = a; }
+    void SetCfdTriggerSourceBit(const int &a) { cfdTrigSource_ = a; }
 
     ///@brief Sets the channel number
     ///@param[in] a : The value to set
@@ -249,7 +249,7 @@ public:
 
 private:
     bool cfdForceTrig_; /// CFD was forced to trigger.
-    bool cfdTrigSource_; /// The ADC that the CFD/FPGA synced with.
+    int cfdTrigSource_; /// The ADC that the CFD/FPGA synced with.
     bool isPileup_; /// Pile-up flag from Pixie.
     bool isSaturated_; /// Saturation flag from Pixie.
     bool isVirtualChannel_; /// Flagged if generated virtually in Pixie DSP.

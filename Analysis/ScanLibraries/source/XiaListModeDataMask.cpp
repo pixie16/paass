@@ -321,7 +321,7 @@ double XiaListModeDataMask::GetCfdSize() const {
     if (firmware_ == UNKNOWN || frequency_ == 0)
         throw invalid_argument(BadMaskErrorMessage("GetCfdSize"));
     if (frequency_ == 500)
-        return 8192.;
+        return 8191.;
 
     double val = 0;
     if (frequency_ == 100) {

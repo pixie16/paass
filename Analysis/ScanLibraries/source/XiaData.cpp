@@ -9,8 +9,9 @@
 /// it has some default values for the software to use in the event that they
 /// are needed.
 void XiaData::Clear() {
-    cfdForceTrig_ = cfdTrigSource_ = isPileup_ = isSaturated_ = false;
+    cfdForceTrig_ =  isPileup_ = isSaturated_ = false;
     isVirtualChannel_ = false;
+    cfdTrigSource_ = 0;
 
     energy_ = baseline_ = 0.0;
 
