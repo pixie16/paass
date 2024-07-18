@@ -185,10 +185,7 @@ bool GammaScintFragProcessor::Process(RawEvent &event) {
         string subType = (*it)->GetChanID().GetSubtype();
         unsigned int subTypeOffset = ReturnOffset(subType);
         double Genergy = (*it)->GetCalibratedEnergy();
-        //modify by Xu to use onboard cfd timing
-        //double Gtime = (*it)->GetTimeInNs();
-        //remodified by Ian due to 14b500 issues
-        double Gtime = (*it)->GetHighResTimeInNs();
+        double Gtime = (*it)->GetTimeInNs();
 
         if (!((*it)->GetChanID().HasTag("dy"))) {
             plot(D_ENERGY + subTypeOffset, Genergy);
