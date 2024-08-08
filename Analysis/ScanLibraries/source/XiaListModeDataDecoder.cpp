@@ -317,12 +317,15 @@ pair<double, double> XiaListModeDataDecoder::CalculateTimeInSamples(const XiaLis
     switch (mask.GetFrequency()){
         case 100:
         cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize();
+        break;
         case 250:
         multiplier = 2;
         cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() - data.GetCfdTriggerSourceBit();
+        break;
         case 500:
         multiplier = 5;
         cfdTime = data.GetCfdFractionalTime() / mask.GetCfdSize() - 1 + data.GetCfdTriggerSourceBit() ; 
+        break;
     }
     
     if (data.GetCfdForcedTriggerBit()){
