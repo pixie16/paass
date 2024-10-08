@@ -1733,6 +1733,7 @@ void Poll::RunControl(){
             else{
                 std::cout << sys_message_head << "Attempting PIXIE crate reboot\n";
                 pif->Boot(PixieInterface::BootAll);
+                synch_mods();
                 printf("Press Enter key to continue...");
                 std::cin.get();
                 do_reboot = false;
