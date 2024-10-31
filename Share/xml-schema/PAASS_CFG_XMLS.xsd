@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+  vc:minVersion="1.1">
+  <xs:simpleType name="revType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="f"/>
+      <xs:enumeration value="F"/>
+      <xs:enumeration value="h"/>
+      <xs:enumeration value="H"/>
+      <xs:enumeration value="d"/>
+      <xs:enumeration value="D"/>
+      </xs:restriction>
+    </xs:simpleType>
+  <xs:simpleType name="freqType">
+    <xs:restriction base="xs:integer">
+      <xs:enumeration value="100"/>
+      <xs:enumeration value="125"/>
+      <xs:enumeration value="250"/>
+      <xs:enumeration value="500"/>
+      </xs:restriction>
+    </xs:simpleType>
+  <xs:element name="Configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Author">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="Name" type="xs:string" />
+              <xs:element name="Email" type="xs:string"/>
+              <xs:element name="Date" type="xs:string" />
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Description" type="xs:string" />
+        <xs:element name="Global">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="EventWidth" minOccurs="1" >
+                <xs:complexType>
+                  <xs:attribute name="unit" type="xs:integer" use="required" />
+                  <xs:attribute name="value" use="required" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="HasRaw" minOccurs="0">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:boolean" use="required" />
+                </xs:complexType>
+              </xs:element>
+                     <xs:element name="DammPlots" minOccurs="0">
+                <xs:complexType>
+                  <xs:attribute name="value" type="xs:boolean" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DetectorDriver">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+              <xs:element name="Analyzer" minOccurs="0" >
+                <xs:complexType>
+                  <xs:attribute name="name" type="xs:string" use="required" />
+                  <xs:anyAttribute processContents="lax"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="Processor" minOccurs="1" >
+                <xs:complexType>
+                  <xs:attribute name="name" use="required" />
+                  <xs:anyAttribute processContents="lax"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:choice>
+            <xs:attribute name="SysRoot" type="xs:boolean" use="required" />
+            <xs:attribute name="rFileSize" type="xs:integer" use="optional" />
+          </xs:complexType>
+          </xs:element>
+        <xs:element name="Map">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Module" minOccurs="0" maxOccurs="13">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Channel">
+                      <xs:complexType>
+                        <xs:all >
+                          <xs:element name="Fit" minOccurs="0">
+                            <xs:complexType>
+                              <xs:attribute name="beta" type="xs:decimal" use="required" />
+                              <xs:attribute name="gamma" type="xs:decimal" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Cfd" minOccurs="0">
+                            <xs:complexType>
+                              <xs:attribute name="f" type="xs:decimal" use="required" />
+                              <xs:attribute name="d" type="xs:decimal" use="optional" />
+                              <xs:attribute name="l" type="xs:decimal" use="optional" />
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="Trace" minOccurs="0">
+                            <xs:complexType>
+                              <xs:attribute name="RangeLow" type="xs:integer" use="required" />
+                              <xs:attribute name="RangeHigh" type="xs:integer" use="required" />
+                              <xs:attribute name="delay" type="xs:integer" use="optional" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:all>
+                        <xs:attribute name="number" use="required"  >
+                          <xs:simpleType>
+                            <xs:restriction base="xs:integer">
+                              <xs:minInclusive value="0"/>
+                              <xs:maxInclusive value="15"/>
+                              </xs:restriction>
+                            </xs:simpleType>
+                          </xs:attribute>
+                        <xs:attribute name="type" use="required" />
+                        <xs:attribute name="subtype" use="required" />
+                        <xs:attribute name="group" use="optional" />
+                        <xs:attribute name="tags" use="optional" />
+                      </xs:complexType>
+                    </xs:element>
+                    </xs:sequence>
+                  <xs:attribute name="number" use="required" >
+                    <xs:simpleType>
+                      <xs:restriction base="xs:integer">
+                        <xs:minInclusive value="0"/>
+                        <xs:maxInclusive value="13"/>
+                        </xs:restriction>
+                      </xs:simpleType>
+                    </xs:attribute>
+                  <xs:attribute name="TraceDelay" type="xs:integer" use="optional" />
+                  <xs:attribute name="revision"   type="revType"    use="optional"/>
+                  <xs:attribute name="frequency"  type="freqType"   use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="verbose"    type="xs:boolean" use="optional" />
+            <xs:attribute name="firmware"   type="xs:integer" use="required" />
+            <xs:attribute name="frequency"  type="freqType"   use="required" />
+            <xs:attribute name="TraceDelay" type="xs:integer" use="required" />
+            <xs:attribute name="revision"   type="revType"    use="required" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TreeCorrelator" minOccurs="0">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" use="required" />
+                <xs:attribute name="verbose" type="xs:boolean" use="optional" />
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Notebook" minOccurs="0">
+          <xs:complexType>
+            <xs:attribute name="file" use="required" />
+            <xs:attribute name="mode" use="required" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
