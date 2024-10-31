@@ -32,32 +32,32 @@
               <xs:element name="Name" type="xs:string" />
               <xs:element name="Email" type="xs:string"/>
               <xs:element name="Date" type="xs:string" />
-            </xs:all>
-          </xs:complexType>
-        </xs:element>
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
         <xs:element name="Description" type="xs:string" />
         <xs:element name="Global">
           <xs:complexType>
             <xs:all>
               <xs:element name="EventWidth" minOccurs="1" >
                 <xs:complexType>
-                  <xs:attribute name="unit" type="xs:integer" use="required" />
-                  <xs:attribute name="value" use="required" />
-                </xs:complexType>
-              </xs:element>
+                  <xs:attribute name="unit" type="xs:string" use="required" />
+                  <xs:attribute name="value" type= "xs:decimal" use="required" />
+                  </xs:complexType>
+                </xs:element>
               <xs:element name="HasRaw" minOccurs="0">
                 <xs:complexType>
                   <xs:attribute name="value" type="xs:boolean" use="required" />
-                </xs:complexType>
-              </xs:element>
-                     <xs:element name="DammPlots" minOccurs="0">
+                  </xs:complexType>
+                </xs:element>
+              <xs:element name="DammPlots" minOccurs="0">
                 <xs:complexType>
                   <xs:attribute name="value" type="xs:boolean" use="required" />
-                </xs:complexType>
-              </xs:element>
-            </xs:all>
-          </xs:complexType>
-        </xs:element>
+                  </xs:complexType>
+                </xs:element>
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
         <xs:element name="DetectorDriver">
           <xs:complexType>
             <xs:choice maxOccurs="unbounded">
@@ -65,18 +65,18 @@
                 <xs:complexType>
                   <xs:attribute name="name" type="xs:string" use="required" />
                   <xs:anyAttribute processContents="lax"/>
-                </xs:complexType>
-              </xs:element>
+                  </xs:complexType>
+                </xs:element>
               <xs:element name="Processor" minOccurs="1" >
                 <xs:complexType>
                   <xs:attribute name="name" use="required" />
                   <xs:anyAttribute processContents="lax"/>
-                </xs:complexType>
-              </xs:element>
-            </xs:choice>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
             <xs:attribute name="SysRoot" type="xs:boolean" use="required" />
             <xs:attribute name="rFileSize" type="xs:integer" use="optional" />
-          </xs:complexType>
+            </xs:complexType>
           </xs:element>
         <xs:element name="Map">
           <xs:complexType>
@@ -84,30 +84,36 @@
               <xs:element name="Module" minOccurs="0" maxOccurs="13">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="Channel">
+                    <xs:element name="Channel" minOccurs="1" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:all >
                           <xs:element name="Fit" minOccurs="0">
                             <xs:complexType>
                               <xs:attribute name="beta" type="xs:decimal" use="required" />
                               <xs:attribute name="gamma" type="xs:decimal" use="required" />
-                            </xs:complexType>
-                          </xs:element>
+                              </xs:complexType>
+                            </xs:element>
                           <xs:element name="Cfd" minOccurs="0">
                             <xs:complexType>
                               <xs:attribute name="f" type="xs:decimal" use="required" />
                               <xs:attribute name="d" type="xs:decimal" use="optional" />
                               <xs:attribute name="l" type="xs:decimal" use="optional" />
-                            </xs:complexType>
-                          </xs:element>
+                              </xs:complexType>
+                            </xs:element>
                           <xs:element name="Trace" minOccurs="0">
                             <xs:complexType>
                               <xs:attribute name="RangeLow" type="xs:integer" use="required" />
                               <xs:attribute name="RangeHigh" type="xs:integer" use="required" />
                               <xs:attribute name="delay" type="xs:integer" use="optional" />
-                            </xs:complexType>
-                          </xs:element>
-                        </xs:all>
+                              </xs:complexType>
+                            </xs:element>
+                          <xs:element name="Calibration" minOccurs="0">
+                            <xs:complexType mixed="true">
+                              <xs:attribute name="model" type="xs:string" use="required" />
+                              <xs:anyAttribute processContents="lax"/>
+                              </xs:complexType>
+                            </xs:element> 
+                          </xs:all>
                         <xs:attribute name="number" use="required"  >
                           <xs:simpleType>
                             <xs:restriction base="xs:integer">
@@ -120,8 +126,15 @@
                         <xs:attribute name="subtype" use="required" />
                         <xs:attribute name="group" use="optional" />
                         <xs:attribute name="tags" use="optional" />
-                      </xs:complexType>
-                    </xs:element>
+                        <xs:attribute name="location" use="optional" >
+                          <xs:annotation>
+                            <xs:documentation>
+                              Warning: The use of the "location" attribute is discouraged.
+                              </xs:documentation>
+                            </xs:annotation>
+                          </xs:attribute>
+                        </xs:complexType>
+                      </xs:element>
                     </xs:sequence>
                   <xs:attribute name="number" use="required" >
                     <xs:simpleType>
@@ -134,33 +147,32 @@
                   <xs:attribute name="TraceDelay" type="xs:integer" use="optional" />
                   <xs:attribute name="revision"   type="revType"    use="optional"/>
                   <xs:attribute name="frequency"  type="freqType"   use="optional"/>
-                </xs:complexType>
-              </xs:element>
-            </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
             <xs:attribute name="verbose"    type="xs:boolean" use="optional" />
             <xs:attribute name="firmware"   type="xs:integer" use="required" />
             <xs:attribute name="frequency"  type="freqType"   use="required" />
             <xs:attribute name="TraceDelay" type="xs:integer" use="required" />
             <xs:attribute name="revision"   type="revType"    use="required" />
-          </xs:complexType>
-        </xs:element>
+            </xs:complexType>
+          </xs:element>
         <xs:element name="TreeCorrelator" minOccurs="0">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required" />
-                <xs:attribute name="verbose" type="xs:boolean" use="optional" />
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
+          <xs:complexType mixed="true">
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:any processContents="lax"/>
+              </xs:choice>
+            <xs:attribute name="name" use="required" />
+            <xs:attribute name="verbose" type="xs:boolean" use="optional" />
+            </xs:complexType>
+          </xs:element>
         <xs:element name="Notebook" minOccurs="0">
           <xs:complexType>
             <xs:attribute name="file" use="required" />
             <xs:attribute name="mode" use="required" />
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-</xs:schema>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
