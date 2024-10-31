@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--Add these two lines to the top of your XML, outside of the <Configuration>-->
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<?xml-model href="https://raw.githubusercontent.com/tking53/paass/refs/heads/ClockZeroRebootFix/Share/xml-schema/PAASS_CFG_XMLS.xsd" type="application/xml" schematypens="http://www.w3.org/2001/XMLSchema"?>-->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
   vc:minVersion="1.1">
