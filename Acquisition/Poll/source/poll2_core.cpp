@@ -87,12 +87,10 @@ const std::vector<std::string> Poll::runControlCommands_ ({"run", "stop",
                                                            "hup", "prefix", "ouf", "fdir", "title", "htit", "runnum", "oform", "close", "reboot", "stats",
                                                            "mca"});
 
-const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread",
-                                                             "pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle",
-                                                             "toggle_bit", "csr_test", "bit_test", "get_traces", "save"});
+const std::vector<std::string> Poll::paramControlCommands_ ({"dump", "pread", "pmread", "pwrite", "pmwrite", "adjust_offsets", "find_tau", "toggle",
+                                                             "toggle_bit", "csr_test", "bit_test", "get_traces", "save", "ResetTimeStamps"});
 
-const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh",
-                                                           "debug", "quiet", "quit", "help", "version"});
+const std::vector<std::string> Poll::pollStatusCommands_ ({"status", "thresh", "debug", "quiet", "quit", "help", "version"});
 
 MCA_args::MCA_args(){
     mca = NULL;
@@ -660,10 +658,11 @@ void Poll::help(){
     std::cout << "   bit_test <num_bits> <number>          - Display active bits in a given integer up to 32 bits long\n";
     std::cout << "   dump [filename]                       - Dump pixie settings to file (default='Param_Dump.txt')\n";
     std::cout << "   save [setFilename]                    - Writes the DSP Parameters to [setFileName] (default='active .set from pixie_cfg')\n";
-     std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
+    std::cout << "   find_tau <module> <channel>           - Finds the decay constant for an active pixie channel\n";
     std::cout << "   get_traces <mod> <chan> [threshold]   - Get traces for all channels in a specified module\n";
     std::cout << "   status              - Display system status information\n";
     std::cout << "   thresh [threshold]  - Modify or display the current polling threshold.\n";
+    std::cout << "   ResetTimeStamps     - Set the system to reset the INTERNAL timestamps on next run start\n";
     std::cout << "   debug               - Toggle debug mode flag (default=false)\n";
     std::cout << "   quiet               - Toggle quiet mode flag (default=false)\n";
     std::cout << "   quit                - Close the program\n";
@@ -1590,6 +1589,13 @@ void Poll::CommandControl(){
                 else{
                     std::cout << sys_message_head << "Toggling shared-memory mode ON\n";
                     shm_mode = true;
+                }
+            }
+            else if(cmd == "ResetTimeStamps"){ // Tell POLL trigger INTERNAL timestamp reset and resync on next run start
+                if(do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot trigger resync while MCA is running\n"; }
+                else if(acq_running || do_MCA_run){ std::cout << sys_message_head << "Warning! Cannot trigger resync while acquisition running\n"; }
+                else{
+                    synch_mods();
                 }
             }
             else if(cmd == "reboot"){ // Tell POLL to attempt a PIXIE crate reboot
