@@ -67,7 +67,7 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-ROOT_GENERATE_DICTIONARY(PaassRootStruct_root PaassRootStruct.hpp LINKDEF core/include/PaassRootLinkDef.hpp )
+ROOT_GENERATE_DICTIONARY(PaassRootStruct_root PaassRootStruct.hpp ${ROOT_INCLUDE_DIRS}/ROOT/RVec.hxx LINKDEF core/include/PaassRootLinkDef.hpp )
 add_library(PaassRootStruct SHARED PaassRootStruct_root.cxx PaassRootStruct_root)
 target_link_libraries(PaassRootStruct ${ROOT_LIBRARIES})  
 

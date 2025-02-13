@@ -9,48 +9,63 @@
 
 #pragma link C++ struct processor_struct::BATO+;
 #pragma link C++ class std::vector<processor_struct::BATO>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::BATO>+;
 
 #pragma link C++ struct processor_struct::CLOVER+;
 #pragma link C++ class std::vector<processor_struct::CLOVER>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::CLOVER>+;
 
 #pragma link C++ struct processor_struct::DOUBLEBETA+;
 #pragma link C++ class std::vector<processor_struct::DOUBLEBETA>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::DOUBLEBETA>+;
 
 #pragma link C++ struct processor_struct::GAMMASCINT+;
 #pragma link C++ class std::vector<processor_struct::GAMMASCINT>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::GAMMASCINT>+;
 
 #pragma link C++ struct processor_struct::LOGIC+;
 #pragma link C++ class std::vector<processor_struct::LOGIC>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::LOGIC>+;
 
 #pragma link C++ struct processor_struct::MTAS+;
 #pragma link C++ class std::vector<processor_struct::MTAS>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::MTAS>+;
 
 #pragma link C++ struct processor_struct::MTASIMPLANT+;
 #pragma link C++ class std::vector<processor_struct::MTASIMPLANT>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::MTASIMPLANT>+;
 
 #pragma link C++ struct processor_struct::NEXT+;
 #pragma link C++ class std::vector<processor_struct::NEXT>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::NEXT>+;
 
 #pragma link C++ struct processor_struct::PID+;
 #pragma link C++ class std::vector<processor_struct::PID>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::PID>+;
 
 #pragma link C++ struct processor_struct::PSPMT+;
 #pragma link C++ class std::vector<processor_struct::PSPMT>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::PSPMT>+;
 
 #pragma link C++ struct processor_struct::PSPMTSUMMARY+;
 #pragma link C++ class std::vector<processor_struct::PSPMTSUMMARY>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::PSPMTSUMMARY>+;
 
 #pragma link C++ struct processor_struct::ROOTDEV+;
 #pragma link C++ class std::vector<processor_struct::ROOTDEV>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::ROOTDEV>+;
 
 #pragma link C++ struct processor_struct::SINGLEBETA+;
 #pragma link C++ class std::vector<processor_struct::SINGLEBETA>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::SINGLEBETA>+;
 
 #pragma link C++ struct processor_struct::VANDLE+;
 #pragma link C++ class std::vector<processor_struct::VANDLE>+;
+#pragma link C++ class ROOT::VecOps::RVec<processor_struct::VANDLE>+;
 
 #pragma link C++ class PixTreeEvent+;
 #pragma link C++ class std::vector<PixTreeEvent>+;
+#pragma link C++ class ROOT::VecOps::RVec<PixTreeEvent>+;
 #endif
 
 #endif //PAASS_LINKDEF_HPP
