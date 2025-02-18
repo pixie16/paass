@@ -18,10 +18,11 @@ mark_as_advanced(PAASS_OVERRIDE_EXE_PREFIX)
 
 #-------------------------------------------------------------------------------
 # want to be able to turn the threaded behavior of UtkScan::HisFileWriter
-option(UTKSCAN_NO_HIS_THREAD "Disable using a thread for writing the Damm histograms with UtkScan" OFF)
-if(UTKSCAN_NO_HIS_THREAD)
+option(PAASS_UTKSCAN_USE_HIS_THREAD "Enable secondary thread for the Damm histograms with UtkScan. Has no affect on Utkscanor" OFF)
+mark_as_advanced(PAASS_UTKSCAN_USE_HIS_THREAD)
+if(NOT PAASS_UTKSCAN_USE_HIS_THREAD)
     add_compile_definitions(NO_HIS_THREAD)
-endif(UTKSCAN_NO_HIS_THREAD)
+endif(NOT PAASS_UTKSCAN_USE_HIS_THREAD)
 
 # newreadout is needed to account for a change to pixie16 readout
 # structure change on 03/20/08. Is is REQUIRED!!
