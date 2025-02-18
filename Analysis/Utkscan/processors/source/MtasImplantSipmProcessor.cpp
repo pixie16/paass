@@ -134,7 +134,7 @@ bool MtasImplantSipmProcessor::PreProcess(RawEvent &event) {
     
     if (!Dynode_H.empty()){
         dyh_max = event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetCalibratedEnergy() ;
-        dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc());
+        /*dyh_qdc_max = (event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTrace().GetQdc());*/
         EventData MTASBetaEvent(event.GetSummary("mtasimplantsipm:dyn_h")->GetMaxEvent()->GetTimeSansCfd(),dyh_max,-1,true,"MTASImplantBeta");
         TreeCorrelator::get()->place("MTASBeta")->activate(MTASBetaEvent);
     }

@@ -1,5 +1,5 @@
 /** @file MtasProcessor.hpp
- * @brief  Basic MtasProcessor for MTAS at FRIB
+ * @brief	Basic MtasProcessor for MTAS at FRIB
  * @authors T.T. King, T. Ruland, B.C. Rasco
  * @date 03/25/2022
  */
@@ -17,17 +17,17 @@
 #include "Globals.hpp"
 
 class MtasSegment : public SegmentDetector {
-   public:
-    MtasSegment() : SegmentDetector() {
-        gMtasSegID_ = -1;
-        RingSegNum_ = -1;  // ! per ring SegmentDetector number (1-6)
-    };
+	 public:
+		MtasSegment() : SegmentDetector() {
+				gMtasSegID_ = -1;
+				RingSegNum_ = -1;	// ! per ring SegmentDetector number (1-6)
+		};
 
-    ~MtasSegment() = default;
-    
+		~MtasSegment() = default;
+		
 	int gMtasSegID_;
-    int RingSegNum_;
-    string segRing_;
+	int RingSegNum_;
+	std::string segRing_;
 };
 
 class MtasProcessor : public EventProcessor {
@@ -50,15 +50,15 @@ class MtasProcessor : public EventProcessor {
 		 */
 		bool Process(RawEvent& event);
 
-        void Reset();
+				void Reset();
 
 		/** Declares the plots for the class */
 		void DeclarePlots(void);
 
 	private:
-		processor_struct::MTAS Mtasstruct;  //!<Root Struct
+		processor_struct::MTAS Mtasstruct;	//!<Root Struct
 		processor_struct::MTASTOTALS MtasTotalsstruct;
-		std::string PixieRevision;               //! pixie revision
+		std::string PixieRevision;							 //! pixie revision
 
 		std::string MTASMode;
 		
@@ -88,12 +88,12 @@ class MtasProcessor : public EventProcessor {
 		double PrevIonTimeStamp;
 		double PrevIonEnergy;
 
-        bool IsBetaEvent;
-        bool IsIonEvent;
-        const std::string BETANAME = "MTASBeta";
-        const std::string IONNAME = "MTASIon";
-        const std::string BETATYPE = "MTASImplantBeta";
+				bool IsBetaEvent;
+				bool IsIonEvent;
+				const std::string BETANAME = "MTASBeta";
+				const std::string IONNAME = "MTASIon";
+				const std::string BETATYPE = "MTASImplantBeta";
 };
 
 
-#endif  //PAASS_MtasProcessor_H
+#endif	//PAASS_MtasProcessor_H

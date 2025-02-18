@@ -248,7 +248,6 @@ void MtasProcessor::DeclarePlots(void){
 
 MtasProcessor::MtasProcessor(bool HasBeta,double BetaMinEnergy,double BetaMaxEnergy,double IonMinEnergy,double IonMaxEnergy) : EventProcessor(OFFSET, RANGE, "MtasProcessor") {
 	associatedTypes.insert("mtas");
-	PixieRevision = Globals::get()->GetPixieRevision();
 	BetaMin = BetaMinEnergy;
 	BetaMax = BetaMaxEnergy;
 	IonMin = IonMinEnergy;
@@ -351,34 +350,26 @@ bool MtasProcessor::PreProcess(RawEvent &event) {
             if( RingOffset == -1 ){
                 if (isFront && MtasCenterSegVec.at(vecindex).GetSegFront() == nullptr) {
                     MtasCenterSegVec.at(vecindex).SetSegFront((*chanEvtIter));
-                    MtasCenterSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }else if (isBack && MtasCenterSegVec.at(vecindex).GetSegBack() == nullptr) {
                     MtasCenterSegVec.at(vecindex).SetSegBack((*chanEvtIter));
-                    MtasCenterSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }
             }else if( RingOffset == 5 ){
                 if (isFront && MtasInnerSegVec.at(vecindex).GetSegFront() == nullptr) {
                     MtasInnerSegVec.at(vecindex).SetSegFront((*chanEvtIter));
-                    MtasInnerSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }else if (isBack && MtasInnerSegVec.at(vecindex).GetSegBack() == nullptr) {
                     MtasInnerSegVec.at(vecindex).SetSegBack((*chanEvtIter));
-                    MtasInnerSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }
             }else if( RingOffset == 11 ){
                 if (isFront && MtasMiddleSegVec.at(vecindex).GetSegFront() == nullptr) {
                     MtasMiddleSegVec.at(vecindex).SetSegFront((*chanEvtIter));
-                    MtasMiddleSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }else if (isBack && MtasMiddleSegVec.at(vecindex).GetSegBack() == nullptr) {
                     MtasMiddleSegVec.at(vecindex).SetSegBack((*chanEvtIter));
-                    MtasMiddleSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }
             }else if(RingOffset == 17 ){
                 if (isFront && MtasOuterSegVec.at(vecindex).GetSegFront() == nullptr) {
                     MtasOuterSegVec.at(vecindex).SetSegFront((*chanEvtIter));
-                    MtasOuterSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }else if (isBack && MtasOuterSegVec.at(vecindex).GetSegBack() == nullptr) {
                     MtasOuterSegVec.at(vecindex).SetSegBack((*chanEvtIter));
-                    MtasOuterSegVec.at(vecindex).SetPixieRev(PixieRevision);
                 }
             }else{
                 //whoops
