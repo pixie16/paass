@@ -381,12 +381,7 @@ int DetectorDriver::ThreshAndCal(ChanEvent *chan, RawEvent &rawev) {
         /// otherwise, use the Pixie on-board calculated energy and high res
         /// time is zero.
         energy = chan->GetEnergy() + randoms->Generate();
-        //chan->SetHighResTime(0.0);
-        if(chan->GetTimeSansCfdInNs()!=chan->GetTimeInNs()){
-           chan->SetHighResTime(chan->GetTimeInNs());
-        }else{
-           chan->SetHighResTime(0.0);
-        }
+        chan->SetHighResTime(0.0);
     }
 
     /** Calibrate energy and apply the walk correction. */

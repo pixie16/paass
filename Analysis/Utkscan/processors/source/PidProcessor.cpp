@@ -234,7 +234,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    //** Cross plastic *//
    if (max_cross_scint_b1) {
       cross_scint_b1_energy = max_cross_scint_b1->GetCalibratedEnergy();
-      cross_scint_b1_time =   max_cross_scint_b1->GetHighResTimeInNs();
+      cross_scint_b1_time = PickBestTime(max_cross_scint_b1);
       if (root_output) {
          pid_struct.cross_scint_b1_energy = cross_scint_b1_energy;
          pid_struct.cross_scint_b1_time = cross_scint_b1_time;
@@ -242,7 +242,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_scint_t1) {
       cross_scint_t1_energy = max_cross_scint_t1->GetCalibratedEnergy();
-      cross_scint_t1_time =   max_cross_scint_t1->GetHighResTimeInNs();
+      cross_scint_t1_time = PickBestTime(max_cross_scint_t1);
       if (root_output) {
          pid_struct.cross_scint_t1_energy = cross_scint_t1_energy;
          pid_struct.cross_scint_t1_time = cross_scint_t1_time;//in e21069B, trace is not taken for this channel/module in Gamma crate
@@ -250,8 +250,8 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_scint_v1) {
       cross_scint_v1_energy = max_cross_scint_v1->GetCalibratedEnergy();
-      cross_scint_v1_qdc =    max_cross_scint_v1->GetTrace().GetQdc();
-      cross_scint_v1_time =   max_cross_scint_v1->GetHighResTimeInNs();
+      cross_scint_v1_qdc = max_cross_scint_v1->GetTrace().GetQdc();
+      cross_scint_v1_time = PickBestTime(max_cross_scint_v1);
       if (root_output) {
          pid_struct.cross_scint_v1_energy = cross_scint_v1_energy;
          pid_struct.cross_scint_v1_qdc = cross_scint_v1_qdc;
@@ -261,7 +261,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    if (max_cross_scint_v2) {
       cross_scint_v2_energy = max_cross_scint_v2->GetCalibratedEnergy();
       cross_scint_v2_qdc =    max_cross_scint_v2->GetTrace().GetQdc();
-      cross_scint_v2_time =   max_cross_scint_v2->GetHighResTimeInNs();
+      cross_scint_v2_time =   PickBestTime(max_cross_scint_v2);
       if (root_output) {
          pid_struct.cross_scint_v2_energy = cross_scint_v2_energy;
          pid_struct.cross_scint_v2_qdc = cross_scint_v2_qdc;
@@ -270,8 +270,8 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_scint_v3) {
       cross_scint_v3_energy = max_cross_scint_v3->GetCalibratedEnergy();
-      cross_scint_v3_qdc =    max_cross_scint_v3->GetTrace().GetQdc();
-      cross_scint_v3_time =   max_cross_scint_v3->GetHighResTimeInNs();
+      cross_scint_v3_qdc = max_cross_scint_v3->GetTrace().GetQdc();
+      cross_scint_v3_time = PickBestTime(max_cross_scint_v3);
       if (root_output) {
          pid_struct.cross_scint_v3_energy = cross_scint_v3_energy;
          pid_struct.cross_scint_v3_qdc = cross_scint_v3_qdc;
@@ -280,8 +280,8 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_scint_v4) {
       cross_scint_v4_energy = max_cross_scint_v4->GetCalibratedEnergy();
-      cross_scint_v4_qdc =    max_cross_scint_v4->GetTrace().GetQdc();
-      cross_scint_v4_time =   max_cross_scint_v4->GetHighResTimeInNs();
+      cross_scint_v4_qdc = max_cross_scint_v4->GetTrace().GetQdc();
+      cross_scint_v4_time = PickBestTime(max_cross_scint_v4);
       if (root_output) {
          pid_struct.cross_scint_v4_energy = cross_scint_v4_energy;
          pid_struct.cross_scint_v4_qdc = cross_scint_v4_qdc;
@@ -294,15 +294,12 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
    if (max_cross_pin0) {
       pin0_energy = max_cross_pin0->GetCalibratedEnergy();
-      pin0_time =    max_cross_pin0->GetHighResTimeInNs();
-      if(pin0_time==0){
-         pin0_time = max_cross_pin0->GetTimeInNs();
-      }
+      pin0_time = PickBestTime(max_cross_pin0);
       plot(DD_PINS_DE, 0, pin0_energy);
       if (root_output) {
          pid_struct.cross_pin_0_energy = pin0_energy;
          pid_struct.cross_pin_0_time = pin0_time;
-         if (!max_cross_pin0->GetTrace().empty()) {
+         if (!max_cross_pin0->GetTrace().empty() && max_cross_pin0->GetTrace().HasValidWaveformAnalysis() ) {
             pid_struct.cross_pin_0_tracemax = max_cross_pin0->GetTrace().GetMaxInfo().second;
             pid_struct.cross_pin_0_traceqdc = max_cross_pin0->GetTrace().GetQdc();
          }
@@ -310,15 +307,12 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_pin1) {
       pin1_energy = max_cross_pin1->GetCalibratedEnergy();
-      pin1_time =    max_cross_pin1->GetHighResTimeInNs();
-      if(pin1_time==1){
-         pin1_time = max_cross_pin1->GetTimeInNs();
-      }
+      pin1_time = PickBestTime(max_cross_pin1);
       plot(DD_PINS_DE, 1, pin1_energy);
       if (root_output) {
          pid_struct.cross_pin_1_energy = pin1_energy;
          pid_struct.cross_pin_1_time = pin1_time;
-         if (!max_cross_pin1->GetTrace().empty()) {
+         if (!max_cross_pin1->GetTrace().empty() && max_cross_pin1->GetTrace().HasValidWaveformAnalysis()) {
             pid_struct.cross_pin_1_tracemax = max_cross_pin1->GetTrace().GetMaxInfo().second;
             pid_struct.cross_pin_1_traceqdc = max_cross_pin1->GetTrace().GetQdc();
          }
@@ -326,15 +320,12 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_pin2) {
       pin2_energy = max_cross_pin2->GetCalibratedEnergy();
-      pin2_time =    max_cross_pin2->GetHighResTimeInNs();
-      if(pin2_time==2){
-         pin2_time = max_cross_pin2->GetTimeInNs();
-      }
+      pin2_time = PickBestTime(max_cross_pin2);
       plot(DD_PINS_DE, 2, pin2_energy);
       if (root_output) {
          pid_struct.cross_pin_2_energy = pin2_energy;
          pid_struct.cross_pin_2_time = pin2_time;
-         if (!max_cross_pin2->GetTrace().empty()) {
+         if (!max_cross_pin2->GetTrace().empty() && max_cross_pin2->GetTrace().HasValidWaveformAnalysis()) {
             pid_struct.cross_pin_2_tracemax = max_cross_pin2->GetTrace().GetMaxInfo().second;
             pid_struct.cross_pin_2_traceqdc = max_cross_pin2->GetTrace().GetQdc();
          }
@@ -342,10 +333,7 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    }
    if (max_cross_pin3) {
       pin3_energy = max_cross_pin3->GetCalibratedEnergy();
-      pin3_time =    max_cross_pin3->GetHighResTimeInNs();
-      if(pin3_time==3){
-         pin3_time = max_cross_pin3->GetTimeInNs();
-      }
+      pin3_time = PickBestTime(max_cross_pin3);
       plot(DD_PINS_DE, 3, pin3_energy);
       if (root_output) {
          pid_struct.cross_pin_3_energy = pin3_energy;
@@ -362,32 +350,32 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    //------- DB3 Scintillator ------------------
    if (max_db3_scint_L) {
       // Get elements with the largest energy in this event for image L
-      db3_scint_L = max_db3_scint_L->GetHighResTimeInNs();
+      db3_scint_L = PickBestTime(max_db3_scint_L);
    }
    if (max_db3_scint_R) {
       // Get elements with the largest energy in this event for image L
-      db3_scint_R = max_db3_scint_R->GetHighResTimeInNs();
+      db3_scint_R = PickBestTime(max_db3_scint_R);
    }
 
 
    //------- DB3 Upstream PPAC ------------------
    if (max_db3_ppac_up_A) {
-      db3_ppac_up = max_db3_ppac_up_A->GetHighResTimeInNs();
+      db3_ppac_up = PickBestTime(max_db3_ppac_up_A);
    }
    if (max_db3_ppac_up_L) {
-      db3_ppac_up_L = max_db3_ppac_up_L->GetHighResTimeInNs();
+      db3_ppac_up_L = PickBestTime(max_db3_ppac_up_L);
    }
    if (max_db3_ppac_up_R) {
-      db3_ppac_up_R = max_db3_ppac_up_R->GetHighResTimeInNs();
+      db3_ppac_up_R = PickBestTime(max_db3_ppac_up_R);
    }
    if(db3_ppac_up_L>0 && db3_ppac_up_R>0){
       db3_ppac_up_LR = db3_ppac_up_L - db3_ppac_up_R;
    }
    if (max_db3_ppac_up_U) {
-      db3_ppac_up_U = max_db3_ppac_up_U->GetHighResTimeInNs();
+      db3_ppac_up_U = PickBestTime(max_db3_ppac_up_U);
    }
    if (max_db3_ppac_up_D) {
-      db3_ppac_up_D = max_db3_ppac_up_D->GetHighResTimeInNs();
+      db3_ppac_up_D = PickBestTime(max_db3_ppac_up_D);
    }
    if(db3_ppac_up_U>0 && db3_ppac_up_D>0){
       db3_ppac_up_UD = db3_ppac_up_U - db3_ppac_up_D;
@@ -397,22 +385,22 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
    //------- DB3 Downstream PPAC ------------------
    if (max_db3_ppac_down_A) {
-      db3_ppac_down = max_db3_ppac_down_A->GetHighResTimeInNs();
+      db3_ppac_down = PickBestTime(max_db3_ppac_down_A);
    }
    if (max_db3_ppac_down_L) {
-      db3_ppac_down_L = max_db3_ppac_down_L->GetHighResTimeInNs();
+      db3_ppac_down_L =PickBestTime(max_db3_ppac_down_L);
    }
    if (max_db3_ppac_down_R) {
-      db3_ppac_down_R = max_db3_ppac_down_R->GetHighResTimeInNs();
+      db3_ppac_down_R =PickBestTime(max_db3_ppac_down_R);
    }
    if(db3_ppac_down_L>0 && db3_ppac_down_R>0){
       db3_ppac_down_LR = db3_ppac_down_L - db3_ppac_down_R;
    }
    if (max_db3_ppac_down_U) {
-      db3_ppac_down_U = max_db3_ppac_down_U->GetHighResTimeInNs();
+      db3_ppac_down_U =PickBestTime(max_db3_ppac_down_U);
    }
    if (max_db3_ppac_down_D) {
-      db3_ppac_down_D = max_db3_ppac_down_D->GetHighResTimeInNs();
+      db3_ppac_down_D = PickBestTime(max_db3_ppac_down_D);
    }
    if(db3_ppac_down_U>0 && db3_ppac_down_D>0){
       db3_ppac_down_UD = db3_ppac_down_U - db3_ppac_down_D;
@@ -421,43 +409,43 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
    //------- DB4 Downstream PPAC ------------------
    if (max_db4_ppac_L) {
-      db4_ppac_L = max_db4_ppac_L->GetHighResTimeInNs();
+      db4_ppac_L = PickBestTime(max_db4_ppac_L);
    }
    if (max_db4_ppac_R) {
-      db4_ppac_R = max_db4_ppac_R->GetHighResTimeInNs();
+      db4_ppac_R = PickBestTime(max_db4_ppac_R);
    }
    if(db4_ppac_L>0 && db4_ppac_R>0){
       db4_ppac_LR = db4_ppac_L - db4_ppac_R;
    }
    if (max_db4_ppac_U) {
-      db4_ppac_U = max_db4_ppac_U->GetHighResTimeInNs();
+      db4_ppac_U = PickBestTime(max_db4_ppac_U);
    }
    if (max_db4_ppac_D) {
-      db4_ppac_D = max_db4_ppac_D->GetHighResTimeInNs();
+      db4_ppac_D = PickBestTime(max_db4_ppac_D);
    }
    if(db4_ppac_U>0 && db4_ppac_D>0){
       db4_ppac_UD = db4_ppac_U - db4_ppac_D;
    }
 
 
-   //------- DB3 Upstream PPAC ------------------
+   //------- DB5 Upstream PPAC ------------------
    if (max_db5_ppac_up_A) {
-      db5_ppac_up = max_db5_ppac_up_A->GetHighResTimeInNs();
+      db5_ppac_up = PickBestTime(max_db5_ppac_up_A);
    }
    if (max_db5_ppac_up_L) {
-      db5_ppac_up_L = max_db5_ppac_up_L->GetHighResTimeInNs();
+      db5_ppac_up_L = PickBestTime(max_db5_ppac_up_L);
    }
    if (max_db5_ppac_up_R) {
-      db5_ppac_up_R = max_db5_ppac_up_R->GetHighResTimeInNs();
+      db5_ppac_up_R = PickBestTime(max_db5_ppac_up_R);
    }
    if(db5_ppac_up_L>0 && db5_ppac_up_R>0){
       db5_ppac_up_LR = db5_ppac_up_L - db5_ppac_up_R;
    }
    if (max_db5_ppac_up_U) {
-      db5_ppac_up_U = max_db5_ppac_up_U->GetHighResTimeInNs();
+      db5_ppac_up_U = PickBestTime(max_db5_ppac_up_U);
    }
    if (max_db5_ppac_up_D) {
-      db5_ppac_up_D = max_db5_ppac_up_D->GetHighResTimeInNs();
+      db5_ppac_up_D = PickBestTime(max_db5_ppac_up_D);
    }
    if(db5_ppac_up_U>0 && db5_ppac_up_D>0){
       db5_ppac_up_UD = db5_ppac_up_U - db5_ppac_up_D;
@@ -465,24 +453,24 @@ bool PidProcessor::PreProcess(RawEvent &event) {
 
 
 
-   //------- DB3 Downstream PPAC ------------------
+   //------- DB5 Downstream PPAC ------------------
    if (max_db5_ppac_down_A) {
-      db5_ppac_down = max_db5_ppac_down_A->GetHighResTimeInNs();
+      db5_ppac_down = PickBestTime(max_db5_ppac_down_A);
    }
    if (max_db5_ppac_down_L) {
-      db5_ppac_down_L = max_db5_ppac_down_L->GetHighResTimeInNs();
+      db5_ppac_down_L = PickBestTime(max_db5_ppac_down_L);
    }
    if (max_db5_ppac_down_R) {
-      db5_ppac_down_R = max_db5_ppac_down_R->GetHighResTimeInNs();
+      db5_ppac_down_R = PickBestTime(max_db5_ppac_down_R);
    }
    if(db5_ppac_down_L>0 && db5_ppac_down_R>0){
       db5_ppac_down_LR = db5_ppac_down_L - db5_ppac_down_R;
    }
    if (max_db5_ppac_down_U) {
-      db5_ppac_down_U = max_db5_ppac_down_U->GetHighResTimeInNs();
+      db5_ppac_down_U = PickBestTime(max_db5_ppac_down_U);
    }
    if (max_db5_ppac_down_D) {
-      db5_ppac_down_D = max_db5_ppac_down_D->GetHighResTimeInNs();
+      db5_ppac_down_D = PickBestTime(max_db5_ppac_down_D);
    }
    if(db5_ppac_down_U>0 && db5_ppac_down_D>0){
       db5_ppac_down_UD = db5_ppac_down_U - db5_ppac_down_D;
@@ -867,3 +855,11 @@ pair<double, double> PidProcessor::GetCrossScintPosition(double qdc1, double qdc
    }
    return make_pair(xcorr, ycorr);
 }
+
+double PidProcessor::PickBestTime(const ChanEvent* evt){
+   if (!evt->GetTrace().empty() && evt->GetTrace().HasValidTimingAnalysis()){
+      return evt->GetHighResTimeInNs();
+   } else {
+      return evt->GetTimeInNs();
+   }
+};

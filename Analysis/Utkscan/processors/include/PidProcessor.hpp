@@ -56,6 +56,9 @@ private:
 
 	virtual double ConvertPinToZ(double &pin);
 
+	/// Pick the "best" high resolution time. This picks the trace based one if exists or uses the Onboard CFD which will fail if not enabled, but we have no way to definitively check for that in the list mode. 
+	double PickBestTime(const ChanEvent* evt);
+
 	double yso_threshold_; //threshold for yso implant gating
 	double fit_threshold_; //threshold for fit implant gating
 	double rit_threshold_; //threshold for rit implant gating
