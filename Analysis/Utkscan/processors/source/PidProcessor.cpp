@@ -84,7 +84,7 @@ namespace dammIds {
 void PidProcessor::DeclarePlots(void) {
    DeclareHistogram1D(D_IMAGEL_MULT, S5, "Multiplicity of image L");
    DeclareHistogram2D(DD_PINS_DE, S2, SD, "Pin dE");
-   DeclareHistogram2D(DD_PINS_MULT, S2, S5, "Pins Multiplicity");
+   DeclareHistogram2D(DD_PINS_MULT, S4, S3, "Pins Multiplicity");
    DeclareHistogram2D(DD_PIN0_1, SC, SC, "Pin0 vs Pin1 dE ");
 
    DeclareHistogram2D(DD_TOF2_PIN1, SB, SD, "TOF2 vs Pin1 dE ");
@@ -156,45 +156,45 @@ bool PidProcessor::PreProcess(RawEvent &event) {
       pid_struct = processor_struct::PID_DEFAULT_STRUCT;
    }
 
-   const vector<ChanEvent *> &cross_scint_b1_vec = event.GetSummary("pid:cross_scint_b1", true)->GetList();
-   const vector<ChanEvent *> &cross_scint_t1_vec = event.GetSummary("pid:cross_scint_t1", true)->GetList();
-   const vector<ChanEvent *> &cross_scint_v1_vec = event.GetSummary("pid:cross_scint_v1", true)->GetList(); // These correspond to the fp2 cross scint
-   const vector<ChanEvent *> &cross_scint_v2_vec = event.GetSummary("pid:cross_scint_v2", true)->GetList();// These correspond to the fp2 cross scint
-   const vector<ChanEvent *> &cross_scint_v3_vec = event.GetSummary("pid:cross_scint_v3", true)->GetList();// These correspond to the fp2 cross scint
-   const vector<ChanEvent *> &cross_scint_v4_vec = event.GetSummary("pid:cross_scint_v4", true)->GetList();// These correspond to the fp2 cross scint
-   const vector<ChanEvent *> &cross_pin0_vec = event.GetSummary("pid:cross_pin0", true)->GetList();
-   const vector<ChanEvent *> &cross_pin1_vec = event.GetSummary("pid:cross_pin1", true)->GetList();
-   const vector<ChanEvent *> &cross_pin2_vec = event.GetSummary("pid:cross_pin2", true)->GetList();
-   const vector<ChanEvent *> &cross_pin3_vec = event.GetSummary("pid:cross_pin3", true)->GetList();
+   const ChanEvent* max_cross_scint_b1 = event.GetSummary("pid:cross_scint_b1", true)->GetMaxEvent();
+   const ChanEvent* max_cross_scint_t1 = event.GetSummary("pid:cross_scint_t1", true)->GetMaxEvent();
+   const ChanEvent* max_cross_scint_v1 = event.GetSummary("pid:cross_scint_v1", true)->GetMaxEvent(); // These correspond to the fp2 cross scint
+   const ChanEvent* max_cross_scint_v2 = event.GetSummary("pid:cross_scint_v2", true)->GetMaxEvent();// These correspond to the fp2 cross scint
+   const ChanEvent* max_cross_scint_v3 = event.GetSummary("pid:cross_scint_v3", true)->GetMaxEvent();// These correspond to the fp2 cross scint
+   const ChanEvent* max_cross_scint_v4 = event.GetSummary("pid:cross_scint_v4", true)->GetMaxEvent();// These correspond to the fp2 cross scint
+   const ChanEvent* max_cross_pin0 = event.GetSummary("pid:cross_pin0", true)->GetMaxEvent();
+   const ChanEvent* max_cross_pin1 = event.GetSummary("pid:cross_pin1", true)->GetMaxEvent();
+   const ChanEvent* max_cross_pin2 = event.GetSummary("pid:cross_pin2", true)->GetMaxEvent();
+   const ChanEvent* max_cross_pin3 = event.GetSummary("pid:cross_pin3", true)->GetMaxEvent();
 
-   static const vector<ChanEvent *> &db3_ppac_up_vec = event.GetSummary("pid:db3_ppac_upstream_anode", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_up_L_vec = event.GetSummary("pid:db3_ppac_upstream_left", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_up_R_vec = event.GetSummary("pid:db3_ppac_upstream_right", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_up_U_vec = event.GetSummary("pid:db3_ppac_upstream_up", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_up_D_vec = event.GetSummary("pid:db3_ppac_upstream_down", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_down_vec = event.GetSummary("pid:db3_ppac_downstream_anode", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_down_L_vec = event.GetSummary("pid:db3_ppac_downstream_left", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_down_R_vec = event.GetSummary("pid:db3_ppac_downstream_right", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_down_U_vec = event.GetSummary("pid:db3_ppac_downstream_up", true)->GetList();
-   static const vector<ChanEvent *> &db3_ppac_down_D_vec = event.GetSummary("pid:db3_ppac_downstream_down", true)->GetList();
-   static const vector<ChanEvent *> &db3_scint_L_vec = event.GetSummary("pid:db3_scint_L", true)->GetList();
-   static const vector<ChanEvent *> &db3_scint_R_vec = event.GetSummary("pid:db3_scint_R", true)->GetList();
+   const ChanEvent* max_db3_ppac_up_A = event.GetSummary("pid:db3_ppac_upstream_anode", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_up_L = event.GetSummary("pid:db3_ppac_upstream_left", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_up_R = event.GetSummary("pid:db3_ppac_upstream_right", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_up_U = event.GetSummary("pid:db3_ppac_upstream_up", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_up_D = event.GetSummary("pid:db3_ppac_upstream_down", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_down_A = event.GetSummary("pid:db3_ppac_downstream_anode", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_down_L = event.GetSummary("pid:db3_ppac_downstream_left", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_down_R = event.GetSummary("pid:db3_ppac_downstream_right", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_down_U = event.GetSummary("pid:db3_ppac_downstream_up", true)->GetMaxEvent();
+   const ChanEvent* max_db3_ppac_down_D = event.GetSummary("pid:db3_ppac_downstream_down", true)->GetMaxEvent();
+   const ChanEvent* max_db3_scint_L = event.GetSummary("pid:db3_scint_L", true)->GetMaxEvent();
+   const ChanEvent* max_db3_scint_R = event.GetSummary("pid:db3_scint_R", true)->GetMaxEvent();
 
-   static const vector<ChanEvent *> &db4_ppac_L_vec = event.GetSummary("pid:db4_ppac_left", true)->GetList();
-   static const vector<ChanEvent *> &db4_ppac_R_vec = event.GetSummary("pid:db4_ppac_right", true)->GetList();
-   static const vector<ChanEvent *> &db4_ppac_U_vec = event.GetSummary("pid:db4_ppac_up", true)->GetList();
-   static const vector<ChanEvent *> &db4_ppac_D_vec = event.GetSummary("pid:db4_ppac_down", true)->GetList();
+   const ChanEvent* max_db4_ppac_L = event.GetSummary("pid:db4_ppac_left", true)->GetMaxEvent();
+   const ChanEvent* max_db4_ppac_R = event.GetSummary("pid:db4_ppac_right", true)->GetMaxEvent();
+   const ChanEvent* max_db4_ppac_U = event.GetSummary("pid:db4_ppac_up", true)->GetMaxEvent();
+   const ChanEvent* max_db4_ppac_D = event.GetSummary("pid:db4_ppac_down", true)->GetMaxEvent();
 
-   static const vector<ChanEvent *> &db5_ppac_up_vec = event.GetSummary("pid:db5_ppac_upstream_anode", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_up_L_vec = event.GetSummary("pid:db5_ppac_upstream_left", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_up_R_vec = event.GetSummary("pid:db5_ppac_upstream_right", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_up_U_vec = event.GetSummary("pid:db5_ppac_upstream_up", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_up_D_vec = event.GetSummary("pid:db5_ppac_upstream_down", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_down_vec = event.GetSummary("pid:db5_ppac_downstream_anode", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_down_L_vec = event.GetSummary("pid:db5_ppac_downstream_left", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_down_R_vec = event.GetSummary("pid:db5_ppac_downstream_right", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_down_U_vec = event.GetSummary("pid:db5_ppac_downstream_up", true)->GetList();
-   static const vector<ChanEvent *> &db5_ppac_down_D_vec = event.GetSummary("pid:db5_ppac_downstream_down", true)->GetList();
+   const ChanEvent* max_db5_ppac_up_A = event.GetSummary("pid:db5_ppac_upstream_anode", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_up_L = event.GetSummary("pid:db4_ppac_upstream_left", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_up_R = event.GetSummary("pid:db5_ppac_upstream_right", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_up_U = event.GetSummary("pid:db5_ppac_upstream_up", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_up_D = event.GetSummary("pid:db5_ppac_upstream_down", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_down_A = event.GetSummary("pid:db5_ppac_downstream_anode", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_down_L = event.GetSummary("pid:db5_ppac_downstream_left", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_down_R = event.GetSummary("pid:db5_ppac_downstream_right", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_down_U = event.GetSummary("pid:db5_ppac_downstream_up", true)->GetMaxEvent();
+   const ChanEvent* max_db5_ppac_down_D = event.GetSummary("pid:db5_ppac_downstream_down", true)->GetMaxEvent();
 
    // Function that compares energies in two ChanEvent objects
    auto compare_energy = [](ChanEvent *x1, ChanEvent *x2) { return x1->GetCalibratedEnergy() < x2->GetCalibratedEnergy(); };
@@ -232,293 +232,263 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    double pin0_time = -999, pin1_time = -999, pin2_time = -999, pin3_time = -999;
 
    //** Cross plastic *//
-   if (!cross_scint_b1_vec.empty()) {
-      auto cross_scint = max_element(cross_scint_b1_vec.begin(), cross_scint_b1_vec.end(), compare_energy);
-      cross_scint_b1_energy = (*cross_scint)->GetCalibratedEnergy();
-      cross_scint_b1_time = (*cross_scint)->GetHighResTimeInNs();
+   if (max_cross_scint_b1) {
+      cross_scint_b1_energy = max_cross_scint_b1->GetCalibratedEnergy();
+      cross_scint_b1_time =   max_cross_scint_b1->GetHighResTimeInNs();
       if (root_output) {
          pid_struct.cross_scint_b1_energy = cross_scint_b1_energy;
          pid_struct.cross_scint_b1_time = cross_scint_b1_time;
       }
    }
-   if (!cross_scint_t1_vec.empty()) {
-      auto cross_scint = max_element(cross_scint_t1_vec.begin(), cross_scint_t1_vec.end(), compare_energy);
-      cross_scint_t1_energy = (*cross_scint)->GetCalibratedEnergy();
-      cross_scint_t1_time = (*cross_scint)->GetHighResTimeInNs();
+   if (max_cross_scint_t1) {
+      cross_scint_t1_energy = max_cross_scint_t1->GetCalibratedEnergy();
+      cross_scint_t1_time =   max_cross_scint_t1->GetHighResTimeInNs();
       if (root_output) {
          pid_struct.cross_scint_t1_energy = cross_scint_t1_energy;
          pid_struct.cross_scint_t1_time = cross_scint_t1_time;//in e21069B, trace is not taken for this channel/module in Gamma crate
       }
    }
-   if (!cross_scint_v1_vec.empty()) {
-      auto cross_scint = max_element(cross_scint_v1_vec.begin(), cross_scint_v1_vec.end(), compare_energy);
-      cross_scint_v1_energy = (*cross_scint)->GetCalibratedEnergy();
-      cross_scint_v1_qdc = (*cross_scint)->GetTrace().GetQdc();
-      cross_scint_v1_time = (*cross_scint)->GetHighResTimeInNs();
+   if (max_cross_scint_v1) {
+      cross_scint_v1_energy = max_cross_scint_v1->GetCalibratedEnergy();
+      cross_scint_v1_qdc =    max_cross_scint_v1->GetTrace().GetQdc();
+      cross_scint_v1_time =   max_cross_scint_v1->GetHighResTimeInNs();
       if (root_output) {
          pid_struct.cross_scint_v1_energy = cross_scint_v1_energy;
          pid_struct.cross_scint_v1_qdc = cross_scint_v1_qdc;
          pid_struct.cross_scint_v1_time = cross_scint_v1_time;
       }
    }
-   if (!cross_scint_v2_vec.empty()) {
-      auto cross_scint = max_element(cross_scint_v2_vec.begin(), cross_scint_v2_vec.end(), compare_energy);
-      cross_scint_v2_energy = (*cross_scint)->GetCalibratedEnergy();
-      cross_scint_v2_qdc = (*cross_scint)->GetTrace().GetQdc();
-      cross_scint_v2_time = (*cross_scint)->GetHighResTimeInNs();
+   if (max_cross_scint_v2) {
+      cross_scint_v2_energy = max_cross_scint_v2->GetCalibratedEnergy();
+      cross_scint_v2_qdc =    max_cross_scint_v2->GetTrace().GetQdc();
+      cross_scint_v2_time =   max_cross_scint_v2->GetHighResTimeInNs();
       if (root_output) {
          pid_struct.cross_scint_v2_energy = cross_scint_v2_energy;
          pid_struct.cross_scint_v2_qdc = cross_scint_v2_qdc;
          pid_struct.cross_scint_v2_time = cross_scint_v2_time;
       }
    }
-   if (!cross_scint_v3_vec.empty()) {
-      auto cross_scint = max_element(cross_scint_v3_vec.begin(), cross_scint_v3_vec.end(), compare_energy);
-      cross_scint_v3_energy = (*cross_scint)->GetCalibratedEnergy();
-      cross_scint_v3_qdc = (*cross_scint)->GetTrace().GetQdc();
-      cross_scint_v3_time = (*cross_scint)->GetHighResTimeInNs();
+   if (max_cross_scint_v3) {
+      cross_scint_v3_energy = max_cross_scint_v3->GetCalibratedEnergy();
+      cross_scint_v3_qdc =    max_cross_scint_v3->GetTrace().GetQdc();
+      cross_scint_v3_time =   max_cross_scint_v3->GetHighResTimeInNs();
       if (root_output) {
          pid_struct.cross_scint_v3_energy = cross_scint_v3_energy;
          pid_struct.cross_scint_v3_qdc = cross_scint_v3_qdc;
          pid_struct.cross_scint_v3_time = cross_scint_v3_time;
       }
    }
-   if (!cross_scint_v4_vec.empty()) {
-      auto cross_scint = max_element(cross_scint_v4_vec.begin(), cross_scint_v4_vec.end(), compare_energy);
-      cross_scint_v4_energy = (*cross_scint)->GetCalibratedEnergy();
-      cross_scint_v4_qdc = (*cross_scint)->GetTrace().GetQdc();
-      cross_scint_v4_time = (*cross_scint)->GetHighResTimeInNs();
+   if (max_cross_scint_v4) {
+      cross_scint_v4_energy = max_cross_scint_v4->GetCalibratedEnergy();
+      cross_scint_v4_qdc =    max_cross_scint_v4->GetTrace().GetQdc();
+      cross_scint_v4_time =   max_cross_scint_v4->GetHighResTimeInNs();
       if (root_output) {
          pid_struct.cross_scint_v4_energy = cross_scint_v4_energy;
          pid_struct.cross_scint_v4_qdc = cross_scint_v4_qdc;
          pid_struct.cross_scint_v4_time = cross_scint_v4_time;
       }
    }
-   if (!cross_pin0_vec.empty()) {
-      auto pin = max_element(cross_pin0_vec.begin(), cross_pin0_vec.end(), compare_energy);
-      pin0_energy = (*pin)->GetCalibratedEnergy();
-      pin0_time = (*pin)->GetHighResTimeInNs();
+
+
+   //------- PINS ---------------------------------------
+
+   if (max_cross_pin0) {
+      pin0_energy = max_cross_pin0->GetCalibratedEnergy();
+      pin0_time =    max_cross_pin0->GetHighResTimeInNs();
       if(pin0_time==0){
-         pin0_time = (*pin)->GetTimeInNs();
+         pin0_time = max_cross_pin0->GetTimeInNs();
       }
       plot(DD_PINS_DE, 0, pin0_energy);
       if (root_output) {
          pid_struct.cross_pin_0_energy = pin0_energy;
          pid_struct.cross_pin_0_time = pin0_time;
-         if (!(*pin)->GetTrace().empty()) {
-            pid_struct.cross_pin_0_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
-            pid_struct.cross_pin_0_traceqdc = (*pin)->GetTrace().GetQdc();
+         if (!max_cross_pin0->GetTrace().empty()) {
+            pid_struct.cross_pin_0_tracemax = max_cross_pin0->GetTrace().GetMaxInfo().second;
+            pid_struct.cross_pin_0_traceqdc = max_cross_pin0->GetTrace().GetQdc();
          }
       }
    }
-   if (!cross_pin1_vec.empty()) {
-      auto pin = max_element(cross_pin1_vec.begin(), cross_pin1_vec.end(), compare_energy);
-      pin1_energy = (*pin)->GetCalibratedEnergy();
-      pin1_time = (*pin)->GetHighResTimeInNs();
-      if(pin1_time==0){
-         pin1_time = (*pin)->GetTimeInNs();
+   if (max_cross_pin1) {
+      pin1_energy = max_cross_pin1->GetCalibratedEnergy();
+      pin1_time =    max_cross_pin1->GetHighResTimeInNs();
+      if(pin1_time==1){
+         pin1_time = max_cross_pin1->GetTimeInNs();
       }
       plot(DD_PINS_DE, 1, pin1_energy);
       if (root_output) {
          pid_struct.cross_pin_1_energy = pin1_energy;
          pid_struct.cross_pin_1_time = pin1_time;
-         if (!(*pin)->GetTrace().empty()) {
-            pid_struct.cross_pin_1_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
-            pid_struct.cross_pin_1_traceqdc = (*pin)->GetTrace().GetQdc();
+         if (!max_cross_pin1->GetTrace().empty()) {
+            pid_struct.cross_pin_1_tracemax = max_cross_pin1->GetTrace().GetMaxInfo().second;
+            pid_struct.cross_pin_1_traceqdc = max_cross_pin1->GetTrace().GetQdc();
          }
       }
    }
-   if (!cross_pin2_vec.empty()) {
-      auto pin = max_element(cross_pin2_vec.begin(), cross_pin2_vec.end(), compare_energy);
-      pin2_energy = (*pin)->GetCalibratedEnergy();
-      pin2_time = (*pin)->GetHighResTimeInNs();
+   if (max_cross_pin2) {
+      pin2_energy = max_cross_pin2->GetCalibratedEnergy();
+      pin2_time =    max_cross_pin2->GetHighResTimeInNs();
+      if(pin2_time==2){
+         pin2_time = max_cross_pin2->GetTimeInNs();
+      }
       plot(DD_PINS_DE, 2, pin2_energy);
       if (root_output) {
          pid_struct.cross_pin_2_energy = pin2_energy;
          pid_struct.cross_pin_2_time = pin2_time;
-         if (!(*pin)->GetTrace().empty()) {
-            pid_struct.cross_pin_2_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
-            pid_struct.cross_pin_2_traceqdc = (*pin)->GetTrace().GetQdc();
+         if (!max_cross_pin2->GetTrace().empty()) {
+            pid_struct.cross_pin_2_tracemax = max_cross_pin2->GetTrace().GetMaxInfo().second;
+            pid_struct.cross_pin_2_traceqdc = max_cross_pin2->GetTrace().GetQdc();
          }
       }
    }
-   if (!cross_pin3_vec.empty()) {
-      auto pin = max_element(cross_pin3_vec.begin(), cross_pin3_vec.end(), compare_energy);
-      pin3_energy = (*pin)->GetCalibratedEnergy();
-      pin3_time = (*pin)->GetHighResTimeInNs();
+   if (max_cross_pin3) {
+      pin3_energy = max_cross_pin3->GetCalibratedEnergy();
+      pin3_time =    max_cross_pin3->GetHighResTimeInNs();
+      if(pin3_time==3){
+         pin3_time = max_cross_pin3->GetTimeInNs();
+      }
       plot(DD_PINS_DE, 3, pin3_energy);
       if (root_output) {
          pid_struct.cross_pin_3_energy = pin3_energy;
          pid_struct.cross_pin_3_time = pin3_time;
-         if (!(*pin)->GetTrace().empty()) {
-            pid_struct.cross_pin_3_tracemax = (*pin)->GetTrace().GetMaxInfo().second;
-            pid_struct.cross_pin_3_traceqdc = (*pin)->GetTrace().GetQdc();
+         if (!max_cross_pin3->GetTrace().empty()) {
+            pid_struct.cross_pin_3_tracemax = max_cross_pin3->GetTrace().GetMaxInfo().second;
+            pid_struct.cross_pin_3_traceqdc = max_cross_pin3->GetTrace().GetQdc();
          }
       }
    }
-   if (!db3_scint_L_vec.empty()) {
+
+
+
+   //------- DB3 Scintillator ------------------
+   if (max_db3_scint_L) {
       // Get elements with the largest energy in this event for image L
-      auto scint = std::max_element(db3_scint_L_vec.begin(), db3_scint_L_vec.end(), compare_energy);
-      db3_scint_L = (*scint)->GetHighResTimeInNs();
+      db3_scint_L = max_db3_scint_L->GetHighResTimeInNs();
    }
-   if (!db3_scint_R_vec.empty()) {
+   if (max_db3_scint_R) {
       // Get elements with the largest energy in this event for image L
-      auto scint = std::max_element(db3_scint_R_vec.begin(), db3_scint_R_vec.end(), compare_energy);
-      db3_scint_R = (*scint)->GetHighResTimeInNs();
+      db3_scint_R = max_db3_scint_R->GetHighResTimeInNs();
    }
 
-   if (!db3_ppac_up_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_up_vec.begin(), db3_ppac_up_vec.end(), compare_energy);
-      db3_ppac_up = (*ppac)->GetHighResTimeInNs();
+
+   //------- DB3 Upstream PPAC ------------------
+   if (max_db3_ppac_up_A) {
+      db3_ppac_up = max_db3_ppac_up_A->GetHighResTimeInNs();
    }
-   if (!db3_ppac_up_L_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_up_L_vec.begin(), db3_ppac_up_L_vec.end(), compare_energy);
-      db3_ppac_up_L = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_up_L) {
+      db3_ppac_up_L = max_db3_ppac_up_L->GetHighResTimeInNs();
    }
-   if (!db3_ppac_up_R_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_up_R_vec.begin(), db3_ppac_up_R_vec.end(), compare_energy);
-      db3_ppac_up_R = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_up_R) {
+      db3_ppac_up_R = max_db3_ppac_up_R->GetHighResTimeInNs();
    }
    if(db3_ppac_up_L>0 && db3_ppac_up_R>0){
       db3_ppac_up_LR = db3_ppac_up_L - db3_ppac_up_R;
    }
-   if (!db3_ppac_up_U_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_up_U_vec.begin(), db3_ppac_up_U_vec.end(), compare_energy);
-      db3_ppac_up_U = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_up_U) {
+      db3_ppac_up_U = max_db3_ppac_up_U->GetHighResTimeInNs();
    }
-   if (!db3_ppac_up_D_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_up_D_vec.begin(), db3_ppac_up_D_vec.end(), compare_energy);
-      db3_ppac_up_D = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_up_D) {
+      db3_ppac_up_D = max_db3_ppac_up_D->GetHighResTimeInNs();
    }
    if(db3_ppac_up_U>0 && db3_ppac_up_D>0){
       db3_ppac_up_UD = db3_ppac_up_U - db3_ppac_up_D;
    }
-   if (!db3_ppac_down_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_down_vec.begin(), db3_ppac_down_vec.end(), compare_energy);
-      db3_ppac_down = (*ppac)->GetHighResTimeInNs();
+
+
+
+   //------- DB3 Downstream PPAC ------------------
+   if (max_db3_ppac_down_A) {
+      db3_ppac_down = max_db3_ppac_down_A->GetHighResTimeInNs();
    }
-   if (!db3_ppac_down_L_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_down_L_vec.begin(), db3_ppac_down_L_vec.end(), compare_energy);
-      db3_ppac_down_L = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_down_L) {
+      db3_ppac_down_L = max_db3_ppac_down_L->GetHighResTimeInNs();
    }
-   if (!db3_ppac_down_R_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_down_R_vec.begin(), db3_ppac_down_R_vec.end(), compare_energy);
-      db3_ppac_down_R = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_down_R) {
+      db3_ppac_down_R = max_db3_ppac_down_R->GetHighResTimeInNs();
    }
    if(db3_ppac_down_L>0 && db3_ppac_down_R>0){
       db3_ppac_down_LR = db3_ppac_down_L - db3_ppac_down_R;
    }
-   if (!db3_ppac_down_U_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_down_U_vec.begin(), db3_ppac_down_U_vec.end(), compare_energy);
-      db3_ppac_down_U = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_down_U) {
+      db3_ppac_down_U = max_db3_ppac_down_U->GetHighResTimeInNs();
    }
-   if (!db3_ppac_down_D_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db3_ppac_down_D_vec.begin(), db3_ppac_down_D_vec.end(), compare_energy);
-      db3_ppac_down_D = (*ppac)->GetHighResTimeInNs();
+   if (max_db3_ppac_down_D) {
+      db3_ppac_down_D = max_db3_ppac_down_D->GetHighResTimeInNs();
    }
    if(db3_ppac_down_U>0 && db3_ppac_down_D>0){
       db3_ppac_down_UD = db3_ppac_down_U - db3_ppac_down_D;
    }
 
-   if (!db4_ppac_L_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db4_ppac_L_vec.begin(), db4_ppac_L_vec.end(), compare_energy);
-      db4_ppac_L = (*ppac)->GetHighResTimeInNs();
+
+   //------- DB4 Downstream PPAC ------------------
+   if (max_db4_ppac_L) {
+      db4_ppac_L = max_db4_ppac_L->GetHighResTimeInNs();
    }
-   if (!db4_ppac_R_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db4_ppac_R_vec.begin(), db4_ppac_R_vec.end(), compare_energy);
-      db4_ppac_R = (*ppac)->GetHighResTimeInNs();
+   if (max_db4_ppac_R) {
+      db4_ppac_R = max_db4_ppac_R->GetHighResTimeInNs();
    }
    if(db4_ppac_L>0 && db4_ppac_R>0){
       db4_ppac_LR = db4_ppac_L - db4_ppac_R;
    }
-   if (!db4_ppac_U_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db4_ppac_U_vec.begin(), db4_ppac_U_vec.end(), compare_energy);
-      db4_ppac_U = (*ppac)->GetHighResTimeInNs();
+   if (max_db4_ppac_U) {
+      db4_ppac_U = max_db4_ppac_U->GetHighResTimeInNs();
    }
-   if (!db4_ppac_D_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db4_ppac_D_vec.begin(), db4_ppac_D_vec.end(), compare_energy);
-      db4_ppac_D = (*ppac)->GetHighResTimeInNs();
+   if (max_db4_ppac_D) {
+      db4_ppac_D = max_db4_ppac_D->GetHighResTimeInNs();
    }
    if(db4_ppac_U>0 && db4_ppac_D>0){
       db4_ppac_UD = db4_ppac_U - db4_ppac_D;
    }
 
-   if (!db5_ppac_up_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_up_vec.begin(), db5_ppac_up_vec.end(), compare_energy);
-      db5_ppac_up = (*ppac)->GetHighResTimeInNs();
+
+   //------- DB3 Upstream PPAC ------------------
+   if (max_db5_ppac_up_A) {
+      db5_ppac_up = max_db5_ppac_up_A->GetHighResTimeInNs();
    }
-   if (!db5_ppac_up_L_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_up_L_vec.begin(), db5_ppac_up_L_vec.end(), compare_energy);
-      db5_ppac_up_L = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_up_L) {
+      db5_ppac_up_L = max_db5_ppac_up_L->GetHighResTimeInNs();
    }
-   if (!db5_ppac_up_R_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_up_R_vec.begin(), db5_ppac_up_R_vec.end(), compare_energy);
-      db5_ppac_up_R = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_up_R) {
+      db5_ppac_up_R = max_db5_ppac_up_R->GetHighResTimeInNs();
    }
    if(db5_ppac_up_L>0 && db5_ppac_up_R>0){
       db5_ppac_up_LR = db5_ppac_up_L - db5_ppac_up_R;
    }
-   if (!db5_ppac_up_U_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_up_U_vec.begin(), db5_ppac_up_U_vec.end(), compare_energy);
-      db5_ppac_up_U = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_up_U) {
+      db5_ppac_up_U = max_db5_ppac_up_U->GetHighResTimeInNs();
    }
-   if (!db5_ppac_up_D_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_up_D_vec.begin(), db5_ppac_up_D_vec.end(), compare_energy);
-      db5_ppac_up_D = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_up_D) {
+      db5_ppac_up_D = max_db5_ppac_up_D->GetHighResTimeInNs();
    }
    if(db5_ppac_up_U>0 && db5_ppac_up_D>0){
       db5_ppac_up_UD = db5_ppac_up_U - db5_ppac_up_D;
    }
-   if (!db5_ppac_down_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_down_vec.begin(), db5_ppac_down_vec.end(), compare_energy);
-      db5_ppac_down = (*ppac)->GetHighResTimeInNs();
+
+
+
+   //------- DB3 Downstream PPAC ------------------
+   if (max_db5_ppac_down_A) {
+      db5_ppac_down = max_db5_ppac_down_A->GetHighResTimeInNs();
    }
-   if (!db5_ppac_down_L_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_down_L_vec.begin(), db5_ppac_down_L_vec.end(), compare_energy);
-      db5_ppac_down_L = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_down_L) {
+      db5_ppac_down_L = max_db5_ppac_down_L->GetHighResTimeInNs();
    }
-   if (!db5_ppac_down_R_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_down_R_vec.begin(), db5_ppac_down_R_vec.end(), compare_energy);
-      db5_ppac_down_R = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_down_R) {
+      db5_ppac_down_R = max_db5_ppac_down_R->GetHighResTimeInNs();
    }
    if(db5_ppac_down_L>0 && db5_ppac_down_R>0){
       db5_ppac_down_LR = db5_ppac_down_L - db5_ppac_down_R;
    }
-   if (!db5_ppac_down_U_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_down_U_vec.begin(), db5_ppac_down_U_vec.end(), compare_energy);
-      db5_ppac_down_U = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_down_U) {
+      db5_ppac_down_U = max_db5_ppac_down_U->GetHighResTimeInNs();
    }
-   if (!db5_ppac_down_D_vec.empty()) {
-      // Get elements with the largest energy in this event for dispL
-      auto ppac = std::max_element(db5_ppac_down_D_vec.begin(), db5_ppac_down_D_vec.end(), compare_energy);
-      db5_ppac_down_D = (*ppac)->GetHighResTimeInNs();
+   if (max_db5_ppac_down_D) {
+      db5_ppac_down_D = max_db5_ppac_down_D->GetHighResTimeInNs();
    }
    if(db5_ppac_down_U>0 && db5_ppac_down_D>0){
       db5_ppac_down_UD = db5_ppac_down_U - db5_ppac_down_D;
    }
+
+
 
    //! TOF 0 group (db3 ppac downstream to cross plastic)
    if (db3_ppac_down>0 && cross_scint_t1_time>0) {
@@ -731,10 +701,10 @@ bool PidProcessor::PreProcess(RawEvent &event) {
    pid_struct.rit_energy = rit_energy;
 
    // Fill the plots
-   plot(DD_PINS_MULT, 0, cross_pin0_vec.size());
-   plot(DD_PINS_MULT, 1, cross_pin1_vec.size());
-   plot(DD_PINS_MULT, 2, cross_pin2_vec.size());
-   plot(DD_PINS_MULT, 3, cross_pin3_vec.size());
+   plot(DD_PINS_MULT, 0, event.GetSummary("pid:cross_pin0")->GetMult());
+   plot(DD_PINS_MULT, 1, event.GetSummary("pid:cross_pin1")->GetMult());
+   plot(DD_PINS_MULT, 2, event.GetSummary("pid:cross_pin2")->GetMult());
+   plot(DD_PINS_MULT, 3, event.GetSummary("pid:cross_pin3")->GetMult());
    plot(DD_PIN0_1, pin0_energy, pin1_energy);
    plot(DD_PIN2_3, pin2_energy, pin3_energy);
    plot(DD_PIN0_2, pin0_energy, pin2_energy);
